@@ -55,14 +55,99 @@ export function createTenantClient(orgId: string) {
         },
       },
 
+      // BatteryBrand model - tenant scoped
+      batteryBrand: {
+        async $allOperations({ args, query, operation }) {
+          // Read operations: filter by orgId
+          if (operation === 'findMany' || operation === 'findFirst' || operation === 'count') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Create operations: inject orgId
+          if (operation === 'create') {
+            const data = args.data as Record<string, unknown>;
+            (args as { data: Record<string, unknown> }).data = { ...data, orgId };
+          }
+
+          // Update operations: ensure we're updating our own org's data
+          if (operation === 'update' || operation === 'updateMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Delete operations: ensure we're deleting our own org's data
+          if (operation === 'delete' || operation === 'deleteMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          return query(args);
+        },
+      },
+
+      // BatteryConfig model - tenant scoped
+      batteryConfig: {
+        async $allOperations({ args, query, operation }) {
+          // Read operations: filter by orgId
+          if (operation === 'findMany' || operation === 'findFirst' || operation === 'count') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Create operations: inject orgId
+          if (operation === 'create') {
+            const data = args.data as Record<string, unknown>;
+            (args as { data: Record<string, unknown> }).data = { ...data, orgId };
+          }
+
+          // Update operations: ensure we're updating our own org's data
+          if (operation === 'update' || operation === 'updateMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Delete operations: ensure we're deleting our own org's data
+          if (operation === 'delete' || operation === 'deleteMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          return query(args);
+        },
+      },
+
+      // Natagare model - tenant scoped
+      natagare: {
+        async $allOperations({ args, query, operation }) {
+          // Read operations: filter by orgId
+          if (operation === 'findMany' || operation === 'findFirst' || operation === 'count') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Create operations: inject orgId
+          if (operation === 'create') {
+            const data = args.data as Record<string, unknown>;
+            (args as { data: Record<string, unknown> }).data = { ...data, orgId };
+          }
+
+          // Update operations: ensure we're updating our own org's data
+          if (operation === 'update' || operation === 'updateMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Delete operations: ensure we're deleting our own org's data
+          if (operation === 'delete' || operation === 'deleteMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          return query(args);
+        },
+      },
+
       // NOTE: Add more models here as they're created in later phases
-      // Each tenant-scoped model (Calculation, Battery, etc.) should follow
+      // Each tenant-scoped model (Calculation, etc.) should follow
       // the same pattern above.
       //
-      // Models that are NOT tenant-scoped:
+      // Models that are NOT tenant-scoped (use global prisma client instead):
       // - Organization (admin-only)
       // - VerificationToken (system)
-      // - Global reference data (Natägare, ElectricityPrice)
+      // - ElectricityPrice (global reference data)
+      // - ElectricityPriceQuarterly (global reference data)
     },
   });
 }
