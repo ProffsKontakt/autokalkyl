@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 2 Complete - Ready for Phase 3
+**Current focus:** Phase 3 - Calculator Engine (Plan 1 of 5 complete)
 
 ## Current Position
 
-Phase: 2 of 5 (Reference Data) - COMPLETE
-Plan: 4 of 4 in current phase
-Status: Phase complete, verified
-Last activity: 2026-01-19 - Phase 2 verification passed (5/5 success criteria)
+Phase: 3 of 5 (Calculator Engine)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-01-19 - Completed 03-01-PLAN.md (Schema + Calculation Engine)
 
-Progress: [████████████████████] 100% (12/12 plans through Phase 2)
+Progress: [█████████████░░░░░░░] 65% (13/20 plans through Phase 3 Plan 1)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 3.1 min
-- Total execution time: ~37 min
+- Total plans completed: 13
+- Average duration: 3.0 min
+- Total execution time: ~41 min
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [████████████████████] 100% (1
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
+| 03-calculator-engine | 1/5 | 4 min | 4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2m), 02-02 (5m), 02-03 (4m), 02-04 (4m)
+- Last 5 plans: 02-02 (5m), 02-03 (4m), 02-04 (4m), 03-01 (4m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -82,6 +83,10 @@ Recent decisions affecting current work:
 - [02-02]: Type cast tenant client create data for $extends TypeScript compatibility
 - [02-02]: Decimal fields serialized to numbers in server actions for JSON-safe client transport
 - [02-02]: Battery form sections grouped by category (basic, power, efficiency, warranty, pricing)
+- [03-01]: Calculation/CalculationBattery models store consumptionProfile and results as Json
+- [03-01]: decimal.js configured with precision: 20, rounding: ROUND_HALF_UP
+- [03-01]: Formulas separated from engine for testability
+- [03-01]: Elomrade lookup uses static postal code ranges (no reliable API)
 
 ### Pending Todos
 
@@ -95,12 +100,14 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 18:00
-Stopped at: Phase 2 complete - all requirements verified
+Last session: 2026-01-19 21:37
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
 
 ## Next Steps
 
-Ready for Phase 3: Calculator Engine
-- `/gsd:discuss-phase 3` — gather context and clarify approach
-- `/gsd:plan-phase 3` — skip discussion, plan directly
+Continue Phase 3: Calculator Engine
+- Execute 03-02-PLAN.md (Wizard state and auto-save)
+- Execute 03-03-PLAN.md (Consumption simulator)
+- Execute 03-04-PLAN.md (Results and comparison)
+- Execute 03-05-PLAN.md (PDF export)
