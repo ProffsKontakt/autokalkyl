@@ -52,12 +52,13 @@ Plans:
   3. System stores historical electricity prices per elomrade (SE1-SE4)
   4. Closer sees quarterly average electricity prices when creating calculations
   5. Battery configs and natagare are scoped to organization (cannot see other orgs' data)
-**Plans**: TBD (3-4 expected)
+**Plans**: 4 plans in 2 waves
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
-- [ ] 02-03: TBD
+- [ ] 02-01-PLAN.md - Schema, permissions, and tenant scoping foundation
+- [ ] 02-02-PLAN.md - Battery brand and configuration CRUD
+- [ ] 02-03-PLAN.md - Natagare CRUD with default seeding
+- [ ] 02-04-PLAN.md - Electricity pricing storage and display
 
 ### Phase 3: Calculator Engine
 **Goal**: Closers can build complete battery ROI calculations with accurate Swedish market logic
@@ -114,12 +115,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 8/8 | ✓ Complete | 2026-01-19 |
-| 2. Reference Data | 0/3 | Not started | - |
+| 1. Foundation | 8/8 | Complete | 2026-01-19 |
+| 2. Reference Data | 0/4 | Planned | - |
 | 3. Calculator Engine | 0/4 | Not started | - |
 | 4. Customer Experience | 0/3 | Not started | - |
 | 5. Operations | 0/3 | Not started | - |
