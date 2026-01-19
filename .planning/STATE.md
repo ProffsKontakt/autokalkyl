@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 4 of 8 in current phase
+Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-19 - Completed 01-04-PLAN.md (Organization Management)
+Last activity: 2026-01-19 - Completed 01-05-PLAN.md (User Management)
 
-Progress: [████░░░░░░] 50% (4/8 plans)
+Progress: [█████░░░░░] 62.5% (5/8 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 4 min
-- Total execution time: 16 min
+- Total execution time: 20 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 4/8 | 16 min | 4 min |
+| 01-foundation | 5/8 | 20 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (6m), 01-02 (3m), 01-03 (2m), 01-04 (5m)
+- Last 5 plans: 01-01 (6m), 01-02 (3m), 01-03 (2m), 01-04 (5m), 01-05 (4m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - [01-04]: Zod v4 uses issues array not errors array for validation errors
 - [01-04]: Server action RBAC pattern: auth() -> hasPermission() -> action
 - [01-04]: Admin layout pattern: redirect non-Super Admin to /dashboard
+- [01-05]: Tenant scoping: Org Admin uses createTenantClient(), Super Admin uses global prisma
+- [01-05]: Dashboard route group: (dashboard) with shared layout and auth check
+- [01-05]: Optional password field pattern for admin password reset (AUTH-04)
 
 ### Pending Todos
 
@@ -66,6 +69,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 13:00
-Stopped at: Completed 01-04-PLAN.md (Organization Management)
+Last session: 2026-01-19 13:06
+Stopped at: Completed 01-05-PLAN.md (User Management)
 Resume file: None
