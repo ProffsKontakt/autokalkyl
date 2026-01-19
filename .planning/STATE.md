@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 Phase: 1 of 5 (Foundation)
 Plan: 7 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-19 - Completed 01-07-PLAN.md (Organization Settings)
+Last activity: 2026-01-19 - Completed 01-06-PLAN.md (Password Reset Flow)
 
 Progress: [███████░░░] 87.5% (7/8 plans)
 
@@ -30,7 +30,7 @@ Progress: [███████░░░] 87.5% (7/8 plans)
 | 01-foundation | 7/8 | 24 min | 3.4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (2m), 01-04 (5m), 01-05 (4m), 01-06 (skipped), 01-07 (2m)
+- Last 5 plans: 01-03 (2m), 01-04 (5m), 01-05 (4m), 01-07 (2m), 01-06 (4m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -60,6 +60,9 @@ Recent decisions affecting current work:
 - [01-07]: Org Admin only access to settings - Super Admin uses admin panel, Closers redirected
 - [01-07]: Branding form separate from org creation - Org Admin cannot change affiliation status
 - [01-07]: Color preview in form for instant feedback using watch() from react-hook-form
+- [01-06]: Dev mode logs reset links to console when N8N_WEBHOOK_URL not configured
+- [01-06]: Email enumeration prevention - always return success on password reset request
+- [01-06]: Token expiration set to 1 hour, single-use enforcement
 
 ### Pending Todos
 
@@ -72,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 13:10
-Stopped at: Completed 01-07-PLAN.md (Organization Settings)
+Last session: 2026-01-19 13:15
+Stopped at: Completed 01-06-PLAN.md (Password Reset Flow)
 Resume file: None
