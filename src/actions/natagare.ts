@@ -54,6 +54,7 @@ export async function createNatagare(data: NatagareFormData) {
       return { error: 'En natagare med detta namn finns redan' };
     }
 
+    // Explicitly include orgId for TypeScript - tenant client will override at runtime
     const natagare = await tenantDb.natagare.create({
       data: {
         name: parsed.data.name,
@@ -61,6 +62,7 @@ export async function createNatagare(data: NatagareFormData) {
         nightRateSekKw: parsed.data.nightRateSekKw,
         dayStartHour: parsed.data.dayStartHour,
         dayEndHour: parsed.data.dayEndHour,
+        orgId: orgId,
         isDefault: false,
         isActive: true,
       },

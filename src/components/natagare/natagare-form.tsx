@@ -129,7 +129,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
             type="number"
             step="0.01"
             min="0"
-            {...register('dayRateSekKw')}
+            {...register('dayRateSekKw', { valueAsNumber: true })}
             placeholder="T.ex. 81.25"
           />
           {errors.dayRateSekKw && (
@@ -144,7 +144,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
             type="number"
             step="0.01"
             min="0"
-            {...register('nightRateSekKw')}
+            {...register('nightRateSekKw', { valueAsNumber: true })}
             placeholder="T.ex. 40.63"
           />
           {errors.nightRateSekKw && (
@@ -159,7 +159,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
           <select
             id="dayStartHour"
             className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            {...register('dayStartHour')}
+            {...register('dayStartHour', { valueAsNumber: true })}
           >
             {hourOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -177,7 +177,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
           <select
             id="dayEndHour"
             className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            {...register('dayEndHour')}
+            {...register('dayEndHour', { valueAsNumber: true })}
           >
             {hourOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>

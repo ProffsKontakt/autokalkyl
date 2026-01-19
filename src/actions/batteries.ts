@@ -61,12 +61,13 @@ export async function createBatteryBrand(data: BatteryBrandFormData) {
   try {
     const tenantDb = createTenantClient(session.user.orgId);
 
-    // Tenant client auto-injects orgId at runtime via $extends
+    // Explicitly include orgId for TypeScript - tenant client will override at runtime
     const brand = await tenantDb.batteryBrand.create({
       data: {
         name: parsed.data.name,
         logoUrl: parsed.data.logoUrl || null,
-      } as Parameters<typeof tenantDb.batteryBrand.create>[0]['data'],
+        orgId: session.user.orgId,
+      },
     });
 
     revalidatePath('/dashboard/batteries');
@@ -264,11 +265,12 @@ export async function createBatteryConfig(data: BatteryConfigFormData) {
       return { error: 'Varumarket hittades inte' };
     }
 
-    // Tenant client auto-injects orgId at runtime via $extends
+    // Explicitly include orgId for TypeScript - tenant client will override at runtime
     const config = await tenantDb.batteryConfig.create({
       data: {
         name: parsed.data.name,
         brandId: parsed.data.brandId,
+        orgId: session.user.orgId,
         capacityKwh: parsed.data.capacityKwh,
         maxDischargeKw: parsed.data.maxDischargeKw,
         maxChargeKw: parsed.data.maxChargeKw,
@@ -280,7 +282,7 @@ export async function createBatteryConfig(data: BatteryConfigFormData) {
         costPrice: parsed.data.costPrice,
         isExtensionCabinet: parsed.data.isExtensionCabinet,
         isNewStack: parsed.data.isNewStack,
-      } as Parameters<typeof tenantDb.batteryConfig.create>[0]['data'],
+      },
     });
 
     revalidatePath('/dashboard/batteries');
