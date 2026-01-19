@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 1 Complete - Ready for Phase 2
+**Current focus:** Phase 2 - Reference Data (in progress)
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation) - COMPLETE
-Plan: 8 of 8 in current phase
-Status: Phase complete, verified
-Last activity: 2026-01-19 - Phase 1 verification passed (AUTH-PASS, ORG-PASS, USER-PASS)
+Phase: 2 of 5 (Reference Data)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-19 - Completed 02-01-PLAN.md (database schema and permissions)
 
-Progress: [██████████] 100% (8/8 plans)
+Progress: [██████████░░] 75% (9/12 plans through Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 3.2 min
-- Total execution time: ~26 min
+- Total plans completed: 9
+- Average duration: 3.1 min
+- Total execution time: ~28 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
+| 02-reference-data | 1/4 | 2 min | 2.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (5m), 01-05 (4m), 01-06 (4m), 01-07 (2m), 01-08 (manual)
-- Trend: Stable
+- Last 5 plans: 01-05 (4m), 01-06 (4m), 01-07 (2m), 01-08 (manual), 02-01 (2m)
+- Trend: Stable/Improving
 
 *Updated after each plan completion*
 
@@ -64,8 +65,12 @@ Recent decisions affecting current work:
 - [01-06]: Dev mode logs reset links to console when N8N_WEBHOOK_URL not configured
 - [01-06]: Email enumeration prevention - always return success on password reset request
 - [01-06]: Token expiration set to 1 hour, single-use enforcement
-- [01-08]: ProffsKontakt margin model changed: partnerCutPercent → installerFixedCut (fixed SEK amount)
+- [01-08]: ProffsKontakt margin model changed: partnerCutPercent -> installerFixedCut (fixed SEK amount)
 - [01-08]: Margin calculation: Sale Price (ex VAT) - Battery Cost - Installer Fixed Cut = ProffsKontakt Margin
+- [02-01]: Elomrade enum with SE1-SE4 values stored directly in database
+- [02-01]: ElectricityPrice/Quarterly models are global (not tenant-scoped) - shared reference data
+- [02-01]: Natagare day/night rate precision at 4 decimal places (Decimal 10,4)
+- [02-01]: Battery specs use Decimal types consistently to avoid floating point issues
 
 ### Pending Todos
 
@@ -75,15 +80,17 @@ None yet.
 
 - Research suggests effekttariff rules vary by natagare - need to verify rules for initial launch markets during Phase 2 planning
 - Nord Pool API access terms unknown - may need fallback to manual entry or third-party provider
+- Database schema needs `npx prisma db push` when network access to Neon is available
 
 ## Session Continuity
 
-Last session: 2026-01-19 16:30
-Stopped at: Phase 1 complete - all requirements verified
+Last session: 2026-01-19 17:01
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
 
 ## Next Steps
 
-Ready for Phase 2: Reference Data
-- `/gsd:discuss-phase 2` — gather context and clarify approach
-- `/gsd:plan-phase 2` — skip discussion, plan directly
+Continue Phase 2: Reference Data
+- Execute 02-02-PLAN.md (Battery Management CRUD)
+- Execute 02-03-PLAN.md (Natagare Management CRUD)
+- Execute 02-04-PLAN.md (Electricity Pricing)
