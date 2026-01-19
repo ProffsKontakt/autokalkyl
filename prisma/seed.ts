@@ -62,8 +62,131 @@ async function seedDefaultNatagareForOrg(orgId: string) {
   console.log(`  Created ${DEFAULT_NATAGARE.length} default natagare`);
 }
 
+/**
+ * Seed quarterly electricity price averages for all zones.
+ * Uses realistic Swedish spot prices for current quarter.
+ */
+async function seedQuarterlyElectricityPrices() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const quarter = Math.floor(now.getMonth() / 3) + 1;
+
+  // Realistic Swedish electricity prices (öre/kWh)
+  // SE3/SE4 typically higher than SE1/SE2 due to transmission constraints
+  const QUARTERLY_PRICES = [
+    { elomrade: 'SE1', avgDayPriceOre: 45.50, avgNightPriceOre: 32.00, avgPriceOre: 40.00 },
+    { elomrade: 'SE2', avgDayPriceOre: 48.00, avgNightPriceOre: 34.50, avgPriceOre: 42.50 },
+    { elomrade: 'SE3', avgDayPriceOre: 85.00, avgNightPriceOre: 52.00, avgPriceOre: 72.00 },
+    { elomrade: 'SE4', avgDayPriceOre: 92.00, avgNightPriceOre: 58.00, avgPriceOre: 78.00 },
+  ];
+
+  console.log(`Seeding quarterly electricity prices for Q${quarter} ${year}...`);
+
+  for (const price of QUARTERLY_PRICES) {
+    await prisma.electricityPriceQuarterly.upsert({
+      where: {
+        elomrade_year_quarter: {
+          elomrade: price.elomrade as 'SE1' | 'SE2' | 'SE3' | 'SE4',
+          year,
+          quarter,
+        },
+      },
+      update: {
+        avgDayPriceOre: price.avgDayPriceOre,
+        avgNightPriceOre: price.avgNightPriceOre,
+        avgPriceOre: price.avgPriceOre,
+      },
+      create: {
+        elomrade: price.elomrade as 'SE1' | 'SE2' | 'SE3' | 'SE4',
+        year,
+        quarter,
+        avgDayPriceOre: price.avgDayPriceOre,
+        avgNightPriceOre: price.avgNightPriceOre,
+        avgPriceOre: price.avgPriceOre,
+      },
+    });
+  }
+
+  console.log(`  Created quarterly prices for ${QUARTERLY_PRICES.length} zones`);
+}
+
+/**
+ * Seed battery brands and configurations for an organization.
+ */
+async function seedBatteriesForOrg(orgId: string) {
+  console.log(`  Seeding batteries for org: ${orgId}`);
+
+  // Create Emaldo brand
+  const emaldo = await prisma.batteryBrand.upsert({
+    where: { orgId_name: { orgId, name: 'Emaldo' } },
+    update: {},
+    create: {
+      orgId,
+      name: 'Emaldo',
+    },
+  });
+
+  // Create battery configurations
+  const BATTERY_CONFIGS = [
+    {
+      name: 'Power Store 5',
+      capacityKwh: 5.12,
+      maxDischargeKw: 5.0,
+      maxChargeKw: 5.0,
+      chargeEfficiency: 0.95,
+      dischargeEfficiency: 0.95,
+      warrantyYears: 10,
+      guaranteedCycles: 6000,
+      degradationPerYear: 0.02,
+      costPrice: 35000,
+    },
+    {
+      name: 'Power Store 10',
+      capacityKwh: 10.24,
+      maxDischargeKw: 10.0,
+      maxChargeKw: 10.0,
+      chargeEfficiency: 0.95,
+      dischargeEfficiency: 0.95,
+      warrantyYears: 10,
+      guaranteedCycles: 6000,
+      degradationPerYear: 0.02,
+      costPrice: 65000,
+    },
+    {
+      name: 'Power Store 15',
+      capacityKwh: 15.36,
+      maxDischargeKw: 15.0,
+      maxChargeKw: 15.0,
+      chargeEfficiency: 0.95,
+      dischargeEfficiency: 0.95,
+      warrantyYears: 10,
+      guaranteedCycles: 6000,
+      degradationPerYear: 0.02,
+      costPrice: 90000,
+    },
+  ];
+
+  for (const config of BATTERY_CONFIGS) {
+    await prisma.batteryConfig.upsert({
+      where: { orgId_brandId_name: { orgId, brandId: emaldo.id, name: config.name } },
+      update: {},
+      create: {
+        orgId,
+        brandId: emaldo.id,
+        ...config,
+        isActive: true,
+      },
+    });
+  }
+
+  console.log(`  Created ${BATTERY_CONFIGS.length} battery configurations`);
+}
+
 async function main() {
   console.log('Seeding database...');
+
+  // Seed global electricity prices first
+  await seedQuarterlyElectricityPrices();
 
   // Create Super Admin
   const superAdminPassword = await bcrypt.hash('superadmin123', 12);
@@ -96,6 +219,9 @@ async function main() {
 
   // Seed default natagare for test org
   await seedDefaultNatagareForOrg(testOrg.id);
+
+  // Seed batteries for test org
+  await seedBatteriesForOrg(testOrg.id);
 
   // Create Org Admin for test org
   const orgAdminPassword = await bcrypt.hash('orgadmin123', 12);
@@ -147,6 +273,9 @@ async function main() {
 
   // Seed default natagare for ProffsKontakt org
   await seedDefaultNatagareForOrg(proffsOrg.id);
+
+  // Seed batteries for ProffsKontakt org
+  await seedBatteriesForOrg(proffsOrg.id);
 
   console.log('Seeding complete!');
   console.log('');
