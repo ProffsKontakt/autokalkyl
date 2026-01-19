@@ -139,15 +139,73 @@ export function createTenantClient(orgId: string) {
         },
       },
 
-      // NOTE: Add more models here as they're created in later phases
-      // Each tenant-scoped model (Calculation, etc.) should follow
-      // the same pattern above.
-      //
-      // Models that are NOT tenant-scoped (use global prisma client instead):
+      // Calculation model - tenant scoped
+      calculation: {
+        async $allOperations({ args, query, operation }) {
+          // Read operations: filter by orgId
+          if (operation === 'findMany' || operation === 'findFirst' || operation === 'count') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // findUnique needs special handling - verify after query
+          if (operation === 'findUnique') {
+            const result = await query(args);
+            // Verify result belongs to this org
+            if (result && (result as { orgId: string }).orgId !== orgId) {
+              return null;
+            }
+            return result;
+          }
+
+          // Create operations: inject orgId
+          if (operation === 'create') {
+            const data = args.data as Record<string, unknown>;
+            (args as { data: Record<string, unknown> }).data = { ...data, orgId };
+          }
+
+          // Update operations: verify ownership first
+          if (operation === 'update') {
+            // For update, we need to verify the record belongs to this org
+            const existing = await prisma.calculation.findUnique({
+              where: (args.where as { id: string }),
+              select: { orgId: true },
+            });
+            if (!existing || existing.orgId !== orgId) {
+              throw new Error('Not authorized');
+            }
+          }
+
+          // UpdateMany: add orgId filter
+          if (operation === 'updateMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          // Delete operations: verify ownership first
+          if (operation === 'delete') {
+            const existing = await prisma.calculation.findUnique({
+              where: (args.where as { id: string }),
+              select: { orgId: true },
+            });
+            if (!existing || existing.orgId !== orgId) {
+              throw new Error('Not authorized');
+            }
+          }
+
+          // DeleteMany: add orgId filter
+          if (operation === 'deleteMany') {
+            args.where = { ...args.where, orgId };
+          }
+
+          return query(args);
+        },
+      },
+
+      // NOTE: Models that are NOT tenant-scoped (use global prisma client instead):
       // - Organization (admin-only)
       // - VerificationToken (system)
       // - ElectricityPrice (global reference data)
       // - ElectricityPriceQuarterly (global reference data)
+      // - CalculationBattery (accessed through Calculation relation)
     },
   });
 }
