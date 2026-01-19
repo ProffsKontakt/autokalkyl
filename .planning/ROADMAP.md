@@ -70,13 +70,14 @@ Plans:
   3. Closer can select battery and input pricing (total price, installation cost)
   4. System accurately calculates: spotpris savings, effect tariff savings, grid services income, Gron Teknik deduction, margin, payback period, 10-year ROI, 15-year ROI
   5. Closer can save, edit, and view their calculations
-**Plans**: TBD (4-5 expected)
+**Plans**: 5 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
-- [ ] 03-04: TBD
+- [ ] 03-01-PLAN.md — Database schema and core calculation engine with decimal.js
+- [ ] 03-02-PLAN.md — Wizard state management with Zustand and auto-save
+- [ ] 03-03-PLAN.md — Customer info step and consumption simulator with Recharts
+- [ ] 03-04-PLAN.md — Battery selection and results display with charts
+- [ ] 03-05-PLAN.md — Calculation list, PDF export, and end-to-end verification
 
 ### Phase 4: Customer Experience
 **Goal**: Prospects can view branded, interactive ROI calculations via shareable links
@@ -119,9 +120,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 8/8 | ✓ Complete | 2026-01-19 |
-| 2. Reference Data | 4/4 | ✓ Complete | 2026-01-19 |
-| 3. Calculator Engine | 0/4 | Not started | - |
+| 1. Foundation | 8/8 | Complete | 2026-01-19 |
+| 2. Reference Data | 4/4 | Complete | 2026-01-19 |
+| 3. Calculator Engine | 0/5 | Planned | - |
 | 4. Customer Experience | 0/3 | Not started | - |
 | 5. Operations | 0/3 | Not started | - |
 
