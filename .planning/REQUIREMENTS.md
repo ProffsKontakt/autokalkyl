@@ -34,30 +34,30 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **USER-04**: Admin can deactivate users
 - [x] **USER-05**: Users are scoped to their organization (except Super Admin)
 
-### Battery Configuration
+### Battery Configuration ✓
 
-- [ ] **BATT-01**: Org Admin can create battery brands
-- [ ] **BATT-02**: Org Admin can create battery configurations per brand
-- [ ] **BATT-03**: Battery config includes: capacity (kWh), max charge/discharge (kW), efficiencies, warranty years, guaranteed cycles, degradation rate, cost price
-- [ ] **BATT-04**: Battery config supports extension cabinet and new stack flags
-- [ ] **BATT-05**: Org Admin can edit and delete battery configs
-- [ ] **BATT-06**: Battery configs are scoped to organization
+- [x] **BATT-01**: Org Admin can create battery brands
+- [x] **BATT-02**: Org Admin can create battery configurations per brand
+- [x] **BATT-03**: Battery config includes: capacity (kWh), max charge/discharge (kW), efficiencies, warranty years, guaranteed cycles, degradation rate, cost price
+- [x] **BATT-04**: Battery config supports extension cabinet and new stack flags
+- [x] **BATT-05**: Org Admin can edit and delete battery configs
+- [x] **BATT-06**: Battery configs are scoped to organization
 
-### Natagare (Grid Operators)
+### Natagare (Grid Operators) ✓
 
-- [ ] **NATA-01**: Org Admin can create natagare records
-- [ ] **NATA-02**: Natagare includes: name, day rate (SEK/kW), night rate (SEK/kW), day start/end hours
-- [ ] **NATA-03**: Org Admin can edit and delete natagare records
-- [ ] **NATA-04**: Natagare are scoped to organization
-- [ ] **NATA-05**: System supports common natagare (Ellevio, Vattenfall, etc.) with default rates
+- [x] **NATA-01**: Org Admin can create natagare records
+- [x] **NATA-02**: Natagare includes: name, day rate (SEK/kW), night rate (SEK/kW), day start/end hours
+- [x] **NATA-03**: Org Admin can edit and delete natagare records
+- [x] **NATA-04**: Natagare are scoped to organization
+- [x] **NATA-05**: System supports common natagare (Ellevio, Vattenfall, etc.) with default rates
 
-### Electricity Pricing
+### Electricity Pricing ✓
 
-- [ ] **ELEC-01**: System stores electricity prices per elomrade (SE1-SE4)
-- [ ] **ELEC-02**: Prices stored with date and hour granularity
-- [ ] **ELEC-03**: System can fetch prices from Nord Pool API (or manual entry fallback)
-- [ ] **ELEC-04**: Closer sees quarterly average prices when creating calculation
-- [ ] **ELEC-05**: Calculation uses historical prices for accurate ROI
+- [x] **ELEC-01**: System stores electricity prices per elomrade (SE1-SE4)
+- [x] **ELEC-02**: Prices stored with date and hour granularity
+- [x] **ELEC-03**: System can fetch prices from Nord Pool API (or manual entry fallback)
+- [x] **ELEC-04**: Closer sees quarterly average prices when creating calculation
+- [x] **ELEC-05**: Calculation uses historical prices for accurate ROI
 
 ### Calculation Builder
 
@@ -196,22 +196,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | USER-03 | Phase 1 | Complete |
 | USER-04 | Phase 1 | Complete |
 | USER-05 | Phase 1 | Complete |
-| BATT-01 | Phase 2 | Pending |
-| BATT-02 | Phase 2 | Pending |
-| BATT-03 | Phase 2 | Pending |
-| BATT-04 | Phase 2 | Pending |
-| BATT-05 | Phase 2 | Pending |
-| BATT-06 | Phase 2 | Pending |
-| NATA-01 | Phase 2 | Pending |
-| NATA-02 | Phase 2 | Pending |
-| NATA-03 | Phase 2 | Pending |
-| NATA-04 | Phase 2 | Pending |
-| NATA-05 | Phase 2 | Pending |
-| ELEC-01 | Phase 2 | Pending |
-| ELEC-02 | Phase 2 | Pending |
-| ELEC-03 | Phase 2 | Pending |
-| ELEC-04 | Phase 2 | Pending |
-| ELEC-05 | Phase 2 | Pending |
+| BATT-01 | Phase 2 | Complete |
+| BATT-02 | Phase 2 | Complete |
+| BATT-03 | Phase 2 | Complete |
+| BATT-04 | Phase 2 | Complete |
+| BATT-05 | Phase 2 | Complete |
+| BATT-06 | Phase 2 | Complete |
+| NATA-01 | Phase 2 | Complete |
+| NATA-02 | Phase 2 | Complete |
+| NATA-03 | Phase 2 | Complete |
+| NATA-04 | Phase 2 | Complete |
+| NATA-05 | Phase 2 | Complete |
+| ELEC-01 | Phase 2 | Complete |
+| ELEC-02 | Phase 2 | Complete |
+| ELEC-03 | Phase 2 | Complete |
+| ELEC-04 | Phase 2 | Complete |
+| ELEC-05 | Phase 2 | Complete |
 | CALC-01 | Phase 3 | Pending |
 | CALC-02 | Phase 3 | Pending |
 | CALC-03 | Phase 3 | Pending |

@@ -13,7 +13,7 @@ This roadmap delivers a multi-tenant battery ROI calculator SaaS in 5 phases. We
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Authentication, organizations, and user management
-- [ ] **Phase 2: Reference Data** - Batteries, grid operators, and electricity pricing
+- [x] **Phase 2: Reference Data** - Batteries, grid operators, and electricity pricing
 - [ ] **Phase 3: Calculator Engine** - Calculation builder and ROI logic
 - [ ] **Phase 4: Customer Experience** - Shareable public view with interactive simulator
 - [ ] **Phase 5: Operations** - Margin alerts, analytics, and admin dashboards
@@ -52,13 +52,13 @@ Plans:
   3. System stores historical electricity prices per elomrade (SE1-SE4)
   4. Closer sees quarterly average electricity prices when creating calculations
   5. Battery configs and natagare are scoped to organization (cannot see other orgs' data)
-**Plans**: 4 plans in 2 waves
+**Plans**: 4 plans executed
 
 Plans:
-- [ ] 02-01-PLAN.md - Schema, permissions, and tenant scoping foundation
-- [ ] 02-02-PLAN.md - Battery brand and configuration CRUD
-- [ ] 02-03-PLAN.md - Natagare CRUD with default seeding
-- [ ] 02-04-PLAN.md - Electricity pricing storage and display
+- [x] 02-01: Schema, permissions, and tenant scoping foundation
+- [x] 02-02: Battery brand and configuration CRUD
+- [x] 02-03: Natagare CRUD with default seeding
+- [x] 02-04: Electricity pricing storage and display
 
 ### Phase 3: Calculator Engine
 **Goal**: Closers can build complete battery ROI calculations with accurate Swedish market logic
@@ -119,8 +119,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 8/8 | Complete | 2026-01-19 |
-| 2. Reference Data | 0/4 | Planned | - |
+| 1. Foundation | 8/8 | ✓ Complete | 2026-01-19 |
+| 2. Reference Data | 4/4 | ✓ Complete | 2026-01-19 |
 | 3. Calculator Engine | 0/4 | Not started | - |
 | 4. Customer Experience | 0/3 | Not started | - |
 | 5. Operations | 0/3 | Not started | - |
