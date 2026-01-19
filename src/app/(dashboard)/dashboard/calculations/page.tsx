@@ -3,8 +3,7 @@ import { auth } from '@/lib/auth/auth'
 import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions'
 import { listCalculations } from '@/actions/calculations'
 import { CalculationList } from '@/components/calculations/calculation-list'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { NewCalculationButton } from '@/components/calculations/new-calculation-button'
 
 export const metadata = {
   title: 'Kalkyler - Kalkyla.se',
@@ -41,9 +40,7 @@ export default async function CalculationsPage() {
             {activeCalculations.length} aktiva kalkyler
           </p>
         </div>
-        <Link href="/dashboard/calculations/new">
-          <Button>Ny kalkyl</Button>
-        </Link>
+        <NewCalculationButton />
       </div>
 
       <CalculationList
