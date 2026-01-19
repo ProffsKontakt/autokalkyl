@@ -27,6 +27,12 @@ enum Elomrade {
   SE4 // Southern Sweden (Malmo)
 }
 
+enum CalculationStatus {
+  DRAFT     // Auto-saved draft, not complete
+  COMPLETE  // Finalized calculation
+  ARCHIVED  // Soft-deleted
+}
+
 // =============================================================================
 // ORGANIZATION (Tenant)
 // =============================================================================
@@ -54,6 +60,7 @@ model Organization {
   batteryBrands  BatteryBrand[]
   batteryConfigs BatteryConfig[]
   natagare       Natagare[]
+  calculations   Calculation[]
 
   @@index([slug])
 }
@@ -197,8 +204,9 @@ model BatteryConfig {
   updatedAt DateTime @updatedAt
 
   // Relations
-  brand        BatteryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  brand               BatteryBrand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  organization        Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  calculationBatteries CalculationBattery[]
 
   @@unique([orgId, brandId, name]) // No duplicate config names per brand per org
   @@index([orgId])
@@ -230,6 +238,7 @@ model Natagare {
 
   // Relations
   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  calculations Calculation[]
 
   @@unique([orgId, name]) // No duplicate natagare names per org
   @@index([orgId])
@@ -269,4 +278,67 @@ model ElectricityPriceQuarterly {
 
   @@unique([elomrade, year, quarter])
   @@index([elomrade])
+}
+
+// =============================================================================
+// CALCULATION (Tenant-scoped)
+// =============================================================================
+
+model Calculation {
+  id        String            @id @default(cuid())
+  orgId     String
+  createdBy String            // User ID who created
+  status    CalculationStatus @default(DRAFT)
+
+  // Customer Info (Step 1)
+  customerName         String
+  postalCode           String?               // Optional, used for elomrade auto-detect
+  elomrade             Elomrade
+  natagareId           String
+  annualConsumptionKwh Decimal  @db.Decimal(10, 2)
+
+  // Consumption Profile (Step 2)
+  // Stored as JSON: { data: number[][] } where [month][hour]
+  consumptionProfile Json
+
+  // Results (calculated server-side)
+  results Json?
+
+  // Metadata
+  shareCode   String?   @unique // For public sharing (Phase 4)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  finalizedAt DateTime?
+
+  // Relations
+  organization Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  natagare     Natagare             @relation(fields: [natagareId], references: [id])
+  batteries    CalculationBattery[]
+
+  @@index([orgId])
+  @@index([createdBy])
+  @@index([shareCode])
+}
+
+model CalculationBattery {
+  id              String @id @default(cuid())
+  calculationId   String
+  batteryConfigId String
+
+  // Pricing
+  totalPriceExVat  Decimal @db.Decimal(10, 2)
+  installationCost Decimal @db.Decimal(10, 2)
+
+  // Calculated results for this battery
+  results Json?
+
+  // For comparison feature
+  sortOrder Int @default(0)
+
+  // Relations
+  calculation   Calculation   @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  batteryConfig BatteryConfig @relation(fields: [batteryConfigId], references: [id])
+
+  @@unique([calculationId, batteryConfigId])
+  @@index([calculationId])
 }

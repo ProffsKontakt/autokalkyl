@@ -47,10 +47,14 @@ export const PERMISSIONS = {
   ELPRICES_VIEW: 'elprices:view',
   ELPRICES_MANAGE: 'elprices:manage', // Super Admin only - manual entry/fetch
 
-  // Calculation permissions (for future phases)
-  CALC_CREATE: 'calc:create',
-  CALC_VIEW_ALL: 'calc:view_all',
-  CALC_VIEW_ORG: 'calc:view_org',
+  // Calculation permissions
+  CALCULATION_CREATE: 'calculation:create',
+  CALCULATION_VIEW: 'calculation:view',
+  CALCULATION_VIEW_ALL: 'calculation:view_all',
+  CALCULATION_VIEW_ORG: 'calculation:view_org',
+  CALCULATION_EDIT: 'calculation:edit',
+  CALCULATION_DELETE: 'calculation:delete',
+  CALCULATION_FINALIZE: 'calculation:finalize',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -84,17 +88,25 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.NATAGARE_VIEW,
     // Electricity prices (view only - global data)
     PERMISSIONS.ELPRICES_VIEW,
-    // Calculations
-    PERMISSIONS.CALC_CREATE,
-    PERMISSIONS.CALC_VIEW_ORG,
+    // Calculations (can view/edit all org calculations)
+    PERMISSIONS.CALCULATION_CREATE,
+    PERMISSIONS.CALCULATION_VIEW,
+    PERMISSIONS.CALCULATION_VIEW_ORG,
+    PERMISSIONS.CALCULATION_EDIT,
+    PERMISSIONS.CALCULATION_DELETE,
+    PERMISSIONS.CALCULATION_FINALIZE,
   ],
   CLOSER: [
     // View reference data (needed for creating calculations)
     PERMISSIONS.BATTERY_VIEW,
     PERMISSIONS.NATAGARE_VIEW,
     PERMISSIONS.ELPRICES_VIEW,
-    // Calculations
-    PERMISSIONS.CALC_CREATE,
+    // Calculations (own calculations only - enforced at action level)
+    PERMISSIONS.CALCULATION_CREATE,
+    PERMISSIONS.CALCULATION_VIEW,
+    PERMISSIONS.CALCULATION_EDIT,
+    PERMISSIONS.CALCULATION_DELETE,
+    PERMISSIONS.CALCULATION_FINALIZE,
   ],
 };
 
