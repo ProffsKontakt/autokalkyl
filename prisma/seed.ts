@@ -13,6 +13,55 @@ const connectionString = process.env.DATABASE_URL!;
 const adapter = new PrismaNeon({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
+/**
+ * Seed default natagare for an organization.
+ * Ellevio rates are verified from research.
+ * Vattenfall/E.ON rates are placeholders with "(verifiera priser)" in name.
+ */
+async function seedDefaultNatagareForOrg(orgId: string) {
+  const DEFAULT_NATAGARE = [
+    {
+      name: 'Ellevio',
+      dayRateSekKw: 81.25,
+      nightRateSekKw: 40.625, // Half of day rate
+      dayStartHour: 6,
+      dayEndHour: 22,
+      isDefault: true,
+      isActive: true,
+    },
+    {
+      name: 'Vattenfall Eldistribution (verifiera priser)',
+      dayRateSekKw: 75.0,
+      nightRateSekKw: 37.5,
+      dayStartHour: 6,
+      dayEndHour: 22,
+      isDefault: true,
+      isActive: true,
+    },
+    {
+      name: 'E.ON Energidistribution (verifiera priser)',
+      dayRateSekKw: 70.0,
+      nightRateSekKw: 35.0,
+      dayStartHour: 6,
+      dayEndHour: 22,
+      isDefault: true,
+      isActive: true,
+    },
+  ];
+
+  console.log(`  Seeding default natagare for org: ${orgId}`);
+
+  for (const natagare of DEFAULT_NATAGARE) {
+    await prisma.natagare.upsert({
+      where: { orgId_name: { orgId, name: natagare.name } },
+      update: {},
+      create: { ...natagare, orgId },
+    });
+  }
+
+  console.log(`  Created ${DEFAULT_NATAGARE.length} default natagare`);
+}
+
 async function main() {
   console.log('Seeding database...');
 
@@ -44,6 +93,9 @@ async function main() {
     },
   });
   console.log('Created test organization:', testOrg.slug);
+
+  // Seed default natagare for test org
+  await seedDefaultNatagareForOrg(testOrg.id);
 
   // Create Org Admin for test org
   const orgAdminPassword = await bcrypt.hash('orgadmin123', 12);
@@ -87,11 +139,14 @@ async function main() {
       primaryColor: '#10B981',
       secondaryColor: '#059669',
       isProffsKontaktAffiliated: true,
-      partnerCutPercent: 15,
-      marginAlertThreshold: 20,
+      installerFixedCut: 23000, // Fixed SEK amount to installer
+      marginAlertThreshold: 24000, // Min margin in SEK before alert
     },
   });
   console.log('Created ProffsKontakt org:', proffsOrg.slug);
+
+  // Seed default natagare for ProffsKontakt org
+  await seedDefaultNatagareForOrg(proffsOrg.id);
 
   console.log('Seeding complete!');
   console.log('');

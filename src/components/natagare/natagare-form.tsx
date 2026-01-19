@@ -11,12 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createNatagare, updateNatagare, NatagareFormData } from '@/actions/natagare';
 
+// Form uses string inputs for numbers, validated and converted on submit
 const natagareSchema = z.object({
   name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
-  dayRateSekKw: z.coerce.number().min(0, 'Dagtariff far inte vara negativ'),
-  nightRateSekKw: z.coerce.number().min(0, 'Natttariff far inte vara negativ'),
-  dayStartHour: z.coerce.number().int().min(0).max(23, 'Ogiltig starttid'),
-  dayEndHour: z.coerce.number().int().min(0).max(23, 'Ogiltig sluttid'),
+  dayRateSekKw: z.number().min(0, 'Dagtariff far inte vara negativ'),
+  nightRateSekKw: z.number().min(0, 'Natttariff far inte vara negativ'),
+  dayStartHour: z.number().int().min(0).max(23, 'Ogiltig starttid'),
+  dayEndHour: z.number().int().min(0).max(23, 'Ogiltig sluttid'),
 });
 
 type FormData = z.infer<typeof natagareSchema>;
