@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 3 - Calculator Engine (Plan 2 of 5 complete)
+**Current focus:** Phase 3 - Calculator Engine (Plan 4 of 5 complete)
 
 ## Current Position
 
 Phase: 3 of 5 (Calculator Engine)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-19 - Completed 03-02-PLAN.md (Wizard State + Auto-save)
+Last activity: 2026-01-19 - Completed 03-04-PLAN.md (Battery Selection + Results Display)
 
-Progress: [██████████████░░░░░░] 70% (14/20 plans through Phase 3 Plan 2)
+Progress: [████████████████░░░░] 80% (16/20 plans through Phase 3 Plan 4)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 3.1 min
-- Total execution time: ~47 min
+- Total plans completed: 16
+- Average duration: 3.2 min
+- Total execution time: ~52 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [██████████████░░░░░░] 70% (14
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
-| 03-calculator-engine | 2/5 | 10 min | 5.0 min |
+| 03-calculator-engine | 4/5 | 15 min | 3.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (4m), 02-04 (4m), 03-01 (4m), 03-02 (6m)
-- Trend: Stable (03-02 longer due to prerequisite execution)
+- Last 5 plans: 02-04 (4m), 03-01 (4m), 03-02 (6m), 03-04 (5m)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -91,6 +91,9 @@ Recent decisions affecting current work:
 - [03-02]: State hash comparison prevents duplicate auto-saves
 - [03-02]: Delete-and-recreate strategy for battery list sync (simpler than diff)
 - [03-02]: 2-second debounce for auto-save with flush on unmount
+- [03-04]: Primary battery shows full details, others in comparison table
+- [03-04]: Natagare lookup pattern: pass natagareList prop, lookup by natagareId from store
+- [03-04]: Recharts Tooltip uses untyped formatter with Number() conversion
 
 ### Pending Todos
 
@@ -104,13 +107,13 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 21:39
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-01-19 20:45
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
 
 ## Next Steps
 
 Continue Phase 3: Calculator Engine
-- Execute 03-03-PLAN.md (Consumption simulator)
-- Execute 03-04-PLAN.md (Results and comparison)
 - Execute 03-05-PLAN.md (PDF export)
+
+Then Phase 4: Public Sharing
