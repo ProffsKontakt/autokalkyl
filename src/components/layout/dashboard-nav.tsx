@@ -40,6 +40,12 @@ export function DashboardNav({ user }: DashboardNavProps) {
               >
                 Oversikt
               </Link>
+              <Link
+                href="/dashboard/calculations"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm"
+              >
+                Kalkyler
+              </Link>
               {(isSuperAdmin || isOrgAdmin) && (
                 <Link
                   href="/dashboard/users"
