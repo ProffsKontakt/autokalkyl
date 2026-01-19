@@ -117,7 +117,9 @@ export async function updateUser(
   }
 
   // Cannot change Super Admin users (or become Super Admin)
-  if (targetUser.role === ROLES.SUPER_ADMIN || data.role === 'SUPER_ADMIN') {
+  // Cast to string for runtime check - the form schema only allows ORG_ADMIN/CLOSER
+  // but this guards against malicious API calls
+  if (targetUser.role === ROLES.SUPER_ADMIN || (data.role as string) === 'SUPER_ADMIN') {
     return { error: 'Super Admin-anvandare kan inte redigeras' };
   }
 
