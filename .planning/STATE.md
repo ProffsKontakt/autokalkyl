@@ -31,7 +31,7 @@ Progress: [████████████] 100% (12/12 plans through Phase
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-08 (manual), 02-01 (2m), 02-02 (skipped), 02-03 (4m), 02-04 (4m)
+- Last 5 plans: 02-01 (2m), 02-02 (5m), 02-03 (4m), 02-04 (4m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -79,6 +79,9 @@ Recent decisions affecting current work:
 - [02-04]: Day hours 6-21, Night hours 22-23 and 0-5 for quarterly average calculation
 - [02-04]: Quarterly averages stored separately for performance in calculations
 - [02-04]: ELPRICES_MANAGE for write operations (Super Admin only), ELPRICES_VIEW for all roles
+- [02-02]: Type cast tenant client create data for $extends TypeScript compatibility
+- [02-02]: Decimal fields serialized to numbers in server actions for JSON-safe client transport
+- [02-02]: Battery form sections grouped by category (basic, power, efficiency, warranty, pricing)
 
 ### Pending Todos
 
@@ -91,8 +94,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 16:07
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-01-19 16:08
+Stopped at: Completed 02-02-PLAN.md (Battery Management CRUD)
 Resume file: None
 
 ## Next Steps
