@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 2 - Reference Data (in progress)
+**Current focus:** Phase 2 - Reference Data (complete)
 
 ## Current Position
 
 Phase: 2 of 5 (Reference Data)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-01-19 - Completed 02-03-PLAN.md (Natagare Management CRUD)
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-01-19 - Completed 02-04-PLAN.md (Electricity Pricing)
 
-Progress: [███████████░] 92% (11/12 plans through Phase 2)
+Progress: [████████████] 100% (12/12 plans through Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 3.0 min
-- Total execution time: ~33 min
+- Total plans completed: 12
+- Average duration: 3.1 min
+- Total execution time: ~37 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
-| 02-reference-data | 3/4 | 7 min | 2.3 min |
+| 02-reference-data | 4/4 | 11 min | 2.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-07 (2m), 01-08 (manual), 02-01 (2m), 02-02 (skipped), 02-03 (4m)
+- Last 5 plans: 01-08 (manual), 02-01 (2m), 02-02 (skipped), 02-03 (4m), 02-04 (4m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -75,6 +75,10 @@ Recent decisions affecting current work:
 - [02-03]: Vattenfall/E.ON rates are placeholders marked with "(verifiera priser)"
 - [02-03]: Default natagare cannot be deleted, only rates can be updated
 - [02-03]: z.preprocess pattern for number coercion with react-hook-form in Zod v4
+- [02-04]: Price storage in ore/kWh as returned by mgrey.se API (despite field name price_sek)
+- [02-04]: Day hours 6-21, Night hours 22-23 and 0-5 for quarterly average calculation
+- [02-04]: Quarterly averages stored separately for performance in calculations
+- [02-04]: ELPRICES_MANAGE for write operations (Super Admin only), ELPRICES_VIEW for all roles
 
 ### Pending Todos
 
@@ -82,19 +86,18 @@ None yet.
 
 ### Blockers/Concerns
 
-- Research suggests effekttariff rules vary by natagare - need to verify rules for initial launch markets during Phase 2 planning
-- Nord Pool API access terms unknown - may need fallback to manual entry or third-party provider
+- Research suggests effekttariff rules vary by natagare - need to verify rules for initial launch markets during Phase 3 planning
 - Database schema needs `npx prisma db push` when network access to Neon is available
 
 ## Session Continuity
 
 Last session: 2026-01-19 16:07
-Stopped at: Completed 02-03-PLAN.md
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
 
 ## Next Steps
 
-Continue Phase 2: Reference Data
-- Execute 02-04-PLAN.md (Electricity Pricing)
-
-Then Phase 3: ROI Engine
+Phase 2 Reference Data complete. Ready for Phase 3: ROI Engine
+- Plan 03-RESEARCH.md (calculation engine requirements analysis)
+- Plan 03-01-PLAN.md (core calculation engine)
+- Plan 03-02-PLAN.md (ROI projections)
