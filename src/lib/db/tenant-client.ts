@@ -147,14 +147,22 @@ export function createTenantClient(orgId: string) {
             args.where = { ...args.where, orgId };
           }
 
-          // findUnique needs special handling - verify after query
+          // findUnique needs special handling - verify ownership before returning
           if (operation === 'findUnique') {
-            const result = await query(args);
-            // Verify result belongs to this org
-            if (result && (result as { orgId: string }).orgId !== orgId) {
+            // First verify the record belongs to this org (without user's select)
+            const whereClause = args.where as { id: string };
+            const ownershipCheck = await prisma.calculation.findUnique({
+              where: whereClause,
+              select: { orgId: true },
+            });
+
+            // If record doesn't exist or belongs to different org, return null
+            if (!ownershipCheck || ownershipCheck.orgId !== orgId) {
               return null;
             }
-            return result;
+
+            // Record belongs to this org, run the original query with user's select
+            return query(args);
           }
 
           // Create operations: inject orgId
