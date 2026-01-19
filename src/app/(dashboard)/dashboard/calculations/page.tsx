@@ -23,7 +23,7 @@ export default async function CalculationsPage() {
 
   if (result.error) {
     return (
-      <div className="p-6 bg-red-50 text-red-700 rounded-lg">
+      <div className="p-6 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
         {result.error}
       </div>
     )
@@ -36,8 +36,8 @@ export default async function CalculationsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Kalkyler</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Kalkyler</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {activeCalculations.length} aktiva kalkyler
           </p>
         </div>

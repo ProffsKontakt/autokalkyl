@@ -50,12 +50,12 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Kunduppgifter</h2>
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Kunduppgifter</h2>
 
       <div className="space-y-6">
         {/* Customer name */}
         <div>
-          <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Kundnamn *
           </label>
           <input
@@ -64,16 +64,16 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             value={customerName}
             onChange={(e) => updateCustomerInfo({ customerName: e.target.value })}
             placeholder="t.ex. Anna Andersson"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Visas i kalkylen som &quot;Hej [namn], har ar din batterikalkyl&quot;
           </p>
         </div>
 
         {/* Postal code */}
         <div>
-          <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Postnummer
           </label>
           <input
@@ -83,23 +83,23 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             onChange={(e) => handlePostalCodeChange(e.target.value)}
             placeholder="12345"
             maxLength={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Elomrade detekteras automatiskt fran postnummer
           </p>
         </div>
 
         {/* Elomrade */}
         <div>
-          <label htmlFor="elomrade" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="elomrade" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Elomrade *
           </label>
           <select
             id="elomrade"
             value={elomrade || ''}
             onChange={(e) => updateCustomerInfo({ elomrade: e.target.value as Elomrade })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           >
             <option value="">Valj elomrade...</option>
             {ELOMRADE_OPTIONS.map((opt) => (
@@ -112,14 +112,14 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
 
         {/* Natagare */}
         <div>
-          <label htmlFor="natagare" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="natagare" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Natagare *
           </label>
           <select
             id="natagare"
             value={natagareId || ''}
             onChange={(e) => updateCustomerInfo({ natagareId: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           >
             <option value="">Valj natagare...</option>
             {natagareList.map((n) => (
@@ -128,14 +128,14 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
               </option>
             ))}
           </select>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Paverkar effekttariffberakning
           </p>
         </div>
 
         {/* Annual consumption */}
         <div>
-          <label htmlFor="annualConsumption" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="annualConsumption" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Arlig forbrukning (kWh) *
           </label>
           <input
@@ -145,18 +145,18 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             onChange={(e) => updateCustomerInfo({ annualConsumptionKwh: Number(e.target.value) })}
             min={1}
             step={100}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Typiskt villahushall: 15 000-25 000 kWh/ar
           </p>
         </div>
 
         {/* Summary card */}
         {customerName && elomrade && (
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Sammanfattning</h3>
-            <dl className="text-sm text-blue-800 space-y-1">
+          <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+            <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Sammanfattning</h3>
+            <dl className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
               <div className="flex justify-between">
                 <dt>Kund:</dt>
                 <dd className="font-medium">{customerName}</dd>

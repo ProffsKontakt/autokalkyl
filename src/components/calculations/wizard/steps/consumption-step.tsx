@@ -12,8 +12,8 @@ import { ConsumptionSimulator } from '../consumption-simulator/simulator'
 export function ConsumptionStep() {
   return (
     <div className="max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Forbrukningsprofil</h2>
-      <p className="text-sm text-gray-600 mb-6">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Forbrukningsprofil</h2>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
         Redigera kundens forbrukningsmonster. Valj ett snabbval eller justera manuellt per timme och manad.
       </p>
 

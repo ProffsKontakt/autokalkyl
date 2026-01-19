@@ -65,7 +65,7 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
 
   if (calculations.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-lg shadow">
+      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
         <svg
           className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
@@ -79,8 +79,8 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
             d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-4 text-sm font-medium text-gray-900">Inga kalkyler</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="mt-4 text-sm font-medium text-gray-900 dark:text-white">Inga kalkyler</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Skapa din forsta kalkyl for att komma igang.
         </p>
         <div className="mt-6">
@@ -96,68 +96,68 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Kund
             </th>
             {showOrg && (
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Organisation
               </th>
             )}
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Batteri
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Elomrade
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Uppdaterad
             </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Atgarder
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           {calculations.map((calc) => (
-            <tr key={calc.id} className="hover:bg-gray-50">
+            <tr key={calc.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td className="px-6 py-4 whitespace-nowrap">
                 <Link
                   href={`/dashboard/calculations/${calc.id}`}
-                  className="text-sm font-medium text-gray-900 hover:text-blue-600"
+                  className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   {calc.customerName}
                 </Link>
               </td>
               {showOrg && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {calc.organizationName || '-'}
                 </td>
               )}
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {calc.batteryName || 'Inget valt'}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {calc.elomrade}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {getStatusBadge(calc.status)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {new Date(calc.updatedAt).toLocaleDateString('sv-SE')}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                 <div className="flex justify-end gap-2">
                   <Link
                     href={`/dashboard/calculations/${calc.id}`}
-                    className="text-blue-600 hover:text-blue-900"
+                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     Visa
                   </Link>
@@ -165,7 +165,7 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
                     <button
                       onClick={() => handleDelete(calc.id)}
                       disabled={deletingId === calc.id}
-                      className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                     >
                       {deletingId === calc.id ? 'Tar bort...' : 'Ta bort'}
                     </button>

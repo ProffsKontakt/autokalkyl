@@ -6,7 +6,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className = '', ...props }, ref) => {
     return (
       <div
-        className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}
+        className={`rounded-lg border border-gray-200 bg-white shadow-sm dark:bg-gray-800 dark:border-gray-700 ${className}`}
         ref={ref}
         {...props}
       />
@@ -38,7 +38,7 @@ const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className = '', ...props }, ref) => {
     return (
       <h3
-        className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+        className={`text-lg font-semibold leading-none tracking-tight dark:text-white ${className}`}
         ref={ref}
         {...props}
       />

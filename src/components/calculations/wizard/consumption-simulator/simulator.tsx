@@ -71,14 +71,14 @@ export function ConsumptionSimulator() {
       {/* Month tabs */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Manad
           </label>
           {!copyMode ? (
             <button
               type="button"
               onClick={handleCopyStart}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Kopiera monster...
             </button>
@@ -88,14 +88,14 @@ export function ConsumptionSimulator() {
                 type="button"
                 onClick={handleCopyExecute}
                 disabled={copyTargets.length === 0}
-                className="text-sm text-green-600 hover:text-green-800 disabled:text-gray-400"
+                className="text-sm text-green-600 hover:text-green-800 disabled:text-gray-400 dark:text-green-400 dark:hover:text-green-300"
               >
                 Kopiera till {copyTargets.length} manad(er)
               </button>
               <button
                 type="button"
                 onClick={() => { setCopyMode(false); setCopyTargets([]) }}
-                className="text-sm text-gray-600 hover:text-gray-800"
+                className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
               >
                 Avbryt
               </button>
@@ -117,7 +117,7 @@ export function ConsumptionSimulator() {
                     ? 'bg-blue-600 text-white cursor-not-allowed'
                     : copyTargets.includes(index)
                       ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
                   }
                 `}
               >
@@ -137,10 +137,10 @@ export function ConsumptionSimulator() {
       {/* Chart */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Dygnsprofil - {MONTHS[selectedMonth]}
           </label>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             Klicka pa en stapel for att redigera
           </span>
         </div>
@@ -151,17 +151,17 @@ export function ConsumptionSimulator() {
       </div>
 
       {/* Summary and scaling */}
-      <div className="p-4 bg-gray-50 rounded-lg">
+      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-sm text-gray-600">Profil totalt: </span>
-            <span className="text-sm font-medium">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Profil totalt: </span>
+            <span className="text-sm font-medium dark:text-white">
               {Math.round(profileTotal).toLocaleString('sv-SE')} kWh/ar
             </span>
           </div>
           <div>
-            <span className="text-sm text-gray-600">Mal: </span>
-            <span className="text-sm font-medium">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Mal: </span>
+            <span className="text-sm font-medium dark:text-white">
               {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/ar
             </span>
           </div>
@@ -174,7 +174,7 @@ export function ConsumptionSimulator() {
           <button
             type="button"
             onClick={scaleProfileToAnnual}
-            className="w-full px-4 py-2 text-sm text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
+            className="w-full px-4 py-2 text-sm text-blue-600 bg-blue-50 rounded hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
           >
             Skala profilen till {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/ar
           </button>

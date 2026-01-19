@@ -31,7 +31,7 @@ export function MonthTabs({ selectedMonth, onSelectMonth, monthTotals }: MonthTa
               relative px-3 py-2 text-sm rounded-md transition-colors
               ${selectedMonth === index
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
               }
             `}
           >

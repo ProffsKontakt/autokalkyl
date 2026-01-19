@@ -16,7 +16,7 @@ interface PresetsProps {
 export function Presets({ onApply }: PresetsProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Snabbval - forbrukningsmonster
       </label>
       <div className="grid grid-cols-2 gap-2">
@@ -25,10 +25,10 @@ export function Presets({ onApply }: PresetsProps) {
             key={preset.id}
             type="button"
             onClick={() => onApply(preset.id)}
-            className="p-3 text-left border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            className="p-3 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
           >
-            <span className="block text-sm font-medium text-gray-900">{preset.name}</span>
-            <span className="block text-xs text-gray-500 mt-1">{preset.description}</span>
+            <span className="block text-sm font-medium text-gray-900 dark:text-white">{preset.name}</span>
+            <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">{preset.description}</span>
           </button>
         ))}
       </div>

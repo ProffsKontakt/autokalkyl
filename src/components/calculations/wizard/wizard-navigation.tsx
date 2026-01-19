@@ -38,7 +38,7 @@ export function WizardNavigation({
   lastSavedAt,
 }: WizardNavigationProps) {
   return (
-    <div className="bg-white border-t px-6 py-4">
+    <div className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 px-6 py-4">
       {/* Progress indicator */}
       <div className="flex items-center justify-center mb-4">
         {STEP_LABELS.slice(0, totalSteps).map((label, index) => (
@@ -49,7 +49,7 @@ export function WizardNavigation({
                 ? 'bg-blue-600 text-white'
                 : index === currentStep
                   ? 'bg-blue-600 text-white ring-4 ring-blue-100'
-                  : 'bg-gray-200 text-gray-600'
+                  : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
               }
             `}>
               {index < currentStep ? (
@@ -60,11 +60,11 @@ export function WizardNavigation({
                 index + 1
               )}
             </div>
-            <span className={`ml-2 text-sm ${index === currentStep ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+            <span className={`ml-2 text-sm ${index === currentStep ? 'font-medium text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
               {label}
             </span>
             {index < totalSteps - 1 && (
-              <div className={`w-12 h-0.5 mx-3 ${index < currentStep ? 'bg-blue-600' : 'bg-gray-200'}`} />
+              <div className={`w-12 h-0.5 mx-3 ${index < currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
             )}
           </div>
         ))}
@@ -72,7 +72,7 @@ export function WizardNavigation({
 
       {/* Navigation buttons and save status */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           {isSaving && (
             <>
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export function WizardNavigation({
             type="button"
             onClick={onBack}
             disabled={currentStep === 0}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600"
           >
             Tillbaka
           </button>

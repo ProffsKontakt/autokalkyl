@@ -150,13 +150,13 @@ export function CalculationWizard({
   if (!isHydrated) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Laddar...</div>
+        <div className="text-gray-500 dark:text-gray-400">Laddar...</div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
       {/* Step content */}
       <div className="flex-1 overflow-auto p-6">
         {store.currentStep === 0 && (
