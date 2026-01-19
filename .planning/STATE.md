@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 3 - Calculator Engine (Plan 1 of 5 complete)
+**Current focus:** Phase 3 - Calculator Engine (Plan 2 of 5 complete)
 
 ## Current Position
 
 Phase: 3 of 5 (Calculator Engine)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-19 - Completed 03-01-PLAN.md (Schema + Calculation Engine)
+Last activity: 2026-01-19 - Completed 03-02-PLAN.md (Wizard State + Auto-save)
 
-Progress: [█████████████░░░░░░░] 65% (13/20 plans through Phase 3 Plan 1)
+Progress: [██████████████░░░░░░] 70% (14/20 plans through Phase 3 Plan 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 3.0 min
-- Total execution time: ~41 min
+- Total plans completed: 14
+- Average duration: 3.1 min
+- Total execution time: ~47 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [█████████████░░░░░░░] 65% (13
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
-| 03-calculator-engine | 1/5 | 4 min | 4.0 min |
+| 03-calculator-engine | 2/5 | 10 min | 5.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (5m), 02-03 (4m), 02-04 (4m), 03-01 (4m)
-- Trend: Stable
+- Last 5 plans: 02-03 (4m), 02-04 (4m), 03-01 (4m), 03-02 (6m)
+- Trend: Stable (03-02 longer due to prerequisite execution)
 
 *Updated after each plan completion*
 
@@ -87,6 +87,10 @@ Recent decisions affecting current work:
 - [03-01]: decimal.js configured with precision: 20, rounding: ROUND_HALF_UP
 - [03-01]: Formulas separated from engine for testability
 - [03-01]: Elomrade lookup uses static postal code ranges (no reliable API)
+- [03-02]: Zustand persist middleware with localStorage for wizard state across refresh
+- [03-02]: State hash comparison prevents duplicate auto-saves
+- [03-02]: Delete-and-recreate strategy for battery list sync (simpler than diff)
+- [03-02]: 2-second debounce for auto-save with flush on unmount
 
 ### Pending Todos
 
@@ -100,14 +104,13 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 21:37
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-01-19 21:39
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
 
 ## Next Steps
 
 Continue Phase 3: Calculator Engine
-- Execute 03-02-PLAN.md (Wizard state and auto-save)
 - Execute 03-03-PLAN.md (Consumption simulator)
 - Execute 03-04-PLAN.md (Results and comparison)
 - Execute 03-05-PLAN.md (PDF export)
