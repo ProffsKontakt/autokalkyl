@@ -1,70 +1,66 @@
-# Project State: Kalkyla.se
+# Project State
 
-**Last updated:** 2026-01-19T11:18:03Z
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-01-19)
+
+**Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
+**Current focus:** Phase 1 - Foundation
 
 ## Current Position
 
-- **Phase:** 1 of 5 (Foundation)
-- **Plan:** 1 of 8 in phase
-- **Status:** In progress
-- **Last activity:** 2026-01-19 - Completed 01-01-PLAN.md (Project Setup & Database Foundation)
+Phase: 1 of 5 (Foundation)
+Plan: 2 of 8 in current phase
+Status: In progress
+Last activity: 2026-01-19 - Completed 01-02-PLAN.md (Auth Configuration)
 
-**Progress:**
-```
-Phase 1: [#.......] 1/8 plans complete
-Overall: [#.......] 1/40 plans complete (estimated)
-```
+Progress: [██░░░░░░░░] 25% (2/8 plans)
 
-## Accumulated Decisions
+## Performance Metrics
 
-| Date | Phase | Decision | Rationale |
-|------|-------|----------|-----------|
-| 2026-01-19 | 01-01 | Used Next.js 16.1.3 instead of 15.x | create-next-app installs latest by default, 16.x is stable |
-| 2026-01-19 | 01-01 | Prisma 7.2 with prisma.config.ts pattern | New Prisma 7.x architecture, DATABASE_URL moved from schema |
-| 2026-01-19 | 01-01 | Tenant scoping via Prisma $extends | ORM-level filtering, RLS as future defense-in-depth |
-| 2026-01-19 | 01-01 | Optional orgId for SUPER_ADMIN users | Platform-level admins need cross-org access |
+**Velocity:**
+- Total plans completed: 2
+- Average duration: 4.5 min
+- Total execution time: 9 min
 
-## Known Blockers/Concerns
+**By Phase:**
 
-| Item | Severity | Status | Notes |
-|------|----------|--------|-------|
-| Neon database setup required | MEDIUM | Pending | User must configure DATABASE_URL before 01-02 |
-| next-auth is beta (5.0.0-beta.30) | LOW | Accepted | Only stable v5 is beta, production-ready per docs |
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 01-foundation | 2/8 | 9 min | 4.5 min |
 
-## Tech Stack
+**Recent Trend:**
+- Last 5 plans: 01-01 (6m), 01-02 (3m)
+- Trend: Not enough data
 
-**Core:**
-- Next.js 16.1.3 (App Router, Turbopack)
-- React 19.2.3
-- TypeScript 5.x
-- Tailwind CSS 4.x
+*Updated after each plan completion*
 
-**Database:**
-- PostgreSQL (Neon - pending setup)
-- Prisma 7.2.0
+## Accumulated Context
 
-**Auth:**
-- NextAuth 5.0.0-beta.30
-- @auth/prisma-adapter 2.11.1
+### Decisions
 
-**Forms & State:**
-- React Hook Form 7.71.1
-- Zod 4.3.5
-- TanStack Query 5.90.19
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
 
-## Key Files Reference
+- [Roadmap]: 5-phase structure derived from requirement dependencies
+- [Roadmap]: 92 v1 requirements mapped (corrected from 68 stated in REQUIREMENTS.md)
+- [01-01]: Prisma 7.2 with new config pattern (no URL in schema, uses prisma.config.ts)
+- [01-01]: Tenant scoping via Prisma $extends, not RLS (can add later for defense-in-depth)
+- [01-02]: No PrismaAdapter - credentials-only auth doesn't need OAuth account linking
+- [01-02]: JWT strategy for sessions - stateless auth works well with serverless
+- [01-02]: Edge-compatible config split - auth.config.ts for middleware, auth.ts for credentials
 
-| File | Purpose |
-|------|---------|
-| `prisma/schema.prisma` | Multi-tenant database models |
-| `prisma.config.ts` | Prisma 7.x configuration |
-| `src/lib/db/client.ts` | Base Prisma client singleton |
-| `src/lib/db/tenant-client.ts` | Tenant-scoped client factory |
-| `.env.example` | Environment variable documentation |
+### Pending Todos
+
+None yet.
+
+### Blockers/Concerns
+
+- Research suggests effekttariff rules vary by natagare - need to verify rules for initial launch markets during Phase 2 planning
+- Nord Pool API access terms unknown - may need fallback to manual entry or third-party provider
 
 ## Session Continuity
 
-- **Last session:** 2026-01-19T11:18:03Z
-- **Stopped at:** Completed 01-01-PLAN.md
-- **Resume with:** 01-02-PLAN.md (Auth Configuration)
-- **Prerequisite:** Configure DATABASE_URL in .env.local with Neon connection string
+Last session: 2026-01-19 12:53
+Stopped at: Completed 01-02-PLAN.md (Auth Configuration)
+Resume file: None
