@@ -20,6 +20,7 @@ import { ConsumptionStep } from './steps/consumption-step'
 import { BatteryStep } from './steps/battery-step'
 import { ResultsStep } from './steps/results-step'
 import { finalizeCalculation } from '@/actions/calculations'
+import type { Elomrade } from '@/lib/calculations/types'
 
 interface NatagareInfo {
   id: string
@@ -40,6 +41,21 @@ interface BatteryInfo {
   costPrice: number
 }
 
+interface InitialData {
+  calculationId: string
+  customerName: string
+  postalCode: string | null
+  elomrade: Elomrade
+  natagareId: string
+  annualConsumptionKwh: number
+  consumptionProfile: { data: number[][] }
+  batteries: Array<{
+    configId: string
+    totalPriceExVat: number
+    installationCost: number
+  }>
+}
+
 interface CalculationWizardProps {
   natagareList: NatagareInfo[]
   batteryList: BatteryInfo[]
@@ -48,6 +64,7 @@ interface CalculationWizardProps {
     isProffsKontaktAffiliated: boolean
     installerFixedCut: number | null
   }
+  initialData?: InitialData
 }
 
 const TOTAL_STEPS = 4
@@ -57,9 +74,11 @@ export function CalculationWizard({
   batteryList,
   quarterlyPrices,
   orgSettings,
+  initialData,
 }: CalculationWizardProps) {
   const router = useRouter()
   const [isHydrated, setIsHydrated] = useState(false)
+  const [initialLoaded, setInitialLoaded] = useState(false)
   const store = useCalculationWizardStore()
   const { lastSavedAt, isSaving } = useAutoSave()
 
@@ -67,6 +86,18 @@ export function CalculationWizard({
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  // Load initial data from server when editing existing calculation
+  useEffect(() => {
+    if (initialData && isHydrated && !initialLoaded) {
+      // Only load if the store doesn't already have this calculation
+      // or if it's a different calculation than currently in store
+      if (store.calculationId !== initialData.calculationId) {
+        store.loadFromServer(initialData)
+      }
+      setInitialLoaded(true)
+    }
+  }, [initialData, isHydrated, initialLoaded, store])
 
   const handleNext = () => {
     if (store.currentStep < TOTAL_STEPS - 1) {
