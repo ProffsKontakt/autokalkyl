@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Phase: 2 of 5 (Reference Data)
-Plan: 1 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-19 - Completed 02-01-PLAN.md (database schema and permissions)
+Last activity: 2026-01-19 - Completed 02-03-PLAN.md (Natagare Management CRUD)
 
-Progress: [██████████░░] 75% (9/12 plans through Phase 2)
+Progress: [███████████░] 92% (11/12 plans through Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 3.1 min
-- Total execution time: ~28 min
+- Total plans completed: 11
+- Average duration: 3.0 min
+- Total execution time: ~33 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
-| 02-reference-data | 1/4 | 2 min | 2.0 min |
+| 02-reference-data | 3/4 | 7 min | 2.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (4m), 01-06 (4m), 01-07 (2m), 01-08 (manual), 02-01 (2m)
-- Trend: Stable/Improving
+- Last 5 plans: 01-07 (2m), 01-08 (manual), 02-01 (2m), 02-02 (skipped), 02-03 (4m)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -71,6 +71,10 @@ Recent decisions affecting current work:
 - [02-01]: ElectricityPrice/Quarterly models are global (not tenant-scoped) - shared reference data
 - [02-01]: Natagare day/night rate precision at 4 decimal places (Decimal 10,4)
 - [02-01]: Battery specs use Decimal types consistently to avoid floating point issues
+- [02-03]: Ellevio rates verified: 81.25/40.625 SEK/kW day/night (from research)
+- [02-03]: Vattenfall/E.ON rates are placeholders marked with "(verifiera priser)"
+- [02-03]: Default natagare cannot be deleted, only rates can be updated
+- [02-03]: z.preprocess pattern for number coercion with react-hook-form in Zod v4
 
 ### Pending Todos
 
@@ -84,13 +88,13 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 17:01
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-01-19 16:07
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
 
 ## Next Steps
 
 Continue Phase 2: Reference Data
-- Execute 02-02-PLAN.md (Battery Management CRUD)
-- Execute 02-03-PLAN.md (Natagare Management CRUD)
 - Execute 02-04-PLAN.md (Electricity Pricing)
+
+Then Phase 3: ROI Engine
