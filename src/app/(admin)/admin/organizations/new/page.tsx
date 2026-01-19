@@ -8,7 +8,9 @@ export default function NewOrganizationPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Skapa ny organisation</h1>
-      <OrgForm />
+      <div className="bg-white rounded-lg shadow p-6">
+        <OrgForm />
+      </div>
     </div>
   );
 }

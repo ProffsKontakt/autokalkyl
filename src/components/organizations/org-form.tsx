@@ -18,8 +18,14 @@ const orgSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   isProffsKontaktAffiliated: z.boolean(),
-  partnerCutPercent: z.number().min(0).max(100).optional(),
-  marginAlertThreshold: z.number().min(0).max(100).optional(),
+  partnerCutPercent: z.preprocess(
+    (val) => (val === '' || Number.isNaN(val) ? undefined : val),
+    z.number().min(0).max(100).optional()
+  ),
+  marginAlertThreshold: z.preprocess(
+    (val) => (val === '' || Number.isNaN(val) ? undefined : val),
+    z.number().min(0).max(100).optional()
+  ),
 });
 
 type OrgFormData = z.infer<typeof orgSchema>;
@@ -156,7 +162,7 @@ export function OrgForm({ organization }: OrgFormProps) {
                 min="0"
                 max="100"
                 step="0.1"
-                {...register('partnerCutPercent')}
+                {...register('partnerCutPercent', { valueAsNumber: true })}
               />
               <p className="text-xs text-gray-500">
                 Andel som gar till installationspartner
@@ -171,7 +177,7 @@ export function OrgForm({ organization }: OrgFormProps) {
                 min="0"
                 max="100"
                 step="0.1"
-                {...register('marginAlertThreshold')}
+                {...register('marginAlertThreshold', { valueAsNumber: true })}
               />
               <p className="text-xs text-gray-500">
                 Skickar varning om marginalen understiger denna niva

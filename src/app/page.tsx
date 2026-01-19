@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -11,6 +13,12 @@ export default function Home() {
         <p className="max-w-lg text-zinc-500 dark:text-zinc-500">
           Calculate energy savings, visualize returns, and share professional proposals with your customers.
         </p>
+        <Link
+          href="/login"
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Logga in
+        </Link>
       </main>
     </div>
   );

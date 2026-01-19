@@ -26,7 +26,9 @@ export default async function EditOrganizationPage({
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
         Redigera {organization.name}
       </h1>
-      <OrgForm organization={formOrganization} />
+      <div className="bg-white rounded-lg shadow p-6">
+        <OrgForm organization={formOrganization} />
+      </div>
     </div>
   );
 }
