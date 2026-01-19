@@ -140,7 +140,8 @@ async function runMigration() {
 
     // Verify tables exist
     const tables = await sql.query('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\' ORDER BY table_name');
-    console.log('\nTables created:', tables.rows.map((t: { table_name: string }) => t.table_name).join(', '));
+    // Neon serverless returns rows directly from query()
+    console.log('\nTables created:', (tables as Array<{ table_name: string }>).map((t) => t.table_name).join(', '));
 
   } catch (error) {
     console.error('✗ Migration failed:', error);
