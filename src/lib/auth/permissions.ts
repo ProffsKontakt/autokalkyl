@@ -31,6 +31,22 @@ export const PERMISSIONS = {
   USER_VIEW_ALL: 'user:view_all',
   USER_VIEW_ORG: 'user:view_org',
 
+  // Battery permissions
+  BATTERY_CREATE: 'battery:create',
+  BATTERY_EDIT: 'battery:edit',
+  BATTERY_DELETE: 'battery:delete',
+  BATTERY_VIEW: 'battery:view',
+
+  // Natagare permissions
+  NATAGARE_CREATE: 'natagare:create',
+  NATAGARE_EDIT: 'natagare:edit',
+  NATAGARE_DELETE: 'natagare:delete',
+  NATAGARE_VIEW: 'natagare:view',
+
+  // Electricity pricing permissions
+  ELPRICES_VIEW: 'elprices:view',
+  ELPRICES_MANAGE: 'elprices:manage', // Super Admin only - manual entry/fetch
+
   // Calculation permissions (for future phases)
   CALC_CREATE: 'calc:create',
   CALC_VIEW_ALL: 'calc:view_all',
@@ -49,15 +65,37 @@ export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   SUPER_ADMIN: Object.values(PERMISSIONS), // All permissions
   ORG_ADMIN: [
+    // Organization
     PERMISSIONS.ORG_EDIT_OWN,
+    // Users
     PERMISSIONS.USER_CREATE_CLOSER,
     PERMISSIONS.USER_EDIT,
     PERMISSIONS.USER_DEACTIVATE,
     PERMISSIONS.USER_VIEW_ORG,
+    // Batteries (full CRUD for org-scoped data)
+    PERMISSIONS.BATTERY_CREATE,
+    PERMISSIONS.BATTERY_EDIT,
+    PERMISSIONS.BATTERY_DELETE,
+    PERMISSIONS.BATTERY_VIEW,
+    // Natagare (full CRUD for org-scoped data)
+    PERMISSIONS.NATAGARE_CREATE,
+    PERMISSIONS.NATAGARE_EDIT,
+    PERMISSIONS.NATAGARE_DELETE,
+    PERMISSIONS.NATAGARE_VIEW,
+    // Electricity prices (view only - global data)
+    PERMISSIONS.ELPRICES_VIEW,
+    // Calculations
     PERMISSIONS.CALC_CREATE,
     PERMISSIONS.CALC_VIEW_ORG,
   ],
-  CLOSER: [PERMISSIONS.CALC_CREATE],
+  CLOSER: [
+    // View reference data (needed for creating calculations)
+    PERMISSIONS.BATTERY_VIEW,
+    PERMISSIONS.NATAGARE_VIEW,
+    PERMISSIONS.ELPRICES_VIEW,
+    // Calculations
+    PERMISSIONS.CALC_CREATE,
+  ],
 };
 
 /**
