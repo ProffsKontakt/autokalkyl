@@ -20,6 +20,13 @@ enum Role {
   CLOSER      // Sales closer, can create and manage own calculations
 }
 
+enum Elomrade {
+  SE1 // Northern Sweden (Lulea)
+  SE2 // Northern Central Sweden (Sundsvall)
+  SE3 // Southern Central Sweden (Stockholm)
+  SE4 // Southern Sweden (Malmo)
+}
+
 // =============================================================================
 // ORGANIZATION (Tenant)
 // =============================================================================
@@ -31,14 +38,22 @@ model Organization {
   logoUrl                  String?
   primaryColor             String   @default("#3B82F6")   // Brand primary color
   secondaryColor           String   @default("#1E40AF")   // Brand secondary color
-  isProffsKontaktAffiliated Boolean @default(false)      // Partner program membership
-  partnerCutPercent        Decimal? @db.Decimal(5, 2)    // Partner revenue share (only for affiliated)
-  marginAlertThreshold     Decimal? @db.Decimal(5, 2)    // Margin % threshold for alerts
+
+  // ProffsKontakt affiliation
+  // When affiliated: ProffsKontakt administers sales for this org
+  // Margin calc: Sale Price (ex VAT) - Battery Cost - Installer Cut = ProffsKontakt Margin
+  isProffsKontaktAffiliated Boolean  @default(false)
+  installerFixedCut        Decimal? @db.Decimal(10, 2)   // Fixed SEK amount to installer (e.g., 23000)
+  marginAlertThreshold     Decimal? @db.Decimal(10, 2)   // Min margin in SEK before alert (e.g., 24000)
+
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 
   // Relations
-  users User[]
+  users          User[]
+  batteryBrands  BatteryBrand[]
+  batteryConfigs BatteryConfig[]
+  natagare       Natagare[]
 
   @@index([slug])
 }
@@ -128,4 +143,130 @@ model PasswordResetToken {
 
   @@index([token])
   @@index([userId])
+}
+
+// =============================================================================
+// BATTERY REFERENCE DATA (Tenant-scoped)
+// =============================================================================
+
+model BatteryBrand {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  orgId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organization Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  configs      BatteryConfig[]
+
+  @@unique([orgId, name]) // No duplicate brand names per org
+  @@index([orgId])
+}
+
+model BatteryConfig {
+  id      String @id @default(cuid())
+  name    String
+  brandId String
+  orgId   String
+
+  // Core specs
+  capacityKwh    Decimal @db.Decimal(10, 2) // e.g., 15.00 kWh
+  maxDischargeKw Decimal @db.Decimal(10, 2) // e.g., 10.00 kW
+  maxChargeKw    Decimal @db.Decimal(10, 2) // e.g., 10.00 kW
+
+  // Efficiencies (stored as percentage, e.g., 95.00 for 95%)
+  chargeEfficiency    Decimal @db.Decimal(5, 2) // e.g., 95.00
+  dischargeEfficiency Decimal @db.Decimal(5, 2) // e.g., 95.00
+
+  // Lifecycle
+  warrantyYears      Int
+  guaranteedCycles   Int
+  degradationPerYear Decimal @db.Decimal(5, 2) // e.g., 2.50 for 2.5%/year
+
+  // Pricing
+  costPrice Decimal @db.Decimal(10, 2) // Battery cost in SEK
+
+  // Flags
+  isExtensionCabinet Boolean @default(false) // True for extension/add-on batteries
+  isNewStack         Boolean @default(true)  // True for new stack, false for refurbished
+  isActive           Boolean @default(true)  // Soft delete / hide from UI
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  brand        BatteryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, brandId, name]) // No duplicate config names per brand per org
+  @@index([orgId])
+  @@index([brandId])
+}
+
+// =============================================================================
+// NATAGARE (Grid Operator) - Tenant-scoped
+// =============================================================================
+
+model Natagare {
+  id   String @id @default(cuid())
+  name String
+
+  // Effekttariff rates (day/night) in SEK/kW
+  dayRateSekKw   Decimal @db.Decimal(10, 4) // e.g., 81.2500
+  nightRateSekKw Decimal @db.Decimal(10, 4) // e.g., 10.0000
+
+  // Time windows (24h format)
+  dayStartHour Int @default(6)  // Day tariff starts at 06:00
+  dayEndHour   Int @default(22) // Day tariff ends at 22:00
+
+  orgId     String
+  isDefault Boolean @default(false) // Default natagare for new calculations
+  isActive  Boolean @default(true)  // Soft delete / hide from UI
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, name]) // No duplicate natagare names per org
+  @@index([orgId])
+}
+
+// =============================================================================
+// ELECTRICITY PRICING (Global - NOT tenant-scoped)
+// =============================================================================
+
+model ElectricityPrice {
+  id       String   @id @default(cuid())
+  elomrade Elomrade // SE1, SE2, SE3, SE4
+  date     DateTime @db.Date // Date only (no time component)
+  hour     Int      // 0-23
+
+  priceOre Decimal @db.Decimal(10, 2) // Price in ore/kWh (e.g., 142.50)
+
+  createdAt DateTime @default(now())
+
+  @@unique([elomrade, date, hour]) // One price per zone/date/hour
+  @@index([elomrade, date])
+  @@index([date])
+}
+
+model ElectricityPriceQuarterly {
+  id       String   @id @default(cuid())
+  elomrade Elomrade
+  year     Int
+  quarter  Int      // 1-4
+
+  avgDayPriceOre   Decimal @db.Decimal(10, 2) // Average day price in ore/kWh
+  avgNightPriceOre Decimal @db.Decimal(10, 2) // Average night price in ore/kWh
+  avgPriceOre      Decimal @db.Decimal(10, 2) // Overall average in ore/kWh
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([elomrade, year, quarter])
+  @@index([elomrade])
 }
