@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 4 - Customer Experience (ready to plan)
+**Current focus:** Phase 4 - Customer Experience (in progress)
 
 ## Current Position
 
-Phase: 3 of 5 COMPLETE → Phase 4 ready
-Plan: Phase 3 verified, Phase 4 planning next
-Status: Phase transition
-Last activity: 2026-01-20 - Completed Phase 3 (Calculator Engine)
+Phase: 4 of 5 (Customer Experience)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-01-20 - Completed 04-01-PLAN.md (Share Infrastructure)
 
-Progress: [██████████████████░░] 90% (18/20 plans through Phase 3)
+Progress: [███████████████████░] 95% (19/20 plans through Phase 4 Plan 1)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 3.5 min
-- Total execution time: ~81 min
+- Total execution time: ~85 min
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [██████████████████░░] 90% (18
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
 | 03-calculator-engine | 5/5 | 44 min | 8.8 min |
+| 04-customer-experience | 1/3 | 4 min | 4.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (6m), 03-03 (4m), 03-04 (5m), 03-05 (25m with bug fixes)
-- Trend: Complex plans take longer when bug fixes required
+- Last 5 plans: 03-03 (4m), 03-04 (5m), 03-05 (25m with bug fixes), 04-01 (4m)
+- Trend: Phase 4 starting smoothly with infrastructure plan
 
 *Updated after each plan completion*
 
@@ -101,6 +102,10 @@ Recent decisions affecting current work:
 - [03-05]: NewCalculationButton resets Zustand store to prevent stale state
 - [03-05]: Delete calculation clears wizard store if it matches current calculationId
 - [03-05]: Seed data includes quarterly electricity prices and Emaldo battery configs
+- [04-01]: Share codes use nanoid with 21 characters (126 bits entropy)
+- [04-01]: IP addresses hashed with SHA256, truncated to 16 chars for privacy
+- [04-01]: Password protection uses bcrypt with cost 12
+- [04-01]: Public data explicitly excludes marginSek, costPrice, installerCut
 
 ### Pending Todos
 
@@ -111,18 +116,18 @@ None yet.
 - Vattenfall/E.ON effekttariff rates not officially published yet (deadline Jan 2027) - using placeholder rates
 - mgrey.se API has no SLA - implemented manual entry fallback
 - Database schema needs `npx prisma db push` when network access to Neon is available
+- Phase 4 schema additions (CalculationView, CalculationVariant) need db push
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Phase 3 complete, Phase 4 ready
+Stopped at: Completed 04-01-PLAN.md (Share Infrastructure)
 Resume file: None
 
 ## Next Steps
 
-Phase 4: Customer Experience
-- Plan shareable public view with interactive simulator
-- Generate share links for calculations
-- Public branded view with consumption adjustment
+Phase 4: Customer Experience (continuing)
+- Execute 04-02-PLAN.md: Public View Routes
+- Execute 04-03-PLAN.md: Interactive Simulator
 
-`/gsd:discuss-phase 4` or `/gsd:plan-phase 4`
+`/gsd:execute-phase 4` to continue
