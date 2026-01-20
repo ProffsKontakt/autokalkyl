@@ -1,12 +1,12 @@
 import { getPublicCalculation, recordView } from '@/actions/share'
 import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
+import { prisma } from '@/lib/db/client'
 import { PublicHeader } from '@/components/public/public-header'
 import { PublicGreeting } from '@/components/public/public-greeting'
-import { PublicBatterySummary } from '@/components/public/public-battery-summary'
-import { PublicResultsView } from '@/components/public/public-results-view'
 import { PublicFooter } from '@/components/public/public-footer'
 import { PasswordGate } from '@/components/public/password-gate'
+import { InteractivePublicView } from '@/components/public/interactive-public-view'
 
 interface PageProps {
   params: Promise<{
@@ -63,13 +63,27 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
   const ip = forwardedFor?.split(',')[0] || headersList.get('x-real-ip')
   recordView(calculation.id, userAgent, ip)
 
+  // Fetch quarterly prices for recalculation
+  const currentQuarter = Math.ceil((new Date().getMonth() + 1) / 3)
+  const quarterlyPrices = await prisma.electricityPriceQuarterly.findFirst({
+    where: {
+      elomrade: calculation.elomrade,
+      year: new Date().getFullYear(),
+      quarter: currentQuarter,
+    },
+    select: {
+      avgDayPriceOre: true,
+      avgNightPriceOre: true,
+    },
+  })
+
   // Get primary battery (first one)
   const primaryBattery = calculation.batteries[0]
   const results = calculation.results
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen pb-20"
       style={{
         '--primary-color': organization.primaryColor,
         '--secondary-color': organization.secondaryColor,
@@ -89,18 +103,20 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
         />
 
         {primaryBattery && results && (
-          <>
-            <PublicBatterySummary
-              battery={primaryBattery}
-              allBatteries={calculation.batteries}
-              results={results}
-            />
-
-            <PublicResultsView
-              results={results}
-              primaryColor={organization.primaryColor}
-            />
-          </>
+          <InteractivePublicView
+            calculationId={calculation.id}
+            batteries={calculation.batteries}
+            results={results}
+            consumptionProfile={calculation.consumptionProfile}
+            annualConsumptionKwh={calculation.annualConsumptionKwh}
+            natagare={calculation.natagare}
+            elomrade={calculation.elomrade}
+            quarterlyPrices={quarterlyPrices ? {
+              avgDayPriceOre: Number(quarterlyPrices.avgDayPriceOre),
+              avgNightPriceOre: Number(quarterlyPrices.avgNightPriceOre),
+            } : null}
+            primaryColor={organization.primaryColor}
+          />
         )}
       </main>
 

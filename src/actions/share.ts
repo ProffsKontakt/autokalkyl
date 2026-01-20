@@ -401,6 +401,38 @@ export async function recordView(
 }
 
 // =============================================================================
+// SAVE VARIANT (Unauthenticated - called from public view)
+// =============================================================================
+
+/**
+ * Save a variant when prospect modifies consumption profile.
+ *
+ * Creates a record of what the prospect changed from the original calculation.
+ * This allows Closers to see what prospects experimented with.
+ */
+export async function saveVariant(
+  calculationId: string,
+  consumptionProfile: number[][],
+  annualConsumptionKwh: number,
+  results: CalculationResultsPublic
+): Promise<{ id?: string; error?: string }> {
+  try {
+    const variant = await prisma.calculationVariant.create({
+      data: {
+        calculationId,
+        consumptionProfile: { data: consumptionProfile },
+        annualConsumptionKwh,
+        results: JSON.parse(JSON.stringify(results)),
+      },
+    })
+    return { id: variant.id }
+  } catch (error) {
+    console.error('Failed to save variant:', error)
+    return { error: 'Kunde inte spara varianten' }
+  }
+}
+
+// =============================================================================
 // GET VIEW STATS (Authenticated - for Closer dashboard)
 // =============================================================================
 
