@@ -137,7 +137,10 @@ Resume file: None
 
 ## Next Steps
 
-Phase 5: Polish and Launch (next)
-- Research and planning needed for Phase 5
+Phase 5: Operations
+- Margin alerts via N8N webhook for ProffsKontakt orgs
+- PostHog analytics on customer-facing pages
+- Sentry error tracking and API monitoring
+- Admin dashboards with calculation visibility
 
-`/gsd:execute-phase 5` to continue (after planning)
+`/gsd:discuss-phase 5` or `/gsd:plan-phase 5`

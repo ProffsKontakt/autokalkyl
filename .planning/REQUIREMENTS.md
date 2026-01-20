@@ -59,59 +59,59 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **ELEC-04**: Closer sees quarterly average prices when creating calculation
 - [x] **ELEC-05**: Calculation uses historical prices for accurate ROI
 
-### Calculation Builder
+### Calculation Builder ✓
 
-- [ ] **CALC-01**: Closer can create new calculation with customer name
-- [ ] **CALC-02**: Closer can select elomrade (SE1-SE4)
-- [ ] **CALC-03**: Closer can select natagare from org's list
-- [ ] **CALC-04**: Closer can input annual consumption (kWh)
-- [ ] **CALC-05**: Closer can input consumption profile: 12 months x 24 hours (one average day per month)
-- [ ] **CALC-06**: Consumption simulator shows visual bar chart
-- [ ] **CALC-07**: Consumption simulator has preset templates (typical family, home office, EV charging)
-- [ ] **CALC-08**: Closer can select battery brand and configuration
-- [ ] **CALC-09**: Closer can input total price ex. VAT
-- [ ] **CALC-10**: Closer can input installation cost
-- [ ] **CALC-11**: System calculates total inc. VAT (25%)
-- [ ] **CALC-12**: System calculates cost after Gron Teknik (48.5% deduction)
-- [ ] **CALC-13**: System calculates and displays margin (for ProffsKontakt orgs with partner cut)
-- [ ] **CALC-14**: Closer can save calculation and return to edit later
-- [ ] **CALC-15**: Closer can view list of their calculations
+- [x] **CALC-01**: Closer can create new calculation with customer name
+- [x] **CALC-02**: Closer can select elomrade (SE1-SE4)
+- [x] **CALC-03**: Closer can select natagare from org's list
+- [x] **CALC-04**: Closer can input annual consumption (kWh)
+- [x] **CALC-05**: Closer can input consumption profile: 12 months x 24 hours (one average day per month)
+- [x] **CALC-06**: Consumption simulator shows visual bar chart
+- [x] **CALC-07**: Consumption simulator has preset templates (typical family, home office, EV charging)
+- [x] **CALC-08**: Closer can select battery brand and configuration
+- [x] **CALC-09**: Closer can input total price ex. VAT
+- [x] **CALC-10**: Closer can input installation cost
+- [x] **CALC-11**: System calculates total inc. VAT (25%)
+- [x] **CALC-12**: System calculates cost after Gron Teknik (48.5% deduction)
+- [x] **CALC-13**: System calculates and displays margin (for ProffsKontakt orgs with partner cut)
+- [x] **CALC-14**: Closer can save calculation and return to edit later
+- [x] **CALC-15**: Closer can view list of their calculations
 
-### Calculation Logic
+### Calculation Logic ✓
 
-- [ ] **LOGIC-01**: Calculate effective capacity per cycle (capacity x charge eff x discharge eff x avg discharge %)
-- [ ] **LOGIC-02**: Calculate energy from battery per year (effective capacity x cycles/day x 365)
-- [ ] **LOGIC-03**: Calculate spotpris optimization savings (energy x price difference day vs night)
-- [ ] **LOGIC-04**: Calculate effect tariff savings (quarterly peak reduction x tariff rate x 3 months x 4 quarters)
-- [ ] **LOGIC-05**: Calculate grid services income (org-configurable, default 500 SEK/kW/year)
-- [ ] **LOGIC-06**: Calculate total annual savings (spotpris + effect tariff + grid services)
-- [ ] **LOGIC-07**: Calculate payback period (cost after Gron Teknik / annual savings)
-- [ ] **LOGIC-08**: Calculate 10-year ROI ((annual savings x 10 - cost) / cost x 100)
-- [ ] **LOGIC-09**: Calculate 15-year ROI ((annual savings x 15 - cost) / cost x 100)
-- [ ] **LOGIC-10**: Use decimal.js for financial precision (no floating point errors)
+- [x] **LOGIC-01**: Calculate effective capacity per cycle (capacity x charge eff x discharge eff x avg discharge %)
+- [x] **LOGIC-02**: Calculate energy from battery per year (effective capacity x cycles/day x 365)
+- [x] **LOGIC-03**: Calculate spotpris optimization savings (energy x price difference day vs night)
+- [x] **LOGIC-04**: Calculate effect tariff savings (quarterly peak reduction x tariff rate x 3 months x 4 quarters)
+- [x] **LOGIC-05**: Calculate grid services income (org-configurable, default 500 SEK/kW/year)
+- [x] **LOGIC-06**: Calculate total annual savings (spotpris + effect tariff + grid services)
+- [x] **LOGIC-07**: Calculate payback period (cost after Gron Teknik / annual savings)
+- [x] **LOGIC-08**: Calculate 10-year ROI ((annual savings x 10 - cost) / cost x 100)
+- [x] **LOGIC-09**: Calculate 15-year ROI ((annual savings x 15 - cost) / cost x 100)
+- [x] **LOGIC-10**: Use decimal.js for financial precision (no floating point errors)
 
-### Customer-Facing View
+### Customer-Facing View ✓
 
-- [ ] **CUST-01**: Calculation accessible via shareable link: kalkyla.se/{org-slug}/{shareCode}
-- [ ] **CUST-02**: Public view requires no authentication
-- [ ] **CUST-03**: Public view displays organization branding (logo, colors)
-- [ ] **CUST-04**: Public view shows customer name: "Hej {name}, har ar din batterikalkyl"
-- [ ] **CUST-05**: Public view shows battery specs summary
-- [ ] **CUST-06**: Public view shows interactive consumption simulator
-- [ ] **CUST-07**: Customer can adjust hourly consumption in simulator
-- [ ] **CUST-08**: Results update live as customer adjusts consumption
-- [ ] **CUST-09**: Public view shows savings breakdown (spotpris, effect tariff, grid services)
-- [ ] **CUST-10**: Public view shows payback period and ROI (10-year, 15-year)
-- [ ] **CUST-11**: Public view is mobile-responsive
-- [ ] **CUST-12**: Customer CANNOT change: battery selection, pricing, natagare
+- [x] **CUST-01**: Calculation accessible via shareable link: kalkyla.se/{org-slug}/{shareCode}
+- [x] **CUST-02**: Public view requires no authentication
+- [x] **CUST-03**: Public view displays organization branding (logo, colors)
+- [x] **CUST-04**: Public view shows customer name: "Hej {name}, har ar din batterikalkyl"
+- [x] **CUST-05**: Public view shows battery specs summary
+- [x] **CUST-06**: Public view shows interactive consumption simulator
+- [x] **CUST-07**: Customer can adjust hourly consumption in simulator
+- [x] **CUST-08**: Results update live as customer adjusts consumption
+- [x] **CUST-09**: Public view shows savings breakdown (spotpris, effect tariff, grid services)
+- [x] **CUST-10**: Public view shows payback period and ROI (10-year, 15-year)
+- [x] **CUST-11**: Public view is mobile-responsive
+- [x] **CUST-12**: Customer CANNOT change: battery selection, pricing, natagare
 
-### Sharing & Links
+### Sharing & Links ✓
 
-- [ ] **SHARE-01**: Closer can generate shareable link for calculation
-- [ ] **SHARE-02**: Share code is random, unguessable string
-- [ ] **SHARE-03**: Closer can set expiration date on link (optional)
-- [ ] **SHARE-04**: System tracks view count per calculation
-- [ ] **SHARE-05**: System tracks last viewed timestamp
+- [x] **SHARE-01**: Closer can generate shareable link for calculation
+- [x] **SHARE-02**: Share code is random, unguessable string
+- [x] **SHARE-03**: Closer can set expiration date on link (optional)
+- [x] **SHARE-04**: System tracks view count per calculation
+- [x] **SHARE-05**: System tracks last viewed timestamp
 
 ### Margin Alerts
 
@@ -212,48 +212,48 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ELEC-03 | Phase 2 | Complete |
 | ELEC-04 | Phase 2 | Complete |
 | ELEC-05 | Phase 2 | Complete |
-| CALC-01 | Phase 3 | Pending |
-| CALC-02 | Phase 3 | Pending |
-| CALC-03 | Phase 3 | Pending |
-| CALC-04 | Phase 3 | Pending |
-| CALC-05 | Phase 3 | Pending |
-| CALC-06 | Phase 3 | Pending |
-| CALC-07 | Phase 3 | Pending |
-| CALC-08 | Phase 3 | Pending |
-| CALC-09 | Phase 3 | Pending |
-| CALC-10 | Phase 3 | Pending |
-| CALC-11 | Phase 3 | Pending |
-| CALC-12 | Phase 3 | Pending |
-| CALC-13 | Phase 3 | Pending |
-| CALC-14 | Phase 3 | Pending |
-| CALC-15 | Phase 3 | Pending |
-| LOGIC-01 | Phase 3 | Pending |
-| LOGIC-02 | Phase 3 | Pending |
-| LOGIC-03 | Phase 3 | Pending |
-| LOGIC-04 | Phase 3 | Pending |
-| LOGIC-05 | Phase 3 | Pending |
-| LOGIC-06 | Phase 3 | Pending |
-| LOGIC-07 | Phase 3 | Pending |
-| LOGIC-08 | Phase 3 | Pending |
-| LOGIC-09 | Phase 3 | Pending |
-| LOGIC-10 | Phase 3 | Pending |
-| CUST-01 | Phase 4 | Pending |
-| CUST-02 | Phase 4 | Pending |
-| CUST-03 | Phase 4 | Pending |
-| CUST-04 | Phase 4 | Pending |
-| CUST-05 | Phase 4 | Pending |
-| CUST-06 | Phase 4 | Pending |
-| CUST-07 | Phase 4 | Pending |
-| CUST-08 | Phase 4 | Pending |
-| CUST-09 | Phase 4 | Pending |
-| CUST-10 | Phase 4 | Pending |
-| CUST-11 | Phase 4 | Pending |
-| CUST-12 | Phase 4 | Pending |
-| SHARE-01 | Phase 4 | Pending |
-| SHARE-02 | Phase 4 | Pending |
-| SHARE-03 | Phase 4 | Pending |
-| SHARE-04 | Phase 4 | Pending |
-| SHARE-05 | Phase 4 | Pending |
+| CALC-01 | Phase 3 | Complete |
+| CALC-02 | Phase 3 | Complete |
+| CALC-03 | Phase 3 | Complete |
+| CALC-04 | Phase 3 | Complete |
+| CALC-05 | Phase 3 | Complete |
+| CALC-06 | Phase 3 | Complete |
+| CALC-07 | Phase 3 | Complete |
+| CALC-08 | Phase 3 | Complete |
+| CALC-09 | Phase 3 | Complete |
+| CALC-10 | Phase 3 | Complete |
+| CALC-11 | Phase 3 | Complete |
+| CALC-12 | Phase 3 | Complete |
+| CALC-13 | Phase 3 | Complete |
+| CALC-14 | Phase 3 | Complete |
+| CALC-15 | Phase 3 | Complete |
+| LOGIC-01 | Phase 3 | Complete |
+| LOGIC-02 | Phase 3 | Complete |
+| LOGIC-03 | Phase 3 | Complete |
+| LOGIC-04 | Phase 3 | Complete |
+| LOGIC-05 | Phase 3 | Complete |
+| LOGIC-06 | Phase 3 | Complete |
+| LOGIC-07 | Phase 3 | Complete |
+| LOGIC-08 | Phase 3 | Complete |
+| LOGIC-09 | Phase 3 | Complete |
+| LOGIC-10 | Phase 3 | Complete |
+| CUST-01 | Phase 4 | Complete |
+| CUST-02 | Phase 4 | Complete |
+| CUST-03 | Phase 4 | Complete |
+| CUST-04 | Phase 4 | Complete |
+| CUST-05 | Phase 4 | Complete |
+| CUST-06 | Phase 4 | Complete |
+| CUST-07 | Phase 4 | Complete |
+| CUST-08 | Phase 4 | Complete |
+| CUST-09 | Phase 4 | Complete |
+| CUST-10 | Phase 4 | Complete |
+| CUST-11 | Phase 4 | Complete |
+| CUST-12 | Phase 4 | Complete |
+| SHARE-01 | Phase 4 | Complete |
+| SHARE-02 | Phase 4 | Complete |
+| SHARE-03 | Phase 4 | Complete |
+| SHARE-04 | Phase 4 | Complete |
+| SHARE-05 | Phase 4 | Complete |
 | ALERT-01 | Phase 5 | Pending |
 | ALERT-02 | Phase 5 | Pending |
 | ALERT-03 | Phase 5 | Pending |
