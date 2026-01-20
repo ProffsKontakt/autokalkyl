@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** Phase 3 - Calculator Engine (Plan 4 of 5 complete)
+**Current focus:** Phase 4 - Customer Experience (ready to plan)
 
 ## Current Position
 
-Phase: 3 of 5 (Calculator Engine)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-01-19 - Completed 03-03-PLAN.md (Wizard UI Steps 1-2)
+Phase: 3 of 5 COMPLETE → Phase 4 ready
+Plan: Phase 3 verified, Phase 4 planning next
+Status: Phase transition
+Last activity: 2026-01-20 - Completed Phase 3 (Calculator Engine)
 
-Progress: [████████████████░░░░] 85% (17/20 plans through Phase 3 Plan 4)
+Progress: [██████████████████░░] 90% (18/20 plans through Phase 3)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: 3.2 min
-- Total execution time: ~56 min
+- Total plans completed: 18
+- Average duration: 3.5 min
+- Total execution time: ~81 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████████████░░░░] 85% (17
 |-------|-------|-------|----------|
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
-| 03-calculator-engine | 4/5 | 19 min | 4.8 min |
+| 03-calculator-engine | 5/5 | 44 min | 8.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (4m), 03-02 (6m), 03-03 (4m), 03-04 (5m)
-- Trend: Stable
+- Last 5 plans: 03-02 (6m), 03-03 (4m), 03-04 (5m), 03-05 (25m with bug fixes)
+- Trend: Complex plans take longer when bug fixes required
 
 *Updated after each plan completion*
 
@@ -97,6 +97,10 @@ Recent decisions affecting current work:
 - [03-04]: Primary battery shows full details, others in comparison table
 - [03-04]: Natagare lookup pattern: pass natagareList prop, lookup by natagareId from store
 - [03-04]: Recharts Tooltip uses untyped formatter with Number() conversion
+- [03-05]: Tenant client findUnique must verify orgId separately when using custom select
+- [03-05]: NewCalculationButton resets Zustand store to prevent stale state
+- [03-05]: Delete calculation clears wizard store if it matches current calculationId
+- [03-05]: Seed data includes quarterly electricity prices and Emaldo battery configs
 
 ### Pending Todos
 
@@ -110,13 +114,15 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-19 21:45
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-01-20
+Stopped at: Phase 3 complete, Phase 4 ready
 Resume file: None
 
 ## Next Steps
 
-Continue Phase 3: Calculator Engine
-- Execute 03-05-PLAN.md (PDF export)
+Phase 4: Customer Experience
+- Plan shareable public view with interactive simulator
+- Generate share links for calculations
+- Public branded view with consumption adjustment
 
-Then Phase 4: Public Sharing
+`/gsd:discuss-phase 4` or `/gsd:plan-phase 4`
