@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { deleteCalculation } from '@/actions/calculations'
 import { useState } from 'react'
 import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
+import { ShareButton } from '@/components/share/share-button'
+import { LinkStatusBadge } from '@/components/share/link-status-badge'
 
 interface Calculation {
   id: string
@@ -15,6 +17,13 @@ interface Calculation {
   updatedAt: Date
   batteryName: string | null
   organizationName?: string
+  // Share link data
+  shareCode: string | null
+  shareExpiresAt: Date | null
+  sharePassword: string | null
+  shareIsActive: boolean
+  orgSlug: string
+  viewCount: number
 }
 
 interface CalculationListProps {
@@ -130,6 +139,9 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
               Status
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Delning
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Uppdaterad
             </th>
             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -162,11 +174,29 @@ export function CalculationList({ calculations, showOrg = false }: CalculationLi
               <td className="px-6 py-4 whitespace-nowrap">
                 {getStatusBadge(calc.status)}
               </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <LinkStatusBadge
+                  isShared={!!calc.shareCode}
+                  isActive={calc.shareIsActive}
+                  expiresAt={calc.shareExpiresAt}
+                  viewCount={calc.viewCount}
+                />
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {new Date(calc.updatedAt).toLocaleDateString('sv-SE')}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end items-center gap-2">
+                  <ShareButton
+                    calculationId={calc.id}
+                    orgSlug={calc.orgSlug}
+                    shareCode={calc.shareCode}
+                    shareExpiresAt={calc.shareExpiresAt}
+                    sharePassword={calc.sharePassword}
+                    shareIsActive={calc.shareIsActive}
+                    variant="icon"
+                    onUpdate={() => router.refresh()}
+                  />
                   <Link
                     href={`/dashboard/calculations/${calc.id}`}
                     className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"

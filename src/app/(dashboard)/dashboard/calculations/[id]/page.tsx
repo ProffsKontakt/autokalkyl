@@ -5,6 +5,7 @@ import { getCalculation } from '@/actions/calculations'
 import { createTenantClient } from '@/lib/db/tenant-client'
 import { prisma } from '@/lib/db/client'
 import { CalculationWizard } from '@/components/calculations/wizard/calculation-wizard'
+import { ShareButton } from '@/components/share/share-button'
 import Link from 'next/link'
 
 export const metadata = {
@@ -108,15 +109,25 @@ export default async function EditCalculationPage({ params }: PageProps) {
           </svg>
           Tillbaka till kalkyler
         </Link>
-        <span className={`px-2 py-1 text-xs font-medium rounded ${
-          calculation.status === 'DRAFT'
-            ? 'bg-yellow-100 text-yellow-800'
-            : calculation.status === 'COMPLETE'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-600'
-        }`}>
-          {calculation.status === 'DRAFT' ? 'Utkast' : calculation.status === 'COMPLETE' ? 'Klar' : 'Arkiverad'}
-        </span>
+        <div className="flex items-center gap-3">
+          <ShareButton
+            calculationId={calculation.id}
+            orgSlug={calculation.organization.slug}
+            shareCode={calculation.shareCode}
+            shareExpiresAt={calculation.shareExpiresAt}
+            sharePassword={calculation.sharePassword}
+            shareIsActive={calculation.shareIsActive}
+          />
+          <span className={`px-2 py-1 text-xs font-medium rounded ${
+            calculation.status === 'DRAFT'
+              ? 'bg-yellow-100 text-yellow-800'
+              : calculation.status === 'COMPLETE'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-600'
+          }`}>
+            {calculation.status === 'DRAFT' ? 'Utkast' : calculation.status === 'COMPLETE' ? 'Klar' : 'Arkiverad'}
+          </span>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow h-full">

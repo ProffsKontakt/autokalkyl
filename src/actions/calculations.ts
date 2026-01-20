@@ -181,7 +181,7 @@ export async function getCalculation(id: string) {
             include: { batteryConfig: { include: { brand: true } } },
             orderBy: { sortOrder: 'asc' },
           },
-          organization: true,
+          organization: { select: { id: true, name: true, slug: true } },
         },
       })
     } else {
@@ -194,6 +194,7 @@ export async function getCalculation(id: string) {
             include: { batteryConfig: { include: { brand: true } } },
             orderBy: { sortOrder: 'asc' },
           },
+          organization: { select: { id: true, slug: true } },
         },
       })
     }
@@ -271,12 +272,13 @@ export async function listCalculations() {
       calculations = await prisma.calculation.findMany({
         orderBy: { updatedAt: 'desc' },
         include: {
-          organization: { select: { name: true } },
+          organization: { select: { name: true, slug: true } },
           batteries: {
             include: { batteryConfig: { select: { name: true, brand: { select: { name: true } } } } },
             orderBy: { sortOrder: 'asc' },
             take: 1, // Just get first battery for list display
           },
+          _count: { select: { views: true } },
         },
       })
     } else if (role === 'ORG_ADMIN') {
@@ -284,11 +286,13 @@ export async function listCalculations() {
       calculations = await tenantClient.calculation.findMany({
         orderBy: { updatedAt: 'desc' },
         include: {
+          organization: { select: { slug: true } },
           batteries: {
             include: { batteryConfig: { select: { name: true, brand: { select: { name: true } } } } },
             orderBy: { sortOrder: 'asc' },
             take: 1,
           },
+          _count: { select: { views: true } },
         },
       })
     } else {
@@ -298,11 +302,13 @@ export async function listCalculations() {
         where: { createdBy: session.user.id },
         orderBy: { updatedAt: 'desc' },
         include: {
+          organization: { select: { slug: true } },
           batteries: {
             include: { batteryConfig: { select: { name: true, brand: { select: { name: true } } } } },
             orderBy: { sortOrder: 'asc' },
             take: 1,
           },
+          _count: { select: { views: true } },
         },
       })
     }
@@ -318,7 +324,16 @@ export async function listCalculations() {
         batteryName: c.batteries[0]
           ? `${c.batteries[0].batteryConfig.brand.name} ${c.batteries[0].batteryConfig.name}`
           : null,
-        organizationName: 'organization' in c ? (c as { organization: { name: string } }).organization?.name : undefined,
+        organizationName: 'name' in (c.organization as object)
+          ? (c.organization as unknown as { name: string }).name
+          : undefined,
+        // Share link data
+        shareCode: c.shareCode,
+        shareExpiresAt: c.shareExpiresAt,
+        sharePassword: c.sharePassword,
+        shareIsActive: c.shareIsActive,
+        orgSlug: c.organization.slug,
+        viewCount: c._count?.views || 0,
       })),
     }
   } catch (error) {
