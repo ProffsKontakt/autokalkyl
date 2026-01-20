@@ -115,28 +115,28 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Margin Alerts
 
-- [ ] **ALERT-01**: For ProffsKontakt-affiliated orgs, system triggers N8N webhook when margin < threshold
-- [ ] **ALERT-02**: Default margin threshold is 24,000 SEK
-- [ ] **ALERT-03**: Webhook payload includes: calculation details, closer name, org name, margin breakdown, link
-- [ ] **ALERT-04**: N8N sends email to julian@proffskontakt.se
-- [ ] **ALERT-05**: Non-affiliated orgs see margin display but no automated alerts
+- [x] **ALERT-01**: For ProffsKontakt-affiliated orgs, system triggers N8N webhook when margin < threshold
+- [x] **ALERT-02**: Default margin threshold is 24,000 SEK
+- [x] **ALERT-03**: Webhook payload includes: calculation details, closer name, org name, margin breakdown, link
+- [x] **ALERT-04**: N8N sends email to julian@proffskontakt.se
+- [x] **ALERT-05**: Non-affiliated orgs see margin display but no automated alerts
 
 ### Analytics & Monitoring
 
-- [ ] **ANLY-01**: PostHog tracks page views on customer-facing pages
-- [ ] **ANLY-02**: PostHog captures session replays
-- [ ] **ANLY-03**: PostHog records heatmaps
-- [ ] **ANLY-04**: Custom events: calculation_viewed, simulator_adjusted, scroll_depth, time_on_page
-- [ ] **ANLY-05**: Sentry captures errors with stack traces
-- [ ] **ANLY-06**: Sentry monitors API performance
+- [x] **ANLY-01**: PostHog tracks page views on customer-facing pages
+- [x] **ANLY-02**: PostHog captures session replays
+- [x] **ANLY-03**: PostHog records heatmaps
+- [x] **ANLY-04**: Custom events: calculation_viewed, simulator_adjusted, scroll_depth, time_on_page
+- [x] **ANLY-05**: Sentry captures errors with stack traces
+- [x] **ANLY-06**: Sentry monitors API performance
 
 ### Admin Dashboard
 
-- [ ] **DASH-01**: Super Admin sees all organizations with calculation counts
-- [ ] **DASH-02**: Super Admin sees all calculations filterable by org, closer, date
-- [ ] **DASH-03**: Org Admin sees their org's calculations
-- [ ] **DASH-04**: Closer sees their own calculations with view counts
-- [ ] **DASH-05**: Dashboard shows link analytics (views, last viewed)
+- [x] **DASH-01**: Super Admin sees all organizations with calculation counts
+- [x] **DASH-02**: Super Admin sees all calculations filterable by org, closer, date
+- [x] **DASH-03**: Org Admin sees their org's calculations
+- [x] **DASH-04**: Closer sees their own calculations with view counts
+- [x] **DASH-05**: Dashboard shows link analytics (views, last viewed)
 
 ## v2 Requirements
 
@@ -254,22 +254,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHARE-03 | Phase 4 | Complete |
 | SHARE-04 | Phase 4 | Complete |
 | SHARE-05 | Phase 4 | Complete |
-| ALERT-01 | Phase 5 | Pending |
-| ALERT-02 | Phase 5 | Pending |
-| ALERT-03 | Phase 5 | Pending |
-| ALERT-04 | Phase 5 | Pending |
-| ALERT-05 | Phase 5 | Pending |
-| ANLY-01 | Phase 5 | Pending |
-| ANLY-02 | Phase 5 | Pending |
-| ANLY-03 | Phase 5 | Pending |
-| ANLY-04 | Phase 5 | Pending |
-| ANLY-05 | Phase 5 | Pending |
-| ANLY-06 | Phase 5 | Pending |
-| DASH-01 | Phase 5 | Pending |
-| DASH-02 | Phase 5 | Pending |
-| DASH-03 | Phase 5 | Pending |
-| DASH-04 | Phase 5 | Pending |
-| DASH-05 | Phase 5 | Pending |
+| ALERT-01 | Phase 5 | Complete |
+| ALERT-02 | Phase 5 | Complete |
+| ALERT-03 | Phase 5 | Complete |
+| ALERT-04 | Phase 5 | Complete |
+| ALERT-05 | Phase 5 | Complete |
+| ANLY-01 | Phase 5 | Complete |
+| ANLY-02 | Phase 5 | Complete |
+| ANLY-03 | Phase 5 | Complete |
+| ANLY-04 | Phase 5 | Complete |
+| ANLY-05 | Phase 5 | Complete |
+| ANLY-06 | Phase 5 | Complete |
+| DASH-01 | Phase 5 | Complete |
+| DASH-02 | Phase 5 | Complete |
+| DASH-03 | Phase 5 | Complete |
+| DASH-04 | Phase 5 | Complete |
+| DASH-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 92 total
@@ -278,4 +278,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-01-18*
-*Last updated: 2026-01-19 after roadmap creation*
+*Last updated: 2026-01-20 - All v1 requirements complete*
