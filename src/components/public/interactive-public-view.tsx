@@ -78,6 +78,7 @@ export function InteractivePublicView({
 
       {/* Consumption simulator */}
       <PublicConsumptionSimulator
+        calculationId={calculationId}
         originalProfile={consumptionProfile}
         originalAnnualKwh={annualConsumptionKwh}
         originalResults={results}

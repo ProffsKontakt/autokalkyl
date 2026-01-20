@@ -15,6 +15,7 @@ import { calculateBatteryROI } from '@/lib/calculations/engine'
 import type { CalculationResultsPublic, PublicBatteryInfo } from '@/lib/share/types'
 import type { Elomrade } from '@prisma/client'
 import { VariantIndicator } from './variant-indicator'
+import { trackSimulatorAdjusted } from '@/lib/analytics/events'
 import {
   VAT_RATE,
   GRON_TEKNIK_RATE,
@@ -27,6 +28,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', '
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 
 interface PublicConsumptionSimulatorProps {
+  calculationId: string
   originalProfile: { data: number[][] }
   originalAnnualKwh: number
   originalResults: CalculationResultsPublic
@@ -47,6 +49,7 @@ interface PublicConsumptionSimulatorProps {
 }
 
 export function PublicConsumptionSimulator({
+  calculationId,
   originalProfile,
   originalAnnualKwh,
   originalResults,
@@ -101,6 +104,7 @@ export function PublicConsumptionSimulator({
     const value = parseFloat(editValue)
     if (isNaN(value) || value < 0) return
 
+    const oldValue = profile[selectedMonth][editingHour]
     const newProfile = profile.map((month, m) =>
       m === selectedMonth
         ? month.map((v, h) => (h === editingHour ? value : v))
@@ -109,6 +113,9 @@ export function PublicConsumptionSimulator({
     setProfile(newProfile)
     setIsDirty(true)
     setEditingHour(null)
+
+    // Track simulator adjustment
+    trackSimulatorAdjusted(calculationId, selectedMonth, editingHour, oldValue, value)
   }
 
   // Handle recalculation
