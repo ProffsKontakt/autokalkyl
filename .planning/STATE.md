@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Phase: 4 of 5 (Customer Experience)
-Plan: 1 of 3 complete
-Status: In progress
-Last activity: 2026-01-20 - Completed 04-01-PLAN.md (Share Infrastructure)
+Plan: 3 of 3 complete
+Status: Phase 4 complete
+Last activity: 2026-01-20 - Completed 04-03-PLAN.md (Public View Routes)
 
-Progress: [███████████████████░] 95% (19/20 plans through Phase 4 Plan 1)
+Progress: [████████████████████] 100% (21/21 plans through Phase 4 Plan 3)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: 3.5 min
-- Total execution time: ~85 min
+- Total plans completed: 21
+- Average duration: 3.6 min
+- Total execution time: ~94 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [███████████████████░] 95% (19
 | 01-foundation | 8/8 | 26 min | 3.2 min |
 | 02-reference-data | 4/4 | 11 min | 2.8 min |
 | 03-calculator-engine | 5/5 | 44 min | 8.8 min |
-| 04-customer-experience | 1/3 | 4 min | 4.0 min |
+| 04-customer-experience | 3/3 | 13 min | 4.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (4m), 03-04 (5m), 03-05 (25m with bug fixes), 04-01 (4m)
-- Trend: Phase 4 starting smoothly with infrastructure plan
+- Last 5 plans: 03-04 (5m), 03-05 (25m), 04-01 (4m), 04-02 (4m), 04-03 (5m)
+- Trend: Phase 4 completed efficiently
 
 *Updated after each plan completion*
 
@@ -106,6 +106,9 @@ Recent decisions affecting current work:
 - [04-01]: IP addresses hashed with SHA256, truncated to 16 chars for privacy
 - [04-01]: Password protection uses bcrypt with cost 12
 - [04-01]: Public data explicitly excludes marginSek, costPrice, installerCut
+- [04-03]: Public route group at (public) bypasses auth via existing middleware
+- [04-03]: CSS custom properties for org branding colors
+- [04-03]: Key metrics shown in priority order: payback, annual savings, 10yr ROI, 15yr ROI
 
 ### Pending Todos
 
@@ -121,13 +124,12 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 04-01-PLAN.md (Share Infrastructure)
+Stopped at: Completed 04-03-PLAN.md (Public View Routes)
 Resume file: None
 
 ## Next Steps
 
-Phase 4: Customer Experience (continuing)
-- Execute 04-02-PLAN.md: Public View Routes
-- Execute 04-03-PLAN.md: Interactive Simulator
+Phase 5: Final Polish (next)
+- Execute 05-01-PLAN.md onwards
 
-`/gsd:execute-phase 4` to continue
+`/gsd:execute-phase 5` to continue
