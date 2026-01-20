@@ -7,6 +7,7 @@ import { PublicGreeting } from '@/components/public/public-greeting'
 import { PublicFooter } from '@/components/public/public-footer'
 import { PasswordGate } from '@/components/public/password-gate'
 import { InteractivePublicView } from '@/components/public/interactive-public-view'
+import { PublicAnalytics } from '@/components/public/public-analytics'
 
 interface PageProps {
   params: Promise<{
@@ -124,6 +125,9 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
         closerName={closer.name}
         primaryColor={organization.primaryColor}
       />
+
+      {/* Analytics tracking */}
+      <PublicAnalytics calculationId={calculation.id} orgSlug={org} />
     </div>
   )
 }
