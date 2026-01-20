@@ -89,12 +89,13 @@ Plans:
   3. Public view displays org branding (logo, colors) and personalized greeting
   4. Prospect can adjust consumption in interactive simulator and see results update live
   5. Public view shows complete savings breakdown but prospect CANNOT change battery, pricing, or natagare
-**Plans**: TBD (3-4 expected)
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01: Schema & Share Link Infrastructure
+- [ ] 04-02: Share UI & Link Management
+- [ ] 04-03: Public Route & View Components
+- [ ] 04-04: Interactive Simulator & Mobile Experience
 
 ### Phase 5: Operations
 **Goal**: Admins have visibility into calculations, alerts for low margins, and analytics on customer engagement
@@ -123,7 +124,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation | 8/8 | Complete | 2026-01-19 |
 | 2. Reference Data | 4/4 | Complete | 2026-01-19 |
 | 3. Calculator Engine | 5/5 | Complete | 2026-01-20 |
-| 4. Customer Experience | 0/3 | Not started | - |
+| 4. Customer Experience | 0/4 | Planned | - |
 | 5. Operations | 0/3 | Not started | - |
 
 ---
