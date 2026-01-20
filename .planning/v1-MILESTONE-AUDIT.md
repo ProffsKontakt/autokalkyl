@@ -1,7 +1,7 @@
 # Milestone Audit: v1.0
 
 **Audited:** 2026-01-20
-**Status:** tech_debt
+**Status:** passed
 **Scores:**
 - Requirements: 92/92 (100%)
 - Phases: 5/5 verified
@@ -65,15 +65,9 @@ All 92 v1 requirements are satisfied.
 | `getDashboardStats`, `getOrganizationsWithStats` | 05-operations | Dashboard pages |
 | `PHProvider`, `PostHogPageview`, `IdentifyUser` | 05-operations | Root layout |
 
-### Orphaned Exports (3 - non-critical)
+### Orphaned Exports (0)
 
-| Export | Location | Issue |
-|--------|----------|-------|
-| `trackSimulatorAdjusted` | src/lib/analytics/events.ts | Exported but never called |
-| `trackScrollDepth` | src/lib/analytics/events.ts | Exported but never called |
-| `trackTimeOnPage` | src/lib/analytics/events.ts | Exported but never called |
-
-These are analytics enhancements that were created but not wired up. They don't break any functionality.
+All exports are now connected. Previously orphaned analytics functions have been wired up.
 
 ---
 
@@ -89,7 +83,7 @@ All steps verified working.
 
 Public URL → View branded page → Adjust consumption → See updated results → Variant saved
 
-All steps verified working. Note: `simulator_adjusted` PostHog event not firing (enhancement).
+All steps verified working. All PostHog events firing (calculation_viewed, simulator_adjusted, scroll_depth, time_on_page).
 
 ### 3. Admin Dashboard Flow ✓
 
@@ -107,24 +101,20 @@ All steps verified working.
 
 ## Tech Debt Summary
 
-### Phase 05 - Analytics Enhancements
+### Phase 05 - Analytics Enhancements ✓ RESOLVED
 
-These analytics functions were created per requirements but not yet wired to track actual user behavior:
+All analytics functions are now wired up (resolved 2026-01-20):
 
-1. **`trackSimulatorAdjusted`** - Should fire when prospect modifies consumption values in public simulator
-   - Location: `src/lib/analytics/events.ts` (exported)
-   - Should call from: `src/components/public/public-consumption-simulator.tsx`
+1. **`trackSimulatorAdjusted`** ✓ - Fires when prospect modifies consumption values
+   - Wired in: `src/components/public/public-consumption-simulator.tsx` (handleEditSubmit)
 
-2. **`trackScrollDepth`** - Should track how far prospects scroll on public calculation page
-   - Location: `src/lib/analytics/events.ts` (exported)
-   - Should call from: `src/app/(public)/[org]/[shareCode]/page.tsx`
+2. **`trackScrollDepth`** ✓ - Tracks max scroll depth, fires on page leave
+   - Wired in: `src/components/public/public-analytics.tsx` (beforeunload + visibilitychange)
 
-3. **`trackTimeOnPage`** - Should track engagement time on public pages
-   - Location: `src/lib/analytics/events.ts` (exported)
-   - Should call from: `src/app/(public)/[org]/[shareCode]/page.tsx`
+3. **`trackTimeOnPage`** ✓ - Tracks engagement time, fires on page leave
+   - Wired in: `src/components/public/public-analytics.tsx` (beforeunload + visibilitychange)
 
-**Impact:** Low - analytics data collection enhancement, no user-facing functionality affected
-**Recommendation:** Track in v2 backlog or create Phase 5.1 to wire these up
+**Status:** All tech debt resolved. No remaining items.
 
 ---
 
@@ -153,10 +143,8 @@ Before production deployment, these services need configuration:
 
 ## Conclusion
 
-**Status: tech_debt**
+**Status: passed**
 
-All 92 requirements are satisfied. All 5 phases verified. All E2E flows complete. Cross-phase integration working.
+All 92 requirements are satisfied. All 5 phases verified. All E2E flows complete. Cross-phase integration working. All tech debt resolved.
 
-3 analytics tracking functions exist but aren't wired up (non-critical enhancement). These can be addressed in v2 or a quick 5.1 phase.
-
-**Recommendation:** Complete milestone, track analytics enhancements in v2 backlog.
+**Recommendation:** Ready to complete milestone.
