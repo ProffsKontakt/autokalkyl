@@ -12,6 +12,7 @@ import { auth } from '@/lib/auth/auth'
 import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/db/client'
 import { createTenantClient } from '@/lib/db/tenant-client'
+import { triggerMarginAlert } from '@/lib/webhooks/n8n'
 import { z } from 'zod'
 import type { ConsumptionProfile, Elomrade } from '@/lib/calculations/types'
 
@@ -110,6 +111,14 @@ export async function saveDraft(input: SaveDraftInput) {
         })
       }
 
+      // Check for margin alert (fire-and-forget)
+      await checkAndTriggerMarginAlert(
+        updated.id,
+        data,
+        session.user.id,
+        session.user.orgId!
+      )
+
       return { calculationId: updated.id }
     } else {
       // Create new draft
@@ -140,11 +149,114 @@ export async function saveDraft(input: SaveDraftInput) {
         })
       }
 
+      // Check for margin alert (fire-and-forget)
+      await checkAndTriggerMarginAlert(
+        created.id,
+        data,
+        session.user.id,
+        session.user.orgId!
+      )
+
       return { calculationId: created.id }
     }
   } catch (error) {
     console.error('Save draft error:', error)
     return { error: 'Kunde inte spara utkastet' }
+  }
+}
+
+// =============================================================================
+// MARGIN ALERT HELPER
+// =============================================================================
+
+/**
+ * Check if margin alert should be triggered for ProffsKontakt-affiliated orgs.
+ *
+ * Fire-and-forget: errors are logged but never thrown.
+ * Only triggers for affiliated orgs when margin < threshold.
+ */
+async function checkAndTriggerMarginAlert(
+  calculationId: string,
+  data: SaveDraftInput,
+  userId: string,
+  orgId: string
+): Promise<void> {
+  // Only check if there are batteries
+  if (data.batteries.length === 0) return
+
+  try {
+    // Fetch org with affiliation info
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: {
+        isProffsKontaktAffiliated: true,
+        installerFixedCut: true,
+        marginAlertThreshold: true,
+        name: true,
+        slug: true,
+      },
+    })
+
+    // Only trigger for ProffsKontakt-affiliated orgs
+    if (!org?.isProffsKontaktAffiliated) return
+
+    // Get primary battery and its config
+    const primaryBattery = data.batteries[0]
+    const batteryConfig = await prisma.batteryConfig.findUnique({
+      where: { id: primaryBattery.configId },
+      select: { name: true, costPrice: true, brand: { select: { name: true } } },
+    })
+
+    if (!batteryConfig) return
+
+    const totalPriceExVat = primaryBattery.totalPriceExVat
+    const batteryCost = Number(batteryConfig.costPrice)
+    const installerCut = Number(org.installerFixedCut || 0)
+    const marginSek = totalPriceExVat - batteryCost - installerCut
+    const threshold = Number(org.marginAlertThreshold || 24000)
+
+    // Only trigger if margin is below threshold
+    if (marginSek >= threshold) return
+
+    // Get closer info
+    const closer = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    })
+
+    // Get current calculation for share info
+    const calc = await prisma.calculation.findUnique({
+      where: { id: calculationId },
+      select: { shareCode: true, _count: { select: { views: true } } },
+    })
+
+    const shareUrl = calc?.shareCode
+      ? `https://${org.slug}.kalkyla.se/${calc.shareCode}`
+      : null
+
+    // Fire-and-forget - don't await, just call
+    triggerMarginAlert({
+      eventType: 'calculation_saved',
+      calculationId,
+      orgId,
+      orgName: org.name,
+      closerId: userId,
+      closerName: closer?.name || 'Okand',
+      closerEmail: closer?.email || '',
+      customerName: data.customerName,
+      batteryName: `${batteryConfig.brand.name} ${batteryConfig.name}`,
+      totalPriceExVat,
+      batteryCostPrice: batteryCost,
+      installerFixedCut: installerCut,
+      marginSek,
+      threshold,
+      shareUrl,
+      createdAt: new Date().toISOString(),
+      viewCount: calc?._count?.views || 0,
+    })
+  } catch (error) {
+    // Fire-and-forget: log but don't throw
+    console.error('[Margin Alert] Check error:', error)
   }
 }
 
