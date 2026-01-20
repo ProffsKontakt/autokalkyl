@@ -304,16 +304,25 @@ model Calculation {
   // Results (calculated server-side)
   results Json?
 
+  // Share Link Metadata (Phase 4)
+  shareCode      String?   @unique  // Unguessable nanoid for public sharing
+  shareExpiresAt DateTime?           // Optional expiration date
+  sharePassword  String?             // Optional bcrypt hash for password protection
+  shareCreatedAt DateTime?           // When link was generated
+  shareIsActive  Boolean   @default(true) // Can be deactivated without deleting
+  customGreeting String?             // Customizable greeting message
+
   // Metadata
-  shareCode   String?   @unique // For public sharing (Phase 4)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   finalizedAt DateTime?
 
   // Relations
-  organization Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  natagare     Natagare             @relation(fields: [natagareId], references: [id])
+  organization Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  natagare     Natagare              @relation(fields: [natagareId], references: [id])
   batteries    CalculationBattery[]
+  views        CalculationView[]
+  variants     CalculationVariant[]
 
   @@index([orgId])
   @@index([createdBy])
@@ -340,5 +349,39 @@ model CalculationBattery {
   batteryConfig BatteryConfig @relation(fields: [batteryConfigId], references: [id])
 
   @@unique([calculationId, batteryConfigId])
+  @@index([calculationId])
+}
+
+// =============================================================================
+// CALCULATION VIEW TRACKING (Phase 4 - Public Share Analytics)
+// =============================================================================
+
+model CalculationView {
+  id            String   @id @default(cuid())
+  calculationId String
+  viewedAt      DateTime @default(now())
+  userAgent     String?
+  ipHash        String?  // SHA256 hash of IP, truncated for privacy
+
+  calculation   Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+
+  @@index([calculationId])
+  @@index([viewedAt])
+}
+
+// =============================================================================
+// CALCULATION VARIANT (Phase 4 - Prospect Adjustments)
+// =============================================================================
+
+model CalculationVariant {
+  id                   String   @id @default(cuid())
+  calculationId        String
+  consumptionProfile   Json     // Modified 12x24 profile
+  annualConsumptionKwh Decimal  @db.Decimal(10, 2)
+  results              Json     // Recalculated results
+  createdAt            DateTime @default(now())
+
+  calculation          Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+
   @@index([calculationId])
 }
