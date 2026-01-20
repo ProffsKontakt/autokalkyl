@@ -107,12 +107,13 @@ Plans:
   3. N8N webhook fires when ProffsKontakt-affiliated org saves calculation with margin below threshold
   4. PostHog captures page views, session replays, heatmaps, and custom events on customer-facing pages
   5. Sentry captures errors with stack traces and monitors API performance
-**Plans**: TBD (3-4 expected)
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md - PostHog & Sentry Setup
+- [ ] 05-02-PLAN.md - N8N Margin Alerts
+- [ ] 05-03-PLAN.md - Admin Dashboards
+- [ ] 05-04-PLAN.md - Phase Verification
 
 ## Progress
 
@@ -125,7 +126,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Reference Data | 4/4 | Complete | 2026-01-19 |
 | 3. Calculator Engine | 5/5 | Complete | 2026-01-20 |
 | 4. Customer Experience | 4/4 | Complete | 2026-01-20 |
-| 5. Operations | 0/3 | Not started | - |
+| 5. Operations | 0/4 | Not started | - |
 
 ---
 *Created: 2026-01-19*
