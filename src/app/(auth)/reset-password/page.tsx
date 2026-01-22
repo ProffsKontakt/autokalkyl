@@ -4,7 +4,7 @@ import { validateResetToken } from '@/actions/password-reset';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Aterstall losenord - Kalkyla.se',
+  title: 'Återställ lösenord - Kalkyla.se',
 };
 
 interface ResetPasswordPageProps {
@@ -20,14 +20,14 @@ export default async function ResetPasswordPage({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Ogiltig lank</CardTitle>
+          <CardTitle className="text-center">Ogiltig länk</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-sm text-gray-600 mb-4">
-            Lanken for att aterstalla losenord saknas eller ar ogiltig.
+            Länken för att återställa lösenord saknas eller är ogiltig.
           </p>
           <Link href="/forgot-password" className="text-blue-600 hover:underline">
-            Begar en ny aterstallningslank
+            Begär en ny återställningslänk
           </Link>
         </CardContent>
       </Card>
@@ -40,12 +40,12 @@ export default async function ResetPasswordPage({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Lanken ar ogiltig</CardTitle>
+          <CardTitle className="text-center">Länken är ogiltig</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-sm text-gray-600 mb-4">{error}</p>
           <Link href="/forgot-password" className="text-blue-600 hover:underline">
-            Begar en ny aterstallningslank
+            Begär en ny återställningslänk
           </Link>
         </CardContent>
       </Card>
@@ -55,7 +55,7 @@ export default async function ResetPasswordPage({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-center">Valj nytt losenord</CardTitle>
+        <CardTitle className="text-center">Välj nytt lösenord</CardTitle>
       </CardHeader>
       <CardContent>
         <ResetPasswordForm token={token} />

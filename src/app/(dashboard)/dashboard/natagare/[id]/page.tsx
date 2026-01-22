@@ -43,14 +43,14 @@ export default async function EditNatagarePage({ params }: EditNatagarePageProps
           href="/dashboard/natagare"
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
-          &larr; Tillbaka till natagare
+          &larr; Tillbaka till nätägare
         </Link>
       </div>
 
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Redigera natagare</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Redigera nätägare</h1>
         <p className="text-gray-600 mt-1">
-          Uppdatera tariffer och tidsintervall for {natagare.name}
+          Uppdatera tariffer och tidsintervall för {natagare.name}
         </p>
       </header>
 

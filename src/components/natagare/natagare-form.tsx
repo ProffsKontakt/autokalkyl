@@ -13,9 +13,9 @@ import { createNatagare, updateNatagare, NatagareFormData } from '@/actions/nata
 
 // Form uses string inputs for numbers, validated and converted on submit
 const natagareSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
-  dayRateSekKw: z.number().min(0, 'Dagtariff far inte vara negativ'),
-  nightRateSekKw: z.number().min(0, 'Natttariff far inte vara negativ'),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken').max(100),
+  dayRateSekKw: z.number().min(0, 'Dagtariff får inte vara negativ'),
+  nightRateSekKw: z.number().min(0, 'Natttariff får inte vara negativ'),
   dayStartHour: z.number().int().min(0).max(23, 'Ogiltig starttid'),
   dayEndHour: z.number().int().min(0).max(23, 'Ogiltig sluttid'),
 });
@@ -101,7 +101,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
 
       {isDefault && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
-          Detta ar en forinstalld natagare. Du kan andra priserna men inte ta bort den.
+          Detta är en förinstallerad nätägare. Du kan ändra priserna men inte ta bort den.
         </div>
       )}
 
@@ -116,7 +116,7 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
         {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
         {isDefault && (
           <p className="text-xs text-gray-500">
-            Forinstallda natagare kan inte byta namn.
+            Förinstallerade nätägare kan inte byta namn.
           </p>
         )}
       </div>
@@ -192,12 +192,12 @@ export function NatagareForm({ natagare }: NatagareFormProps) {
       </div>
 
       <p className="text-sm text-gray-600">
-        Natttariff galler fran slutet av dagperioden till borjan av nasta dag.
+        Natttariff gäller från slutet av dagperioden till början av nästa dag.
       </p>
 
       <div className="flex gap-4 pt-4">
         <Button type="submit" disabled={isPending}>
-          {isPending ? 'Sparar...' : isEditing ? 'Spara andringar' : 'Skapa natagare'}
+          {isPending ? 'Sparar...' : isEditing ? 'Spara ändringar' : 'Skapa nätägare'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Avbryt

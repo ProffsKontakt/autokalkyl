@@ -37,7 +37,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
   const savingsData = [
     { name: 'Spotprisoptimering', value: results.spotprisSavings, color: '#10B981' },
     { name: 'Effekttariffbesparing', value: results.effectTariffSavings, color: '#3B82F6' },
-    { name: 'Stodtjanster', value: results.gridServicesIncome, color: '#8B5CF6' },
+    { name: 'Stödtjänster', value: results.gridServicesIncome, color: '#8B5CF6' },
   ].filter(d => d.value > 0)
 
   // 15-year ROI timeline data
@@ -62,7 +62,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
       <section className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            Arlig besparing: {formatSek(results.totalAnnualSavings)}
+            Årlig besparing: {formatSek(results.totalAnnualSavings)}
           </h3>
           <button
             onClick={() => setShowDetailedBreakdown(!showDetailedBreakdown)}
@@ -103,7 +103,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
                     style={{ backgroundColor: item.color }}
                   />
                   <span className="flex-1 text-gray-700">{item.name}</span>
-                  <span className="font-medium">{formatSek(item.value)}/ar</span>
+                  <span className="font-medium">{formatSek(item.value)}/år</span>
                 </div>
               ))}
             </div>
@@ -116,28 +116,28 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-2">Spotprisoptimering</h4>
               <p className="text-gray-600 mb-2">
-                Batteriet laddar nar elpriset ar lagt (natt) och anvander energin nar priset ar hogt (dag).
+                Batteriet laddar när elpriset är lågt (natt) och använder energin när priset är högt (dag).
               </p>
               <p className="text-lg font-bold text-green-600">
-                {formatSek(results.spotprisSavings)}/ar
+                {formatSek(results.spotprisSavings)}/år
               </p>
             </div>
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-gray-900 mb-2">Effekttariffbesparing</h4>
               <p className="text-gray-600 mb-2">
-                Batteriet minskar dina effekttoppar och sanker din elnatavgift.
+                Batteriet minskar dina effekttoppar och sänker din elnätavgift.
               </p>
               <p className="text-lg font-bold text-blue-600">
-                {formatSek(results.effectTariffSavings)}/ar
+                {formatSek(results.effectTariffSavings)}/år
               </p>
             </div>
             <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Stodtjanster</h4>
+              <h4 className="font-medium text-gray-900 mb-2">Stödtjänster</h4>
               <p className="text-gray-600 mb-2">
-                Du kan tjana pengar pa att lata elnatet anvanda ditt batteri for frekvensreglering.
+                Du kan tjäna pengar på att låta elnätet använda ditt batteri för frekvensreglering.
               </p>
               <p className="text-lg font-bold text-purple-600">
-                {formatSek(results.gridServicesIncome)}/ar
+                {formatSek(results.gridServicesIncome)}/år
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
       {/* ROI Timeline Chart */}
       <section className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Avkastning over tid
+          Avkastning över tid
         </h3>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -155,7 +155,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis
                 dataKey="year"
-                label={{ value: 'Ar', position: 'insideBottom', offset: -5 }}
+                label={{ value: 'År', position: 'insideBottom', offset: -5 }}
                 tick={{ fontSize: 12 }}
               />
               <YAxis
@@ -172,7 +172,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
               />
               <Tooltip
                 formatter={(value) => formatSek(Number(value))}
-                labelFormatter={(label) => `Ar ${label}`}
+                labelFormatter={(label) => `År ${label}`}
               />
               <Legend />
               <ReferenceLine
@@ -215,8 +215,8 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
           </ResponsiveContainer>
         </div>
         <p className="text-sm text-gray-500 mt-4 text-center">
-          Efter {results.paybackYears.toFixed(1)} ar har du tjanat tillbaka din investering.
-          Pa 15 ar sparar du totalt {formatSek(results.totalAnnualSavings * 15 - results.costAfterGronTeknik)}.
+          Efter {results.paybackYears.toFixed(1)} år har du tjänat tillbaka din investering.
+          På 15 år sparar du totalt {formatSek(results.totalAnnualSavings * 15 - results.costAfterGronTeknik)}.
         </p>
       </section>
     </div>

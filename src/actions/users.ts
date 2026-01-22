@@ -10,10 +10,10 @@ import { hasPermission, PERMISSIONS, ROLES, Role } from '@/lib/auth/permissions'
 
 const userSchema = z.object({
   email: z.string().email('Ogiltig e-postadress'),
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken'),
-  password: z.string().min(8, 'Losenordet maste vara minst 8 tecken').optional(),
-  role: z.enum(['ORG_ADMIN', 'CLOSER']),
-  orgId: z.string().cuid(),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken'),
+  password: z.string().min(8, 'Lösenordet måste vara minst 8 tecken').optional(),
+  role: z.enum(['SUPER_ADMIN', 'ORG_ADMIN', 'CLOSER']),
+  orgId: z.string().cuid().optional(), // Optional for SUPER_ADMIN
 });
 
 export type UserFormData = z.infer<typeof userSchema>;
@@ -28,32 +28,42 @@ export async function createUser(data: UserFormData) {
   const targetRole = data.role as Role;
 
   // Permission checks based on role hierarchy
-  if (targetRole === ROLES.ORG_ADMIN) {
+  if (targetRole === ROLES.SUPER_ADMIN) {
+    // Only Super Admin can create Super Admins
+    if (currentRole !== ROLES.SUPER_ADMIN) {
+      return { error: 'Endast Super Admin kan skapa Super Admin-användare' };
+    }
+  } else if (targetRole === ROLES.ORG_ADMIN) {
     // Only Super Admin can create Org Admins
     if (!hasPermission(currentRole, PERMISSIONS.USER_CREATE_ORG_ADMIN)) {
-      return { error: 'Du har inte behorighet att skapa Org Admin-anvandare' };
+      return { error: 'Du har inte behörighet att skapa Org Admin-användare' };
     }
   } else if (targetRole === ROLES.CLOSER) {
     // Super Admin or Org Admin can create Closers
     if (!hasPermission(currentRole, PERMISSIONS.USER_CREATE_CLOSER)) {
-      return { error: 'Du har inte behorighet att skapa Closer-anvandare' };
+      return { error: 'Du har inte behörighet att skapa Closer-användare' };
     }
     // Org Admin can only create in their own org
     if (currentRole === ROLES.ORG_ADMIN && session.user.orgId !== data.orgId) {
-      return { error: 'Du kan bara skapa anvandare i din egen organisation' };
+      return { error: 'Du kan bara skapa användare i din egen organisation' };
     }
   }
 
-  // Verify org exists
-  const org = await prisma.organization.findUnique({ where: { id: data.orgId } });
-  if (!org) {
-    return { error: 'Organisationen hittades inte' };
+  // Super Admin doesn't need an org, others do
+  if (targetRole !== ROLES.SUPER_ADMIN) {
+    if (!data.orgId) {
+      return { error: 'Organisation krävs' };
+    }
+    const org = await prisma.organization.findUnique({ where: { id: data.orgId } });
+    if (!org) {
+      return { error: 'Organisationen hittades inte' };
+    }
   }
 
   // Check email uniqueness
   const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
   if (existingUser) {
-    return { error: 'En anvandare med denna e-postadress finns redan' };
+    return { error: 'En användare med denna e-postadress finns redan' };
   }
 
   const parsed = userSchema.safeParse(data);
@@ -63,7 +73,7 @@ export async function createUser(data: UserFormData) {
 
   // Require password for new users
   if (!parsed.data.password) {
-    return { error: 'Losenord kravs for nya anvandare' };
+    return { error: 'Lösenord krävs för nya användare' };
   }
 
   try {
@@ -75,7 +85,7 @@ export async function createUser(data: UserFormData) {
         name: parsed.data.name,
         passwordHash,
         role: parsed.data.role,
-        orgId: parsed.data.orgId,
+        orgId: parsed.data.role === 'SUPER_ADMIN' ? null : parsed.data.orgId,
         isActive: true,
       },
     });
@@ -85,7 +95,7 @@ export async function createUser(data: UserFormData) {
     return { success: true, userId: user.id };
   } catch (error) {
     console.error('Failed to create user:', error);
-    return { error: 'Kunde inte skapa anvandaren' };
+    return { error: 'Kunde inte skapa användaren' };
   }
 }
 
@@ -103,24 +113,34 @@ export async function updateUser(
   // Get target user
   const targetUser = await prisma.user.findUnique({ where: { id: userId } });
   if (!targetUser) {
-    return { error: 'Anvandaren hittades inte' };
+    return { error: 'Användaren hittades inte' };
   }
 
   // Check permission to edit
   if (!hasPermission(currentRole, PERMISSIONS.USER_EDIT)) {
-    return { error: 'Du har inte behorighet att redigera anvandare' };
+    return { error: 'Du har inte behörighet att redigera användare' };
   }
 
   // Org Admin can only edit users in their own org
   if (currentRole === ROLES.ORG_ADMIN && session.user.orgId !== targetUser.orgId) {
-    return { error: 'Du kan bara redigera anvandare i din egen organisation' };
+    return { error: 'Du kan bara redigera användare i din egen organisation' };
   }
 
-  // Cannot change Super Admin users (or become Super Admin)
-  // Cast to string for runtime check - the form schema only allows ORG_ADMIN/CLOSER
-  // but this guards against malicious API calls
-  if (targetUser.role === ROLES.SUPER_ADMIN || (data.role as string) === 'SUPER_ADMIN') {
-    return { error: 'Super Admin-anvandare kan inte redigeras' };
+  // Super Admin editing rules
+  if (targetUser.role === ROLES.SUPER_ADMIN) {
+    // Only Super Admin can edit Super Admin
+    if (currentRole !== ROLES.SUPER_ADMIN) {
+      return { error: 'Endast Super Admin kan redigera Super Admin-användare' };
+    }
+    // Cannot change Super Admin's role
+    if (data.role && data.role !== 'SUPER_ADMIN') {
+      return { error: 'Super Admin-rollen kan inte ändras' };
+    }
+  }
+
+  // Non-Super Admin cannot become Super Admin
+  if (targetUser.role !== ROLES.SUPER_ADMIN && data.role === 'SUPER_ADMIN') {
+    return { error: 'Användare kan inte uppgraderas till Super Admin' };
   }
 
   try {
@@ -142,7 +162,7 @@ export async function updateUser(
     return { success: true };
   } catch (error) {
     console.error('Failed to update user:', error);
-    return { error: 'Kunde inte uppdatera anvandaren' };
+    return { error: 'Kunde inte uppdatera användaren' };
   }
 }
 
@@ -155,27 +175,27 @@ export async function deactivateUser(userId: string) {
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.USER_DEACTIVATE)) {
-    return { error: 'Du har inte behorighet att inaktivera anvandare' };
+    return { error: 'Du har inte behörighet att inaktivera användare' };
   }
 
   const targetUser = await prisma.user.findUnique({ where: { id: userId } });
   if (!targetUser) {
-    return { error: 'Anvandaren hittades inte' };
+    return { error: 'Användaren hittades inte' };
   }
 
   // Org Admin can only deactivate users in their own org
   if (currentRole === ROLES.ORG_ADMIN && session.user.orgId !== targetUser.orgId) {
-    return { error: 'Du kan bara inaktivera anvandare i din egen organisation' };
+    return { error: 'Du kan bara inaktivera användare i din egen organisation' };
   }
 
   // Cannot deactivate Super Admin
   if (targetUser.role === ROLES.SUPER_ADMIN) {
-    return { error: 'Super Admin-anvandare kan inte inaktiveras' };
+    return { error: 'Super Admin-användare kan inte inaktiveras' };
   }
 
   // Cannot deactivate yourself
   if (targetUser.id === session.user.id) {
-    return { error: 'Du kan inte inaktivera dig sjalv' };
+    return { error: 'Du kan inte inaktivera dig själv' };
   }
 
   try {
@@ -188,7 +208,7 @@ export async function deactivateUser(userId: string) {
     return { success: true };
   } catch (error) {
     console.error('Failed to deactivate user:', error);
-    return { error: 'Kunde inte inaktivera anvandaren' };
+    return { error: 'Kunde inte inaktivera användaren' };
   }
 }
 
@@ -227,7 +247,7 @@ export async function getUsers() {
     return { users };
   }
 
-  return { error: 'Du har inte behorighet att se anvandare', users: [] };
+  return { error: 'Du har inte behörighet att se användare', users: [] };
 }
 
 export async function getUser(userId: string) {
@@ -246,17 +266,17 @@ export async function getUser(userId: string) {
   });
 
   if (!user) {
-    return { error: 'Anvandaren hittades inte' };
+    return { error: 'Användaren hittades inte' };
   }
 
   // Check access
   const currentRole = session.user.role as Role;
   if (!hasPermission(currentRole, PERMISSIONS.USER_VIEW_ALL)) {
     if (currentRole === ROLES.ORG_ADMIN && session.user.orgId !== user.orgId) {
-      return { error: 'Du har inte behorighet att se denna anvandare' };
+      return { error: 'Du har inte behörighet att se denna användare' };
     }
     if (currentRole === ROLES.CLOSER && session.user.id !== user.id) {
-      return { error: 'Du har inte behorighet att se denna anvandare' };
+      return { error: 'Du har inte behörighet att se denna användare' };
     }
   }
 

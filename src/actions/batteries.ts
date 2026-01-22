@@ -11,22 +11,22 @@ import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions';
 // =============================================================================
 
 const batteryBrandSchema = z.object({
-  name: z.string().min(2, 'Varumarke maste vara minst 2 tecken').max(100),
+  name: z.string().min(2, 'Varumärke måste vara minst 2 tecken').max(100),
   logoUrl: z.string().url().optional().or(z.literal('')),
 });
 
 const batteryConfigSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
-  brandId: z.string().cuid('Ogiltigt varumarke'),
-  capacityKwh: z.number().positive('Kapacitet maste vara positiv'),
-  maxDischargeKw: z.number().positive('Maxeffekt urladdning maste vara positiv'),
-  maxChargeKw: z.number().positive('Maxeffekt laddning maste vara positiv'),
-  chargeEfficiency: z.number().min(0).max(100, 'Effektivitet maste vara 0-100%'),
-  dischargeEfficiency: z.number().min(0).max(100, 'Effektivitet maste vara 0-100%'),
-  warrantyYears: z.number().int().positive('Garantitid maste vara minst 1 ar'),
-  guaranteedCycles: z.number().int().positive('Cykler maste vara minst 1'),
-  degradationPerYear: z.number().min(0).max(100, 'Degradering maste vara 0-100%'),
-  costPrice: z.number().min(0, 'Inkopspris far inte vara negativt'),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken').max(100),
+  brandId: z.string().cuid('Ogiltigt varumärke'),
+  capacityKwh: z.number().positive('Kapacitet måste vara positiv'),
+  maxDischargeKw: z.number().positive('Maxeffekt urladdning måste vara positiv'),
+  maxChargeKw: z.number().positive('Maxeffekt laddning måste vara positiv'),
+  chargeEfficiency: z.number().min(0).max(100, 'Effektivitet måste vara 0-100%'),
+  dischargeEfficiency: z.number().min(0).max(100, 'Effektivitet måste vara 0-100%'),
+  warrantyYears: z.number().int().positive('Garantitid måste vara minst 1 år'),
+  guaranteedCycles: z.number().int().positive('Cykler måste vara minst 1'),
+  degradationPerYear: z.number().min(0).max(100, 'Degradering måste vara 0-100%'),
+  costPrice: z.number().min(0, 'Inköpspris får inte vara negativt'),
   isExtensionCabinet: z.boolean().default(false),
   isNewStack: z.boolean().default(true),
 });
@@ -46,7 +46,7 @@ export async function createBatteryBrand(data: BatteryBrandFormData) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_CREATE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -75,10 +75,10 @@ export async function createBatteryBrand(data: BatteryBrandFormData) {
   } catch (error) {
     // Check for unique constraint violation
     if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return { error: 'Ett varumarke med detta namn finns redan' };
+      return { error: 'Ett varumärke med detta namn finns redan' };
     }
     console.error('Failed to create battery brand:', error);
-    return { error: 'Kunde inte skapa varumarket' };
+    return { error: 'Kunde inte skapa varumärket' };
   }
 }
 
@@ -93,7 +93,7 @@ export async function updateBatteryBrand(
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_EDIT)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -109,7 +109,7 @@ export async function updateBatteryBrand(
     });
 
     if (!existingBrand) {
-      return { error: 'Varumarket hittades inte' };
+      return { error: 'Varumärket hittades inte' };
     }
 
     const updateData: Record<string, unknown> = {};
@@ -125,10 +125,10 @@ export async function updateBatteryBrand(
     return { success: true };
   } catch (error) {
     if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return { error: 'Ett varumarke med detta namn finns redan' };
+      return { error: 'Ett varumärke med detta namn finns redan' };
     }
     console.error('Failed to update battery brand:', error);
-    return { error: 'Kunde inte uppdatera varumarket' };
+    return { error: 'Kunde inte uppdatera varumärket' };
   }
 }
 
@@ -140,7 +140,7 @@ export async function deleteBatteryBrand(brandId: string) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_DELETE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -157,13 +157,13 @@ export async function deleteBatteryBrand(brandId: string) {
     });
 
     if (!existingBrand) {
-      return { error: 'Varumarket hittades inte' };
+      return { error: 'Varumärket hittades inte' };
     }
 
     // Check if brand has configs
     if (existingBrand.configs.length > 0) {
       return {
-        error: `Varumarket har ${existingBrand.configs.length} konfiguration(er). Ta bort dessa forst.`,
+        error: `Varumärket har ${existingBrand.configs.length} konfiguration(er). Ta bort dessa först.`,
       };
     }
 
@@ -175,7 +175,7 @@ export async function deleteBatteryBrand(brandId: string) {
     return { success: true };
   } catch (error) {
     console.error('Failed to delete battery brand:', error);
-    return { error: 'Kunde inte ta bort varumarket' };
+    return { error: 'Kunde inte ta bort varumärket' };
   }
 }
 
@@ -187,7 +187,7 @@ export async function getBatteryBrands() {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_VIEW)) {
-    return { error: 'Du har inte behorighet', brands: [] };
+    return { error: 'Du har inte behörighet', brands: [] };
   }
 
   if (!session.user.orgId) {
@@ -225,7 +225,7 @@ export async function getBatteryBrands() {
     return { brands: serializedBrands };
   } catch (error) {
     console.error('Failed to get battery brands:', error);
-    return { error: 'Kunde inte hamta varumarken', brands: [] };
+    return { error: 'Kunde inte hämta varumärken', brands: [] };
   }
 }
 
@@ -241,7 +241,7 @@ export async function createBatteryConfig(data: BatteryConfigFormData) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_CREATE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -262,7 +262,7 @@ export async function createBatteryConfig(data: BatteryConfigFormData) {
     });
 
     if (!brand) {
-      return { error: 'Varumarket hittades inte' };
+      return { error: 'Varumärket hittades inte' };
     }
 
     // Explicitly include orgId for TypeScript - tenant client will override at runtime
@@ -289,7 +289,7 @@ export async function createBatteryConfig(data: BatteryConfigFormData) {
     return { success: true, configId: config.id };
   } catch (error) {
     if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return { error: 'En konfiguration med detta namn finns redan for detta varumarke' };
+      return { error: 'En konfiguration med detta namn finns redan för detta varumärke' };
     }
     console.error('Failed to create battery config:', error);
     return { error: 'Kunde inte skapa konfigurationen' };
@@ -307,7 +307,7 @@ export async function updateBatteryConfig(
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_EDIT)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -349,7 +349,7 @@ export async function updateBatteryConfig(
     return { success: true };
   } catch (error) {
     if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return { error: 'En konfiguration med detta namn finns redan for detta varumarke' };
+      return { error: 'En konfiguration med detta namn finns redan för detta varumärke' };
     }
     console.error('Failed to update battery config:', error);
     return { error: 'Kunde inte uppdatera konfigurationen' };
@@ -364,7 +364,7 @@ export async function deleteBatteryConfig(configId: string) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_DELETE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -403,7 +403,7 @@ export async function getBatteryConfigs(brandId?: string) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_VIEW)) {
-    return { error: 'Du har inte behorighet', configs: [] };
+    return { error: 'Du har inte behörighet', configs: [] };
   }
 
   if (!session.user.orgId) {
@@ -443,7 +443,7 @@ export async function getBatteryConfigs(brandId?: string) {
     return { configs: serializedConfigs };
   } catch (error) {
     console.error('Failed to get battery configs:', error);
-    return { error: 'Kunde inte hamta konfigurationer', configs: [] };
+    return { error: 'Kunde inte hämta konfigurationer', configs: [] };
   }
 }
 
@@ -455,7 +455,7 @@ export async function getBatteryConfig(configId: string) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_VIEW)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -493,7 +493,7 @@ export async function getBatteryConfig(configId: string) {
     return { config: serializedConfig };
   } catch (error) {
     console.error('Failed to get battery config:', error);
-    return { error: 'Kunde inte hamta konfigurationen' };
+    return { error: 'Kunde inte hämta konfigurationen' };
   }
 }
 
@@ -505,7 +505,7 @@ export async function getBatteryBrand(brandId: string) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.BATTERY_VIEW)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   if (!session.user.orgId) {
@@ -520,12 +520,12 @@ export async function getBatteryBrand(brandId: string) {
     });
 
     if (!brand) {
-      return { error: 'Varumarket hittades inte' };
+      return { error: 'Varumärket hittades inte' };
     }
 
     return { brand };
   } catch (error) {
     console.error('Failed to get battery brand:', error);
-    return { error: 'Kunde inte hamta varumarket' };
+    return { error: 'Kunde inte hämta varumärket' };
   }
 }

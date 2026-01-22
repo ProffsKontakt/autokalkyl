@@ -20,14 +20,14 @@ export default async function NewNatagarePage() {
           href="/dashboard/natagare"
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
-          &larr; Tillbaka till natagare
+          &larr; Tillbaka till nätägare
         </Link>
       </div>
 
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Lagg till natagare</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Lägg till nätägare</h1>
         <p className="text-gray-600 mt-1">
-          Skapa en ny natagare med effekttariffer
+          Skapa en ny nätägare med effekttariffer
         </p>
       </header>
 

@@ -195,10 +195,10 @@ export function PublicConsumptionSimulator({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Din forbrukning
+              Din förbrukning
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              Klicka pa en stapel for att justera din forbrukning och se hur det paverkar din besparing.
+              Klicka på en stapel för att justera din förbrukning och se hur det påverkar din besparing.
             </p>
           </div>
           {hasChanges && (
@@ -256,7 +256,7 @@ export function PublicConsumptionSimulator({
                 }}
               />
               <Tooltip
-                formatter={(value) => [`${Number(value).toFixed(2)} kWh`, 'Forbrukning']}
+                formatter={(value) => [`${Number(value).toFixed(2)} kWh`, 'Förbrukning']}
                 labelFormatter={(label) => `Kl ${label}:00`}
               />
               <Bar
@@ -285,16 +285,16 @@ export function PublicConsumptionSimulator({
         <div className="flex flex-wrap gap-4 mt-4 text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: primaryColor }} />
-            <span>Dagforbrukning</span>
+            <span>Dagförbrukning</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-indigo-500" />
-            <span>Nattforbrukning</span>
+            <span>Nattförbrukning</span>
           </div>
           {hasChanges && (
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded bg-amber-500" />
-              <span>Andrad</span>
+              <span>Ändrad</span>
             </div>
           )}
         </div>
@@ -305,7 +305,7 @@ export function PublicConsumptionSimulator({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h4 className="text-lg font-medium mb-4">
-              Andra forbrukning kl {editingHour.toString().padStart(2, '0')}:00
+              Ändra förbrukning kl {editingHour.toString().padStart(2, '0')}:00
             </h4>
             <div className="flex gap-2">
               <input
@@ -343,7 +343,7 @@ export function PublicConsumptionSimulator({
       <div className="p-4 bg-gray-50 border-t">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Arsforbrukning: <span className="font-medium">{Math.round(annualKwh).toLocaleString('sv-SE')} kWh</span>
+            Årsförbrukning: <span className="font-medium">{Math.round(annualKwh).toLocaleString('sv-SE')} kWh</span>
             {annualKwh !== originalAnnualKwh && (
               <span className="text-amber-600 ml-2">
                 ({annualKwh > originalAnnualKwh ? '+' : ''}
@@ -361,7 +361,7 @@ export function PublicConsumptionSimulator({
             }`}
             style={isDirty ? { backgroundColor: primaryColor } : undefined}
           >
-            {isRecalculating ? 'Raknar...' : 'Uppdatera'}
+            {isRecalculating ? 'Räknar...' : 'Uppdatera'}
           </button>
         </div>
       </div>

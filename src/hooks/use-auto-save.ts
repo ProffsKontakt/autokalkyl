@@ -13,6 +13,14 @@ import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { saveDraft } from '@/actions/calculations'
 
 /**
+ * Hook options for auto-save.
+ */
+interface UseAutoSaveOptions {
+  /** Organization ID for Super Admin creating calculations for other orgs */
+  orgId?: string
+}
+
+/**
  * Hook return type for auto-save functionality.
  */
 interface UseAutoSaveReturn {
@@ -47,7 +55,8 @@ interface UseAutoSaveReturn {
  * }
  * ```
  */
-export function useAutoSave(): UseAutoSaveReturn {
+export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn {
+  const { orgId } = options
   const {
     calculationId,
     customerName,
@@ -81,6 +90,7 @@ export function useAutoSave(): UseAutoSaveReturn {
       annualConsumptionKwh,
       consumptionProfile,
       batteries,
+      orgId,
     })
 
     // Skip if state hasn't changed since last save
@@ -105,6 +115,8 @@ export function useAutoSave(): UseAutoSaveReturn {
           totalPriceExVat: b.totalPriceExVat,
           installationCost: b.installationCost,
         })),
+        // Include orgId for Super Admin (optional for regular users)
+        orgId,
       })
 
       if (result.calculationId) {
@@ -126,6 +138,7 @@ export function useAutoSave(): UseAutoSaveReturn {
     annualConsumptionKwh,
     consumptionProfile,
     batteries,
+    orgId,
     markSaved,
     setSaving,
   ])

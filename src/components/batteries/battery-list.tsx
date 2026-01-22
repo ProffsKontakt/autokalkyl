@@ -54,7 +54,7 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
   };
 
   const handleDeleteBrand = (brandId: string, brandName: string) => {
-    if (!confirm(`Ar du saker pa att du vill ta bort varumarket "${brandName}"?`)) {
+    if (!confirm(`Är du säker på att du vill ta bort varumärket "${brandName}"?`)) {
       return;
     }
 
@@ -69,7 +69,7 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
   };
 
   const handleDeleteConfig = (configId: string, configName: string) => {
-    if (!confirm(`Ar du saker pa att du vill ta bort konfigurationen "${configName}"?`)) {
+    if (!confirm(`Är du säker på att du vill ta bort konfigurationen "${configName}"?`)) {
       return;
     }
 
@@ -94,7 +94,7 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
                 href="/dashboard/batteries/brands/new"
                 className="text-blue-600 hover:text-blue-800"
               >
-                Skapa ditt forsta varumarke
+                Skapa ditt första varumärke
               </Link>
             </p>
           )}
@@ -137,7 +137,7 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Button size="sm" variant="outline">
-                      Lagg till konfiguration
+                      Lägg till konfiguration
                     </Button>
                   </Link>
                 )}
@@ -189,13 +189,13 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
                         Garanti
                       </th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Inkopspris
+                        Inköpspris
                       </th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                         Typ
                       </th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Atgarder
+                        Åtgärder
                       </th>
                     </tr>
                   </thead>
@@ -212,7 +212,7 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
                           {config.maxDischargeKw} / {config.maxChargeKw} kW
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
-                          {config.warrantyYears} ar
+                          {config.warrantyYears} år
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {config.costPrice.toLocaleString('sv-SE')} kr
@@ -221,12 +221,12 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
                           <div className="flex gap-1">
                             {config.isExtensionCabinet && (
                               <span className="px-1.5 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded">
-                                Tillbehor
+                                Tillbehör
                               </span>
                             )}
                             {!config.isNewStack && (
                               <span className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-800 rounded">
-                                Atervunnet
+                                Återvunnet
                               </span>
                             )}
                             {!config.isExtensionCabinet && config.isNewStack && (
@@ -264,13 +264,13 @@ export function BatteryList({ brands, userRole }: BatteryListProps) {
 
             {isExpanded && brand.configs.length === 0 && (
               <div className="border-t p-4 text-center text-gray-500 text-sm">
-                Inga konfigurationer for detta varumarke.
+                Inga konfigurationer för detta varumärke.
                 {canCreate && (
                   <Link
                     href={`/dashboard/batteries/configs/new?brandId=${brand.id}`}
                     className="ml-2 text-blue-600 hover:text-blue-800"
                   >
-                    Lagg till en
+                    Lägg till en
                   </Link>
                 )}
               </div>

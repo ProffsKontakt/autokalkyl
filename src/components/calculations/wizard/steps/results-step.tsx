@@ -110,7 +110,7 @@ export function ResultsStep({
         <div className="p-6 bg-yellow-50 rounded-lg text-yellow-800">
           <p className="font-medium">Elprisdata saknas</p>
           <p className="text-sm mt-1">
-            Ingen kvartalsdata finns for {elomrade}. Kontakta administratoren.
+            Ingen kvartalsdata finns för {elomrade}. Kontakta administratören.
           </p>
         </div>
       </div>
@@ -122,9 +122,9 @@ export function ResultsStep({
       <div className="max-w-4xl mx-auto">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Resultat</h2>
         <div className="p-6 bg-yellow-50 rounded-lg text-yellow-800">
-          <p className="font-medium">Natagare saknas</p>
+          <p className="font-medium">Nätägare saknas</p>
           <p className="text-sm mt-1">
-            Vald natagare kunde inte hittas. Ga tillbaka och valj natagare igen.
+            Vald nätägare kunde inte hittas. Gå tillbaka och välj nätägare igen.
           </p>
         </div>
       </div>
@@ -136,7 +136,7 @@ export function ResultsStep({
       <div className="max-w-4xl mx-auto">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Resultat</h2>
         <div className="p-6 bg-gray-50 rounded-lg text-gray-600">
-          <p>Valj minst ett batteri for att se resultat.</p>
+          <p>Välj minst ett batteri för att se resultat.</p>
         </div>
       </div>
     )
@@ -149,10 +149,10 @@ export function ResultsStep({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            Resultat for {customerName}
+            Resultat för {customerName}
           </h2>
           <p className="text-sm text-gray-500">
-            Elomrade {elomrade} - Elpris {prices.avgDayPriceOre.toFixed(0)}/{prices.avgNightPriceOre.toFixed(0)} ore/kWh (dag/natt)
+            Elområde {elomrade} - Elpris {prices.avgDayPriceOre.toFixed(0)}/{prices.avgNightPriceOre.toFixed(0)} öre/kWh (dag/natt)
             {selectedNatagare && ` - ${selectedNatagare.name}`}
           </p>
         </div>
@@ -188,7 +188,7 @@ export function ResultsStep({
             </div>
           </div>
           <p className="text-xs text-blue-600 mt-2">
-            Marginalinformation visas ej for kund.
+            Marginalinformation visas ej för kund.
           </p>
         </div>
       )}

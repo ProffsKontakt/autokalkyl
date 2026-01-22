@@ -252,7 +252,7 @@ export async function getDashboardStats(): Promise<{ data?: DashboardStats; erro
     }
   } catch (error) {
     console.error('Dashboard stats error:', error)
-    return { error: 'Kunde inte hamta statistik' }
+    return { error: 'Kunde inte hämta statistik' }
   }
 }
 
@@ -308,7 +308,7 @@ export async function getOrganizationsWithStats(): Promise<{ data?: OrgStats[]; 
     return { data: orgsWithViews }
   } catch (error) {
     console.error('Get orgs error:', error)
-    return { error: 'Kunde inte hamta organisationer' }
+    return { error: 'Kunde inte hämta organisationer' }
   }
 }
 
@@ -404,7 +404,7 @@ export async function getCalculationsForDashboard(
           batteryName: c.batteries[0]
             ? `${c.batteries[0].batteryConfig.brand.name} ${c.batteries[0].batteryConfig.name}`
             : null,
-          closerName: closer?.name || 'Okand',
+          closerName: closer?.name || 'Okänd',
           closerEmail: closer?.email || '',
           orgName: c.organization.name,
           orgSlug: c.organization.slug,
@@ -415,6 +415,6 @@ export async function getCalculationsForDashboard(
     return { data: calcsWithDetails }
   } catch (error) {
     console.error('Get calculations error:', error)
-    return { error: 'Kunde inte hamta kalkyler' }
+    return { error: 'Kunde inte hämta kalkyler' }
   }
 }

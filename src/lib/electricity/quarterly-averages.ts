@@ -10,7 +10,7 @@ export async function calculateQuarterlyAverages(
   elomrade: Elomrade,
   year: number,
   quarter: number
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; avgDay?: number; avgNight?: number }> {
   // Calculate date range for quarter
   const startMonth = (quarter - 1) * 3; // Q1=0, Q2=3, Q3=6, Q4=9
   const startDate = new Date(year, startMonth, 1);
@@ -62,7 +62,7 @@ export async function calculateQuarterlyAverages(
     },
   });
 
-  return { success: true };
+  return { success: true, avgDay: avgDayPriceOre, avgNight: avgNightPriceOre };
 }
 
 /**

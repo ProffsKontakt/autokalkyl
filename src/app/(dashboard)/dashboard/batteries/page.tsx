@@ -30,12 +30,12 @@ export default async function BatteriesPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Batterier</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Hantera batterivarumarken och konfigurationer for dina kalkyler.
+            Hantera batterivarumärken och konfigurationer för dina kalkyler.
           </p>
         </div>
         {canCreate && (
           <Link href="/dashboard/batteries/brands/new">
-            <Button>Lagg till varumarke</Button>
+            <Button>Lägg till varumärke</Button>
           </Link>
         )}
       </div>

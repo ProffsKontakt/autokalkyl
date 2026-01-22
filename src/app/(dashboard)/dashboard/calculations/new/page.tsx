@@ -1,15 +1,20 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth/auth'
-import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions'
+import { hasPermission, PERMISSIONS, Role, ROLES } from '@/lib/auth/permissions'
 import { createTenantClient } from '@/lib/db/tenant-client'
 import { prisma } from '@/lib/db/client'
 import { CalculationWizard } from '@/components/calculations/wizard/calculation-wizard'
+import { OrgSelector } from '@/components/calculations/org-selector'
 
 export const metadata = {
   title: 'Ny kalkyl - Kalkyla.se',
 }
 
-export default async function NewCalculationPage() {
+interface PageProps {
+  searchParams: Promise<{ orgId?: string }>
+}
+
+export default async function NewCalculationPage({ searchParams }: PageProps) {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
@@ -18,8 +23,48 @@ export default async function NewCalculationPage() {
     redirect('/dashboard')
   }
 
+  const params = await searchParams
+  const isSuperAdmin = role === ROLES.SUPER_ADMIN
+
+  // Determine which orgId to use
+  let orgId: string | null = null
+
+  if (isSuperAdmin) {
+    // Super Admin can select an organization
+    if (params.orgId) {
+      // Verify the org exists
+      const org = await prisma.organization.findUnique({
+        where: { id: params.orgId },
+        select: { id: true },
+      })
+      if (org) {
+        orgId = org.id
+      }
+    }
+
+    // If no valid orgId selected, show org selector
+    if (!orgId) {
+      const organizations = await prisma.organization.findMany({
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, slug: true },
+      })
+
+      return (
+        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg p-8">
+          <OrgSelector organizations={organizations} />
+        </div>
+      )
+    }
+  } else {
+    // Regular users use their own org
+    if (!session.user.orgId) {
+      redirect('/dashboard')
+    }
+    orgId = session.user.orgId
+  }
+
   // Fetch natagare list for the org (including effect tariff rates for calculations)
-  const tenantClient = createTenantClient(session.user.orgId!)
+  const tenantClient = createTenantClient(orgId)
   const natagare = await tenantClient.natagare.findMany({
     where: { isActive: true },
     orderBy: { name: 'asc' },
@@ -52,15 +97,13 @@ export default async function NewCalculationPage() {
   }
 
   // Fetch org settings for margin calculation
-  const org = role === 'SUPER_ADMIN'
-    ? null
-    : await prisma.organization.findUnique({
-        where: { id: session.user.orgId! },
-        select: { isProffsKontaktAffiliated: true, installerFixedCut: true },
-      })
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { isProffsKontaktAffiliated: true, installerFixedCut: true },
+  })
 
   return (
-    <div className="bg-white rounded-lg shadow h-[calc(100vh-8rem)]">
+    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg h-[calc(100vh-8rem)]">
       <CalculationWizard
         natagareList={natagare.map(n => ({
           id: n.id,
@@ -84,6 +127,7 @@ export default async function NewCalculationPage() {
           isProffsKontaktAffiliated: org.isProffsKontaktAffiliated,
           installerFixedCut: org.installerFixedCut ? Number(org.installerFixedCut) : null,
         } : undefined}
+        orgId={isSuperAdmin ? orgId : undefined}
       />
     </div>
   )

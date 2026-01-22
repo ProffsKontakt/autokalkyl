@@ -16,7 +16,7 @@ export function ComparisonView({ batteries }: ComparisonViewProps) {
     Math.round(n).toLocaleString('sv-SE') + ' kr'
 
   const formatYears = (n: number) =>
-    n.toFixed(1).replace('.', ',') + ' ar'
+    n.toFixed(1).replace('.', ',') + ' år'
 
   const formatPercent = (n: number) =>
     n.toFixed(1).replace('.', ',') + '%'
@@ -29,35 +29,35 @@ export function ComparisonView({ batteries }: ComparisonViewProps) {
 
   const metrics = [
     {
-      label: 'Aterbetaltningstid',
+      label: 'Återbetalningstid',
       key: 'paybackPeriodYears',
       format: formatYears,
       best: bestPayback,
       lowerIsBetter: true,
     },
     {
-      label: 'Arlig besparing',
+      label: 'Årlig besparing',
       key: 'totalAnnualSavingsSek',
       format: formatSek,
       best: bestAnnualSavings,
       lowerIsBetter: false,
     },
     {
-      label: 'ROI 10 ar',
+      label: 'ROI 10 år',
       key: 'roi10YearPercent',
       format: formatPercent,
       best: bestRoi10,
       lowerIsBetter: false,
     },
     {
-      label: 'ROI 15 ar',
+      label: 'ROI 15 år',
       key: 'roi15YearPercent',
       format: formatPercent,
       best: bestRoi15,
       lowerIsBetter: false,
     },
     {
-      label: 'Kostnad efter Gron Teknik',
+      label: 'Kostnad efter Grön Teknik',
       key: 'costAfterGronTeknikSek',
       format: formatSek,
       best: Math.min(...batteries.map(b => b.results.costAfterGronTeknikSek)),
@@ -78,7 +78,7 @@ export function ComparisonView({ batteries }: ComparisonViewProps) {
       lowerIsBetter: false,
     },
     {
-      label: 'Stodtjanster',
+      label: 'Stödtjänster',
       key: 'gridServicesIncomeSek',
       format: formatSek,
       best: Math.max(...batteries.map(b => b.results.gridServicesIncomeSek)),
@@ -136,7 +136,7 @@ export function ComparisonView({ batteries }: ComparisonViewProps) {
 
       {batteries.length > 1 && (
         <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500">
-          * Basta varde markerat med gront
+          * Bästa värde markerat med grönt
         </div>
       )}
     </div>

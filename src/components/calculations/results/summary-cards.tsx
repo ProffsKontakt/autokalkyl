@@ -14,8 +14,8 @@ export function SummaryCards({ results, batteryName }: SummaryCardsProps) {
   const formatYears = (n: number) => {
     const years = Math.floor(n)
     const months = Math.round((n - years) * 12)
-    if (months === 0) return `${years} ar`
-    return `${years} ar ${months} man`
+    if (months === 0) return `${years} år`
+    return `${years} år ${months} mån`
   }
 
   const formatPercent = (n: number) =>
@@ -25,25 +25,25 @@ export function SummaryCards({ results, batteryName }: SummaryCardsProps) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Payback period */}
       <div className="bg-white border rounded-lg p-4">
-        <h3 className="text-sm text-gray-500 mb-1">Aterbetaltningstid</h3>
+        <h3 className="text-sm text-gray-500 mb-1">Återbetalningstid</h3>
         <p className="text-2xl font-bold text-gray-900">
           {formatYears(results.paybackPeriodYears)}
         </p>
-        <p className="text-xs text-gray-400 mt-1">efter Gron Teknik</p>
+        <p className="text-xs text-gray-400 mt-1">efter Grön Teknik</p>
       </div>
 
       {/* Annual savings */}
       <div className="bg-white border rounded-lg p-4">
-        <h3 className="text-sm text-gray-500 mb-1">Arlig besparing</h3>
+        <h3 className="text-sm text-gray-500 mb-1">Årlig besparing</h3>
         <p className="text-2xl font-bold text-green-600">
           {formatSek(results.totalAnnualSavingsSek)}
         </p>
-        <p className="text-xs text-gray-400 mt-1">/ar</p>
+        <p className="text-xs text-gray-400 mt-1">/år</p>
       </div>
 
       {/* 10-year ROI */}
       <div className="bg-white border rounded-lg p-4">
-        <h3 className="text-sm text-gray-500 mb-1">ROI 10 ar</h3>
+        <h3 className="text-sm text-gray-500 mb-1">ROI 10 år</h3>
         <p className={`text-2xl font-bold ${results.roi10YearPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {formatPercent(results.roi10YearPercent)}
         </p>
@@ -54,7 +54,7 @@ export function SummaryCards({ results, batteryName }: SummaryCardsProps) {
 
       {/* 15-year ROI */}
       <div className="bg-white border rounded-lg p-4">
-        <h3 className="text-sm text-gray-500 mb-1">ROI 15 ar</h3>
+        <h3 className="text-sm text-gray-500 mb-1">ROI 15 år</h3>
         <p className={`text-2xl font-bold ${results.roi15YearPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {formatPercent(results.roi15YearPercent)}
         </p>

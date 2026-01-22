@@ -8,20 +8,20 @@ export default function NotFound() {
           Kalkylen hittades inte
         </h1>
         <p className="text-gray-600 mb-6">
-          Lanken kan ha gatt ut eller sa har kalkylen tagits bort.
-          Kontakta din saljare for att fa en ny lank.
+          Länken kan ha gått ut eller så har kalkylen tagits bort.
+          Kontakta din säljare för att få en ny länk.
         </p>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-sm text-gray-500 mb-2">Behover du hjalp?</p>
+          <p className="text-sm text-gray-500 mb-2">Behöver du hjälp?</p>
           <p className="text-gray-700">
-            Kontakta saljaren som skickade lanken till dig.
+            Kontakta säljaren som skickade länken till dig.
           </p>
         </div>
         <Link
           href="https://kalkyla.se"
           className="inline-block mt-6 text-blue-600 hover:underline"
         >
-          Besok Kalkyla.se
+          Besök Kalkyla.se
         </Link>
       </div>
     </div>

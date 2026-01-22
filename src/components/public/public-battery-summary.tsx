@@ -77,25 +77,25 @@ export function PublicBatterySummary({
       {/* Key metrics - payback first per CONTEXT.md */}
       <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0">
         <div className="p-4 text-center">
-          <p className="text-sm text-gray-500">Aterbetalningstid</p>
+          <p className="text-sm text-gray-500">Återbetalningstid</p>
           <p className="text-2xl font-bold text-green-600">
-            {results.paybackYears.toFixed(1)} ar
+            {results.paybackYears.toFixed(1)} år
           </p>
         </div>
         <div className="p-4 text-center">
-          <p className="text-sm text-gray-500">Arlig besparing</p>
+          <p className="text-sm text-gray-500">Årlig besparing</p>
           <p className="text-2xl font-bold text-gray-900">
             {formatSek(results.totalAnnualSavings)}
           </p>
         </div>
         <div className="p-4 text-center">
-          <p className="text-sm text-gray-500">Avkastning 10 ar</p>
+          <p className="text-sm text-gray-500">Avkastning 10 år</p>
           <p className="text-2xl font-bold text-blue-600">
             {formatPercent(results.roi10Year)}
           </p>
         </div>
         <div className="p-4 text-center">
-          <p className="text-sm text-gray-500">Avkastning 15 ar</p>
+          <p className="text-sm text-gray-500">Avkastning 15 år</p>
           <p className="text-2xl font-bold text-blue-600">
             {formatPercent(results.roi15Year)}
           </p>
@@ -133,14 +133,14 @@ export function PublicBatterySummary({
           </div>
           <div>
             <p className="text-gray-500">Garanti</p>
-            <p className="font-medium">{currentBattery.warrantyYears} ar</p>
+            <p className="font-medium">{currentBattery.warrantyYears} år</p>
           </div>
           <div>
             <p className="text-gray-500">Garanterade cykler</p>
             <p className="font-medium">{currentBattery.guaranteedCycles.toLocaleString('sv-SE')}</p>
           </div>
           <div>
-            <p className="text-gray-500">Degradering/ar</p>
+            <p className="text-gray-500">Degradering/år</p>
             <p className="font-medium">{formatPercent(currentBattery.degradationPerYear)}</p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function PublicBatterySummary({
             <span className="font-medium">{formatSek(currentBattery.totalPriceIncVat)}</span>
           </div>
           <div className="flex justify-between pt-2 border-t">
-            <span className="text-gray-900 font-medium">Efter Gron Teknik-avdrag (48.5%)</span>
+            <span className="text-gray-900 font-medium">Efter Grön Teknik-avdrag (48.5%)</span>
             <span className="text-lg font-bold text-green-600">
               {formatSek(currentBattery.costAfterGronTeknik)}
             </span>

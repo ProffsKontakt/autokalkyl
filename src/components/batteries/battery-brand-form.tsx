@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { createBatteryBrand, updateBatteryBrand } from '@/actions/batteries';
 
 const batteryBrandSchema = z.object({
-  name: z.string().min(2, 'Varumarke maste vara minst 2 tecken').max(100),
+  name: z.string().min(2, 'Varumärke måste vara minst 2 tecken').max(100),
   logoUrl: z.string().url('Ogiltig URL').optional().or(z.literal('')),
 });
 
@@ -74,7 +74,7 @@ export function BatteryBrandForm({ brand }: BatteryBrandFormProps) {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="name">Varumarke *</Label>
+        <Label htmlFor="name">Varumärke *</Label>
         <Input id="name" {...register('name')} placeholder="t.ex. Emaldo" />
         {errors.name && (
           <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -93,7 +93,7 @@ export function BatteryBrandForm({ brand }: BatteryBrandFormProps) {
           <p className="text-sm text-red-600">{errors.logoUrl.message}</p>
         )}
         <p className="text-xs text-gray-500">
-          Ange URL till varumarkets logotyp for att visa den i listan.
+          Ange URL till varumärkets logotyp för att visa den i listan.
         </p>
       </div>
 
@@ -102,8 +102,8 @@ export function BatteryBrandForm({ brand }: BatteryBrandFormProps) {
           {isPending
             ? 'Sparar...'
             : isEditing
-              ? 'Spara andringar'
-              : 'Skapa varumarke'}
+              ? 'Spara ändringar'
+              : 'Skapa varumärke'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Avbryt

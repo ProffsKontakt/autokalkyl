@@ -159,8 +159,8 @@ export function CalculationPDF({
   const formatYears = (n: number) => {
     const years = Math.floor(n)
     const months = Math.round((n - years) * 12)
-    if (months === 0) return `${years} ar`
-    return `${years} ar ${months} man`
+    if (months === 0) return `${years} år`
+    return `${years} år ${months} mån`
   }
 
   const formatPercent = (n: number) =>
@@ -178,18 +178,18 @@ export function CalculationPDF({
         {/* Title */}
         <Text style={styles.title}>Batterikalkyl</Text>
         <Text style={styles.subtitle}>
-          Skapad for {customerName} - {createdAt.toLocaleDateString('sv-SE')}
+          Skapad för {customerName} - {createdAt.toLocaleDateString('sv-SE')}
         </Text>
 
         {/* Customer info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Forutsattningar</Text>
+          <Text style={styles.sectionTitle}>Förutsättningar</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Elomrade</Text>
+            <Text style={styles.label}>Elområde</Text>
             <Text style={styles.value}>{elomrade}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Arlig forbrukning</Text>
+            <Text style={styles.label}>Årlig förbrukning</Text>
             <Text style={styles.value}>{annualConsumptionKwh.toLocaleString('sv-SE')} kWh</Text>
           </View>
           <View style={styles.row}>
@@ -206,7 +206,7 @@ export function CalculationPDF({
             <Text style={styles.value}>{formatSek(results.totalIncVatSek)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Gron Teknik-avdrag (48.5%)</Text>
+            <Text style={styles.label}>Grön Teknik-avdrag (48.5%)</Text>
             <Text style={styles.value}>-{formatSek(results.totalIncVatSek * 0.485)}</Text>
           </View>
           <View style={[styles.row, { paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E5E7EB' }]}>
@@ -217,16 +217,16 @@ export function CalculationPDF({
 
         {/* Highlight: Payback */}
         <View style={styles.highlightBox}>
-          <Text style={styles.highlightLabel}>ATERBETALTNINGSTID</Text>
+          <Text style={styles.highlightLabel}>ÅTERBETALNINGSTID</Text>
           <Text style={styles.highlightValue}>{formatYears(results.paybackPeriodYears)}</Text>
           <Text style={styles.highlightSubtext}>
-            Baserat pa {formatSek(results.totalAnnualSavingsSek)} i arlig besparing
+            Baserat på {formatSek(results.totalAnnualSavingsSek)} i årlig besparing
           </Text>
         </View>
 
         {/* Savings breakdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Arlig besparing - {formatSek(results.totalAnnualSavingsSek)}</Text>
+          <Text style={styles.sectionTitle}>Årlig besparing - {formatSek(results.totalAnnualSavingsSek)}</Text>
           <View style={styles.savingsGrid}>
             <View style={styles.savingsItem}>
               <Text style={styles.savingsLabel}>Spotprisoptimering</Text>
@@ -237,7 +237,7 @@ export function CalculationPDF({
               <Text style={styles.savingsValue}>{formatSek(results.effectTariffSavingsSek)}</Text>
             </View>
             <View style={styles.savingsItem}>
-              <Text style={styles.savingsLabel}>Stodtjanster</Text>
+              <Text style={styles.savingsLabel}>Stödtjänster</Text>
               <Text style={styles.savingsValue}>{formatSek(results.gridServicesIncomeSek)}</Text>
             </View>
           </View>
@@ -247,13 +247,13 @@ export function CalculationPDF({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Avkastning (ROI)</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>ROI efter 10 ar</Text>
+            <Text style={styles.label}>ROI efter 10 år</Text>
             <Text style={[styles.value, { color: results.roi10YearPercent >= 0 ? '#059669' : '#DC2626' }]}>
               {formatPercent(results.roi10YearPercent)}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>ROI efter 15 ar</Text>
+            <Text style={styles.label}>ROI efter 15 år</Text>
             <Text style={[styles.value, { color: results.roi15YearPercent >= 0 ? '#059669' : '#DC2626' }]}>
               {formatPercent(results.roi15YearPercent)}
             </Text>
@@ -262,7 +262,7 @@ export function CalculationPDF({
 
         {/* Footer */}
         <Text style={styles.footer}>
-          Denna kalkyl ar en uppskattning baserad pa aktuella elpriser och forbrukningsmonster.
+          Denna kalkyl är en uppskattning baserad på aktuella elpriser och förbrukningsmönster.
           {'\n'}Verkligt utfall kan variera. Genererad via Kalkyla.se
         </Text>
       </Page>

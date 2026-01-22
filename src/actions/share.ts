@@ -47,7 +47,7 @@ export async function generateShareLink(
 
   // Verify permission
   if (!hasPermission(role, PERMISSIONS.CALCULATION_EDIT)) {
-    return { error: 'Saknar behorighet' }
+    return { error: 'Saknar behörighet' }
   }
 
   // Fetch calculation to verify ownership/org
@@ -120,7 +120,7 @@ export async function deactivateShareLink(
   const role = session.user.role as Role
 
   if (!hasPermission(role, PERMISSIONS.CALCULATION_EDIT)) {
-    return { error: 'Saknar behorighet' }
+    return { error: 'Saknar behörighet' }
   }
 
   const tenantDb = session.user.orgId
@@ -166,7 +166,7 @@ export async function regenerateShareLink(
   const role = session.user.role as Role
 
   if (!hasPermission(role, PERMISSIONS.CALCULATION_EDIT)) {
-    return { error: 'Saknar behorighet' }
+    return { error: 'Saknar behörighet' }
   }
 
   const tenantDb = session.user.orgId
@@ -263,12 +263,12 @@ export async function getPublicCalculation(
   })
 
   if (!calculation) {
-    return { error: 'Kalkylen hittades inte eller ar inte langre tillganglig' }
+    return { error: 'Kalkylen hittades inte eller är inte längre tillgänglig' }
   }
 
   // Check expiration
   if (calculation.shareExpiresAt && calculation.shareExpiresAt < new Date()) {
-    return { error: 'Lanken har gatt ut. Kontakta din saljare for en ny lank.' }
+    return { error: 'Länken har gått ut. Kontakta din säljare för en ny länk.' }
   }
 
   // Check password if required
@@ -278,7 +278,7 @@ export async function getPublicCalculation(
     }
     const valid = await bcrypt.compare(password, calculation.sharePassword)
     if (!valid) {
-      return { error: 'Fel losenord' }
+      return { error: 'Fel lösenord' }
     }
   }
 
@@ -357,7 +357,7 @@ export async function getPublicCalculation(
       },
       organization: calculation.organization,
       closer: {
-        name: closer?.name || 'Din saljare',
+        name: closer?.name || 'Din säljare',
       },
     },
   }
@@ -453,7 +453,7 @@ export async function getViewStats(
   const role = session.user.role as Role
 
   if (!hasPermission(role, PERMISSIONS.CALCULATION_VIEW)) {
-    return { error: 'Saknar behorighet' }
+    return { error: 'Saknar behörighet' }
   }
 
   const tenantDb = session.user.orgId
@@ -470,7 +470,7 @@ export async function getViewStats(
   }
 
   if (role === 'CLOSER' && calculation.createdBy !== session.user.id) {
-    return { error: 'Du kan bara se statistik for dina egna kalkyler' }
+    return { error: 'Du kan bara se statistik för dina egna kalkyler' }
   }
 
   // Get view stats

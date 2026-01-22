@@ -7,17 +7,17 @@ import { auth } from '@/lib/auth/auth';
 import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions';
 
 const organizationSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken').max(100),
   slug: z.string()
     .min(2)
     .max(50)
-    .regex(/^[a-z0-9-]+$/, 'Slug kan bara innehalla smabokstaver, siffror och bindestreck'),
+    .regex(/^[a-z0-9-]+$/, 'Slug kan bara innehålla småbokstäver, siffror och bindestreck'),
   logoUrl: z.string().url().optional().or(z.literal('')),
-  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Ogiltig fargkod').default('#3B82F6'),
-  secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Ogiltig fargkod').default('#1E40AF'),
+  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Ogiltig färgkod').default('#3B82F6'),
+  secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Ogiltig färgkod').default('#1E40AF'),
   isProffsKontaktAffiliated: z.boolean().default(false),
-  partnerCutPercent: z.number().min(0).max(100).optional(),
-  marginAlertThreshold: z.number().min(0).max(100).optional(),
+  installerFixedCut: z.number().min(0).optional(), // Fixed SEK amount to installer
+  marginAlertThreshold: z.number().min(0).optional(), // Min margin in SEK before alert
 });
 
 export type OrganizationFormData = z.infer<typeof organizationSchema>;
@@ -29,7 +29,7 @@ export async function createOrganization(data: OrganizationFormData) {
   }
 
   if (!hasPermission(session.user.role as Role, PERMISSIONS.ORG_CREATE)) {
-    return { error: 'Du har inte behorighet att skapa organisationer' };
+    return { error: 'Du har inte behörighet att skapa organisationer' };
   }
 
   const parsed = organizationSchema.safeParse(data);
@@ -54,10 +54,12 @@ export async function createOrganization(data: OrganizationFormData) {
         primaryColor: parsed.data.primaryColor,
         secondaryColor: parsed.data.secondaryColor,
         isProffsKontaktAffiliated: parsed.data.isProffsKontaktAffiliated,
-        partnerCutPercent: parsed.data.isProffsKontaktAffiliated
-          ? parsed.data.partnerCutPercent
+        installerFixedCut: parsed.data.isProffsKontaktAffiliated
+          ? parsed.data.installerFixedCut
           : null,
-        marginAlertThreshold: parsed.data.marginAlertThreshold || null,
+        marginAlertThreshold: parsed.data.isProffsKontaktAffiliated
+          ? parsed.data.marginAlertThreshold
+          : null,
       },
     });
 
@@ -85,12 +87,12 @@ export async function updateOrganization(id: string, data: Partial<OrganizationF
   }
 
   if (!isSuperAdmin && !isOrgAdmin) {
-    return { error: 'Du har inte behorighet att redigera organisationer' };
+    return { error: 'Du har inte behörighet att redigera organisationer' };
   }
 
-  // Org Admin cannot change affiliation status or partner cut
-  if (!isSuperAdmin && (data.isProffsKontaktAffiliated !== undefined || data.partnerCutPercent !== undefined)) {
-    return { error: 'Endast Super Admin kan andra affiliatingstatus' };
+  // Org Admin cannot change affiliation status or installer cut
+  if (!isSuperAdmin && (data.isProffsKontaktAffiliated !== undefined || data.installerFixedCut !== undefined)) {
+    return { error: 'Endast Super Admin kan ändra affiliatingstatus' };
   }
 
   try {
@@ -118,7 +120,7 @@ export async function getOrganizations() {
   }
 
   if (!hasPermission(session.user.role as Role, PERMISSIONS.ORG_VIEW_ALL)) {
-    return { error: 'Du har inte behorighet att se alla organisationer', organizations: [] };
+    return { error: 'Du har inte behörighet att se alla organisationer', organizations: [] };
   }
 
   const organizations = await prisma.organization.findMany({
@@ -130,7 +132,14 @@ export async function getOrganizations() {
     },
   });
 
-  return { organizations };
+  // Convert Decimal to number for client components
+  const serializedOrgs = organizations.map(org => ({
+    ...org,
+    installerFixedCut: org.installerFixedCut ? Number(org.installerFixedCut) : null,
+    marginAlertThreshold: org.marginAlertThreshold ? Number(org.marginAlertThreshold) : null,
+  }));
+
+  return { organizations: serializedOrgs };
 }
 
 export async function getOrganization(id: string) {
@@ -144,7 +153,7 @@ export async function getOrganization(id: string) {
   const canViewOwn = session.user.orgId === id;
 
   if (!canViewAll && !canViewOwn) {
-    return { error: 'Du har inte behorighet att se denna organisation' };
+    return { error: 'Du har inte behörighet att se denna organisation' };
   }
 
   const organization = await prisma.organization.findUnique({
@@ -166,5 +175,12 @@ export async function getOrganization(id: string) {
     return { error: 'Organisationen hittades inte' };
   }
 
-  return { organization };
+  // Convert Decimal to number for client components
+  const serializedOrg = {
+    ...organization,
+    installerFixedCut: organization.installerFixedCut ? Number(organization.installerFixedCut) : null,
+    marginAlertThreshold: organization.marginAlertThreshold ? Number(organization.marginAlertThreshold) : null,
+  };
+
+  return { organization: serializedOrg };
 }

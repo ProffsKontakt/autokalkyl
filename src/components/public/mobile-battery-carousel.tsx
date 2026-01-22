@@ -98,13 +98,13 @@ export function MobileBatteryCarousel({
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-gray-500">Aterbetalningstid</p>
+                <p className="text-gray-500">Återbetalningstid</p>
                 <p className="font-bold" style={{ color: primaryColor }}>
-                  {results.paybackYears.toFixed(1)} ar
+                  {results.paybackYears.toFixed(1)} år
                 </p>
               </div>
               <div>
-                <p className="text-gray-500">Arlig besparing</p>
+                <p className="text-gray-500">Årlig besparing</p>
                 <p className="font-bold text-gray-900">
                   {formatSek(results.totalAnnualSavings)}
                 </p>

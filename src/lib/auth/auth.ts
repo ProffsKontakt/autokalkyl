@@ -23,6 +23,7 @@ import { validateCredentials, loginSchema } from './credentials';
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
+  debug: process.env.NODE_ENV === 'development',
   providers: [
     Credentials({
       credentials: {

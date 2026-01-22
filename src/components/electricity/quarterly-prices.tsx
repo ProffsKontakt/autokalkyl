@@ -57,7 +57,7 @@ export function QuarterlyPrices({ prices }: QuarterlyPricesProps) {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-gray-400">Ingen data tillganglig</p>
+              <p className="text-sm text-gray-400">Ingen data tillgänglig</p>
             )}
           </Card>
         );

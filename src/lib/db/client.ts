@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { neonConfig } from '@neondatabase/serverless';
 
-// Enable WebSocket support for Node.js environments (not needed in Edge/Vercel)
+// Enable WebSocket support for Node.js environments
+// This must be synchronous to ensure ws is available before any DB calls
 if (typeof globalThis.WebSocket === 'undefined') {
-  // Dynamic import to avoid bundling ws in Edge runtime
-  import('ws').then((ws) => {
-    neonConfig.webSocketConstructor = ws.default;
-  });
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const ws = require('ws');
+  neonConfig.webSocketConstructor = ws;
 }
 
 /**

@@ -5,7 +5,7 @@ import { UserForm } from '@/components/users/user-form';
 import { hasPermission, PERMISSIONS, ROLES, Role } from '@/lib/auth/permissions';
 
 export const metadata = {
-  title: 'Redigera anvandare - Kalkyla.se',
+  title: 'Redigera användare - Kalkyla.se',
 };
 
 export default async function EditUserPage({

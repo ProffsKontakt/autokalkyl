@@ -65,6 +65,8 @@ interface CalculationWizardProps {
     installerFixedCut: number | null
   }
   initialData?: InitialData
+  /** Organization ID for Super Admin creating calculations for a specific org */
+  orgId?: string
 }
 
 const TOTAL_STEPS = 4
@@ -75,12 +77,13 @@ export function CalculationWizard({
   quarterlyPrices,
   orgSettings,
   initialData,
+  orgId,
 }: CalculationWizardProps) {
   const router = useRouter()
   const [isHydrated, setIsHydrated] = useState(false)
   const [initialLoaded, setInitialLoaded] = useState(false)
   const store = useCalculationWizardStore()
-  const { lastSavedAt, isSaving } = useAutoSave()
+  const { lastSavedAt, isSaving } = useAutoSave({ orgId })
 
   // Handle Zustand hydration
   useEffect(() => {

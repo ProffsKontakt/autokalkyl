@@ -44,14 +44,14 @@ export default async function NatagarePage() {
     <div className="p-6">
       <header className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Natagare</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Nätägare</h1>
           <p className="text-gray-600 mt-1">
-            Hantera effekttariffer for dina natoperatorer
+            Hantera effekttariffer för dina nätoperatörer
           </p>
         </div>
         {canCreate && (
           <Link href="/dashboard/natagare/new">
-            <Button>Lagg till natagare</Button>
+            <Button>Lägg till nätägare</Button>
           </Link>
         )}
       </header>

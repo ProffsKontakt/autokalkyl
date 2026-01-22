@@ -39,7 +39,7 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
 
   // Error (expired, not found, wrong password)
   if (result.error) {
-    if (result.error === 'Fel losenord') {
+    if (result.error === 'Fel lösenord') {
       return (
         <PasswordGate
           orgSlug={org}

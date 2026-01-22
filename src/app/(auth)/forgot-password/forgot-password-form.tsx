@@ -46,7 +46,7 @@ export function ForgotPasswordForm() {
     return (
       <div className="text-center space-y-4">
         <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
-          Om det finns ett konto med denna e-postadress har vi skickat instruktioner for att aterstalla losenordet.
+          Om det finns ett konto med denna e-postadress har vi skickat instruktioner för att återställa lösenordet.
         </div>
         <Link href="/login" className="text-sm text-blue-600 hover:underline">
           Tillbaka till inloggning
@@ -68,7 +68,7 @@ export function ForgotPasswordForm() {
         <Input
           id="email"
           type="email"
-          placeholder="namn@foretag.se"
+          placeholder="namn@företag.se"
           {...register('email')}
         />
         {errors.email && (
@@ -77,7 +77,7 @@ export function ForgotPasswordForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Skickar...' : 'Skicka aterstaLlningslank'}
+        {isPending ? 'Skickar...' : 'Skicka återställningslänk'}
       </Button>
 
       <div className="text-center">

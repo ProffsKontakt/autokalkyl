@@ -60,7 +60,7 @@ export function PDFDownloadButton({
       saveAs(blob, filename)
     } catch (error) {
       console.error('PDF generation failed:', error)
-      alert('Kunde inte skapa PDF. Forsok igen.')
+      alert('Kunde inte skapa PDF. Försök igen.')
     } finally {
       setIsGenerating(false)
     }

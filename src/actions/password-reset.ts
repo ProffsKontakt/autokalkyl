@@ -12,10 +12,10 @@ const requestSchema = z.object({
 
 const resetSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8, 'Losenordet maste vara minst 8 tecken'),
+  password: z.string().min(8, 'Lösenordet måste vara minst 8 tecken'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: 'Losenorden matchar inte',
+  message: 'Lösenorden matchar inte',
   path: ['confirmPassword'],
 });
 
@@ -99,18 +99,18 @@ export async function resetPassword(data: {
   });
 
   if (!resetToken) {
-    return { error: 'Ogiltig eller utgangen lank' };
+    return { error: 'Ogiltig eller utgången länk' };
   }
 
   // Check expiration
   if (resetToken.expiresAt < new Date()) {
     await prisma.passwordResetToken.delete({ where: { id: resetToken.id } });
-    return { error: 'Lanken har gatt ut. Begar en ny.' };
+    return { error: 'Länken har gått ut. Begär en ny.' };
   }
 
   // Check if already used
   if (resetToken.usedAt) {
-    return { error: 'Denna lank har redan anvants' };
+    return { error: 'Denna länk har redan använts' };
   }
 
   // Hash new password
@@ -143,15 +143,15 @@ export async function validateResetToken(token: string) {
   });
 
   if (!resetToken) {
-    return { valid: false, error: 'Ogiltig lank' };
+    return { valid: false, error: 'Ogiltig länk' };
   }
 
   if (resetToken.expiresAt < new Date()) {
-    return { valid: false, error: 'Lanken har gatt ut' };
+    return { valid: false, error: 'Länken har gått ut' };
   }
 
   if (resetToken.usedAt) {
-    return { valid: false, error: 'Lanken har redan anvants' };
+    return { valid: false, error: 'Länken har redan använts' };
   }
 
   return { valid: true };

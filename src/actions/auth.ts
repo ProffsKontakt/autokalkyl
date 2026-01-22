@@ -27,9 +27,9 @@ export async function loginAction(data: z.infer<typeof loginSchema>) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
-          return { error: 'Felaktig e-postadress eller losenord' };
+          return { error: 'Felaktig e-postadress eller lösenord' };
         default:
-          return { error: 'Nagot gick fel. Forsok igen.' };
+          return { error: 'Något gick fel. Försök igen.' };
       }
     }
     throw error;

@@ -23,7 +23,7 @@ export default async function ElectricityPage() {
       <header className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">Elpriser</h1>
-          <p className="text-gray-600">Kvartalsgenomsnitt per elomrade</p>
+          <p className="text-gray-600">Kvartalsgenomsnitt per elområde</p>
         </div>
         {canManage && (
           <div className="flex gap-2">
@@ -33,7 +33,7 @@ export default async function ElectricityPage() {
               revalidatePath('/dashboard/electricity');
             }}>
               <Button type="submit" variant="outline">
-                Hamta dagens priser
+                Hämta dagens priser
               </Button>
             </form>
             <form action={async () => {
@@ -42,7 +42,7 @@ export default async function ElectricityPage() {
               revalidatePath('/dashboard/electricity');
             }}>
               <Button type="submit" variant="outline">
-                Rakna om kvartal
+                Räkna om kvartal
               </Button>
             </form>
           </div>
@@ -55,7 +55,7 @@ export default async function ElectricityPage() {
         <>
           <QuarterlyPrices prices={prices!} />
           <div className="mt-6 text-sm text-gray-500">
-            <p>Priser hamtas fran Nord Pool via mgrey.se.</p>
+            <p>Priser hämtas från Nord Pool via mgrey.se.</p>
             <p>Dag = 06:00-22:00, Natt = 22:00-06:00</p>
           </div>
         </>

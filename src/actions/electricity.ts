@@ -19,7 +19,7 @@ export async function getQuarterlyPrices() {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.ELPRICES_VIEW)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   try {
@@ -27,7 +27,7 @@ export async function getQuarterlyPrices() {
     return { prices };
   } catch (error) {
     console.error('Failed to get quarterly prices:', error);
-    return { error: 'Kunde inte hamta elpriser' };
+    return { error: 'Kunde inte hämta elpriser' };
   }
 }
 
@@ -42,7 +42,7 @@ export async function getQuarterlyPricesForArea(elomrade: Elomrade, count = 8) {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.ELPRICES_VIEW)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   try {
@@ -56,7 +56,7 @@ export async function getQuarterlyPricesForArea(elomrade: Elomrade, count = 8) {
     })) };
   } catch (error) {
     console.error('Failed to get quarterly prices:', error);
-    return { error: 'Kunde inte hamta elpriser' };
+    return { error: 'Kunde inte hämta elpriser' };
   }
 }
 
@@ -72,7 +72,7 @@ export async function fetchTodaysPrices() {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.ELPRICES_MANAGE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   const result = await fetchAndStorePrices(new Date());
@@ -82,7 +82,7 @@ export async function fetchTodaysPrices() {
     return { success: true, count: result.count };
   }
 
-  return { error: result.error || 'Kunde inte hamta elpriser' };
+  return { error: result.error || 'Kunde inte hämta elpriser' };
 }
 
 /**
@@ -97,7 +97,7 @@ export async function recalculateQuarterlyAverages() {
 
   const role = session.user.role as Role;
   if (!hasPermission(role, PERMISSIONS.ELPRICES_MANAGE)) {
-    return { error: 'Du har inte behorighet' };
+    return { error: 'Du har inte behörighet' };
   }
 
   const now = new Date();
@@ -116,7 +116,7 @@ export async function recalculateQuarterlyAverages() {
 
   const failures = results.filter(r => !r.success);
   if (failures.length > 0) {
-    return { error: `Misslyckades for: ${failures.map(f => f.area).join(', ')}` };
+    return { error: `Misslyckades för: ${failures.map(f => f.area).join(', ')}` };
   }
 
   return { success: true };

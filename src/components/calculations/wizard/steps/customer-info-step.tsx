@@ -11,6 +11,8 @@
  * - Annual consumption in kWh
  */
 
+import Link from 'next/link'
+import { Plus } from 'lucide-react'
 import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { lookupElomrade, isValidSwedishPostalCode } from '@/lib/calculations/elomrade-lookup'
 import type { Elomrade } from '@/lib/calculations/types'
@@ -22,8 +24,8 @@ interface CustomerInfoStepProps {
 const ELOMRADE_OPTIONS: { value: Elomrade; label: string }[] = [
   { value: 'SE1', label: 'SE1 - Norra Sverige (Lulea)' },
   { value: 'SE2', label: 'SE2 - Norra mellansverige (Sundsvall)' },
-  { value: 'SE3', label: 'SE3 - Sodra mellansverige (Stockholm)' },
-  { value: 'SE4', label: 'SE4 - Sodra Sverige (Malmo)' },
+  { value: 'SE3', label: 'SE3 - Södra mellansverige (Stockholm)' },
+  { value: 'SE4', label: 'SE4 - Södra Sverige (Malmö)' },
 ]
 
 export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
@@ -67,7 +69,7 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Visas i kalkylen som &quot;Hej [namn], har ar din batterikalkyl&quot;
+            Visas i kalkylen som &quot;Hej [namn], här är din batterikalkyl&quot;
           </p>
         </div>
 
@@ -86,14 +88,14 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Elomrade detekteras automatiskt fran postnummer
+            Elområde detekteras automatiskt från postnummer
           </p>
         </div>
 
         {/* Elomrade */}
         <div>
           <label htmlFor="elomrade" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Elomrade *
+            Elområde *
           </label>
           <select
             id="elomrade"
@@ -101,7 +103,7 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             onChange={(e) => updateCustomerInfo({ elomrade: e.target.value as Elomrade })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           >
-            <option value="">Valj elomrade...</option>
+            <option value="">Välj elområde...</option>
             {ELOMRADE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -112,16 +114,26 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
 
         {/* Natagare */}
         <div>
-          <label htmlFor="natagare" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Natagare *
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="natagare" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Nätägare *
+            </label>
+            <Link
+              href="/dashboard/natagare/new"
+              target="_blank"
+              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Lägg till nätägare
+            </Link>
+          </div>
           <select
             id="natagare"
             value={natagareId || ''}
             onChange={(e) => updateCustomerInfo({ natagareId: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           >
-            <option value="">Valj natagare...</option>
+            <option value="">Välj nätägare...</option>
             {natagareList.map((n) => (
               <option key={n.id} value={n.id}>
                 {n.name}
@@ -129,14 +141,14 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             ))}
           </select>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Paverkar effekttariffberakning
+            Påverkar effekttariffberäkning
           </p>
         </div>
 
         {/* Annual consumption */}
         <div>
           <label htmlFor="annualConsumption" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Arlig forbrukning (kWh) *
+            Årlig förbrukning (kWh) *
           </label>
           <input
             id="annualConsumption"
@@ -148,7 +160,7 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Typiskt villahushall: 15 000-25 000 kWh/ar
+            Typiskt villahushåll: 15 000-25 000 kWh/år
           </p>
         </div>
 
@@ -162,11 +174,11 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
                 <dd className="font-medium">{customerName}</dd>
               </div>
               <div className="flex justify-between">
-                <dt>Elomrade:</dt>
+                <dt>Elområde:</dt>
                 <dd className="font-medium">{elomrade}</dd>
               </div>
               <div className="flex justify-between">
-                <dt>Arlig forbrukning:</dt>
+                <dt>Årlig förbrukning:</dt>
                 <dd className="font-medium">{annualConsumptionKwh.toLocaleString('sv-SE')} kWh</dd>
               </div>
             </dl>

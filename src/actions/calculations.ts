@@ -9,7 +9,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth/auth'
-import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions'
+import { hasPermission, PERMISSIONS, Role, ROLES } from '@/lib/auth/permissions'
 import { prisma } from '@/lib/db/client'
 import { createTenantClient } from '@/lib/db/tenant-client'
 import { triggerMarginAlert } from '@/lib/webhooks/n8n'
@@ -22,10 +22,10 @@ import type { ConsumptionProfile, Elomrade } from '@/lib/calculations/types'
 
 const saveDraftSchema = z.object({
   calculationId: z.string().nullable(),
-  customerName: z.string().min(1, 'Kundnamn kravs'),
+  customerName: z.string().min(1, 'Kundnamn krävs'),
   postalCode: z.string().optional(),
   elomrade: z.enum(['SE1', 'SE2', 'SE3', 'SE4']),
-  natagareId: z.string().min(1, 'Natagare kravs'),
+  natagareId: z.string().min(1, 'Nätägare krävs'),
   annualConsumptionKwh: z.number().min(1),
   consumptionProfile: z.object({
     data: z.array(z.array(z.number())),
@@ -35,6 +35,8 @@ const saveDraftSchema = z.object({
     totalPriceExVat: z.number(),
     installationCost: z.number(),
   })),
+  // Optional orgId for Super Admin to create calculations for any organization
+  orgId: z.string().optional(),
 })
 
 export type SaveDraftInput = z.infer<typeof saveDraftSchema>
@@ -48,6 +50,7 @@ export type SaveDraftInput = z.infer<typeof saveDraftSchema>
  *
  * Called by the auto-save hook every 2 seconds when form data changes.
  * Creates a new calculation if calculationId is null.
+ * Super Admin can provide orgId to create calculations for any organization.
  */
 export async function saveDraft(input: SaveDraftInput) {
   const session = await auth()
@@ -66,7 +69,22 @@ export async function saveDraft(input: SaveDraftInput) {
   }
 
   const data = parsed.data
-  const tenantClient = createTenantClient(session.user.orgId!)
+
+  // Determine orgId: Super Admin can specify, others use their own
+  let effectiveOrgId: string
+  if (role === ROLES.SUPER_ADMIN) {
+    if (!data.orgId) {
+      return { error: 'Super Admin måste välja en organisation' }
+    }
+    effectiveOrgId = data.orgId
+  } else {
+    if (!session.user.orgId) {
+      return { error: 'Ingen organisation kopplad till användaren' }
+    }
+    effectiveOrgId = session.user.orgId
+  }
+
+  const tenantClient = createTenantClient(effectiveOrgId)
 
   try {
     if (data.calculationId) {
@@ -116,7 +134,7 @@ export async function saveDraft(input: SaveDraftInput) {
         updated.id,
         data,
         session.user.id,
-        session.user.orgId!
+        effectiveOrgId
       )
 
       return { calculationId: updated.id }
@@ -154,7 +172,7 @@ export async function saveDraft(input: SaveDraftInput) {
         created.id,
         data,
         session.user.id,
-        session.user.orgId!
+        effectiveOrgId
       )
 
       return { calculationId: created.id }
@@ -241,7 +259,7 @@ async function checkAndTriggerMarginAlert(
       orgId,
       orgName: org.name,
       closerId: userId,
-      closerName: closer?.name || 'Okand',
+      closerName: closer?.name || 'Okänd',
       closerEmail: closer?.email || '',
       customerName: data.customerName,
       batteryName: `${batteryConfig.brand.name} ${batteryConfig.name}`,
@@ -351,7 +369,7 @@ export async function getCalculation(id: string) {
     }
   } catch (error) {
     console.error('Get calculation error:', error)
-    return { error: 'Kunde inte hamta kalkyl' }
+    return { error: 'Kunde inte hämta kalkyl' }
   }
 }
 
@@ -450,7 +468,7 @@ export async function listCalculations() {
     }
   } catch (error) {
     console.error('List calculations error:', error)
-    return { error: 'Kunde inte hamta kalkyler' }
+    return { error: 'Kunde inte hämta kalkyler' }
   }
 }
 

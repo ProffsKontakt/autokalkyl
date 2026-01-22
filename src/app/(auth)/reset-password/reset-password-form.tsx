@@ -13,10 +13,10 @@ import { Label } from '@/components/ui/label';
 import { resetPassword } from '@/actions/password-reset';
 
 const resetPasswordSchema = z.object({
-  password: z.string().min(8, 'Losenordet maste vara minst 8 tecken'),
+  password: z.string().min(8, 'Lösenordet måste vara minst 8 tecken'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: 'Losenorden matchar inte',
+  message: 'Lösenorden matchar inte',
   path: ['confirmPassword'],
 });
 
@@ -65,10 +65,10 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     return (
       <div className="text-center space-y-4">
         <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
-          Ditt losenord har aterstallts! Du dirigeras nu till inloggningen...
+          Ditt lösenord har återställts! Du dirigeras nu till inloggningen...
         </div>
         <Link href="/login" className="text-sm text-blue-600 hover:underline">
-          Ga till inloggning nu
+          Gå till inloggning nu
         </Link>
       </div>
     );
@@ -83,7 +83,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="password">Nytt losenord</Label>
+        <Label htmlFor="password">Nytt lösenord</Label>
         <Input
           id="password"
           type="password"
@@ -95,7 +95,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Bekrafta losenord</Label>
+        <Label htmlFor="confirmPassword">Bekräfta lösenord</Label>
         <Input
           id="confirmPassword"
           type="password"
@@ -107,7 +107,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Sparar...' : 'Spara nytt losenord'}
+        {isPending ? 'Sparar...' : 'Spara nytt lösenord'}
       </Button>
     </form>
   );

@@ -12,20 +12,14 @@ import { Label } from '@/components/ui/label';
 import { createOrganization, updateOrganization } from '@/actions/organizations';
 
 const orgSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken'),
-  slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Endast smabokstaver, siffror och bindestreck'),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken'),
+  slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Endast småbokstäver, siffror och bindestreck'),
   logoUrl: z.string().url('Ogiltig URL').optional().or(z.literal('')),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   isProffsKontaktAffiliated: z.boolean(),
-  partnerCutPercent: z.preprocess(
-    (val) => (val === '' || Number.isNaN(val) ? undefined : val),
-    z.number().min(0).max(100).optional()
-  ),
-  marginAlertThreshold: z.preprocess(
-    (val) => (val === '' || Number.isNaN(val) ? undefined : val),
-    z.number().min(0).max(100).optional()
-  ),
+  installerFixedCut: z.number().min(0).optional(),
+  marginAlertThreshold: z.number().min(0).optional(),
 });
 
 type OrgFormData = z.infer<typeof orgSchema>;
@@ -39,7 +33,7 @@ interface OrgFormProps {
     primaryColor: string;
     secondaryColor: string;
     isProffsKontaktAffiliated: boolean;
-    partnerCutPercent: number | null;
+    installerFixedCut: number | null;
     marginAlertThreshold: number | null;
   };
 }
@@ -64,8 +58,8 @@ export function OrgForm({ organization }: OrgFormProps) {
       primaryColor: organization.primaryColor,
       secondaryColor: organization.secondaryColor,
       isProffsKontaktAffiliated: organization.isProffsKontaktAffiliated,
-      partnerCutPercent: organization.partnerCutPercent || undefined,
-      marginAlertThreshold: organization.marginAlertThreshold || undefined,
+      installerFixedCut: organization.installerFixedCut ?? undefined,
+      marginAlertThreshold: organization.marginAlertThreshold ?? undefined,
     } : {
       primaryColor: '#3B82F6',
       secondaryColor: '#1E40AF',
@@ -94,7 +88,7 @@ export function OrgForm({ organization }: OrgFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-xl">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
           {error}
         </div>
       )}
@@ -102,35 +96,35 @@ export function OrgForm({ organization }: OrgFormProps) {
       <div className="space-y-2">
         <Label htmlFor="name">Organisationsnamn *</Label>
         <Input id="name" {...register('name')} />
-        {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+        {errors.name && <p className="text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">Slug (for URL) *</Label>
+        <Label htmlFor="slug">Slug (för URL) *</Label>
         <Input id="slug" {...register('slug')} placeholder="acme-solar" disabled={isEditing} />
-        {errors.slug && <p className="text-sm text-red-600">{errors.slug.message}</p>}
-        <p className="text-xs text-gray-500">Anvands i URL:er, t.ex. kalkyla.se/acme-solar/...</p>
+        {errors.slug && <p className="text-sm text-red-600 dark:text-red-400">{errors.slug.message}</p>}
+        <p className="text-xs text-slate-500 dark:text-slate-400">Används i URL:er, t.ex. kalkyla.se/acme-solar/...</p>
       </div>
 
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-medium mb-4">Varumarke</h3>
+      <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-4">Varumärke</h3>
 
         <div className="space-y-2">
           <Label htmlFor="logoUrl">Logotyp URL</Label>
           <Input id="logoUrl" type="url" {...register('logoUrl')} placeholder="https://..." />
-          {errors.logoUrl && <p className="text-sm text-red-600">{errors.logoUrl.message}</p>}
+          {errors.logoUrl && <p className="text-sm text-red-600 dark:text-red-400">{errors.logoUrl.message}</p>}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="primaryColor">Primarfarg</Label>
+            <Label htmlFor="primaryColor">Primärfärg</Label>
             <div className="flex gap-2">
               <Input type="color" className="w-12 h-10 p-1" {...register('primaryColor')} />
               <Input {...register('primaryColor')} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="secondaryColor">Sekundarfarg</Label>
+            <Label htmlFor="secondaryColor">Sekundärfärg</Label>
             <div className="flex gap-2">
               <Input type="color" className="w-12 h-10 p-1" {...register('secondaryColor')} />
               <Input {...register('secondaryColor')} />
@@ -139,48 +133,48 @@ export function OrgForm({ organization }: OrgFormProps) {
         </div>
       </div>
 
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-medium mb-4">ProffsKontakt-affiliation</h3>
+      <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-4">ProffsKontakt-affiliation</h3>
 
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
             id="isProffsKontaktAffiliated"
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-offset-slate-800"
             {...register('isProffsKontaktAffiliated')}
           />
           <Label htmlFor="isProffsKontaktAffiliated">Affilierad med ProffsKontakt</Label>
         </div>
 
         {isProffsKontakt && (
-          <div className="mt-4 space-y-4 pl-6 border-l-2 border-blue-200">
+          <div className="mt-4 space-y-4 pl-6 border-l-2 border-blue-200 dark:border-blue-800">
             <div className="space-y-2">
-              <Label htmlFor="partnerCutPercent">Partner-provision (%)</Label>
+              <Label htmlFor="installerFixedCut">Installatorns fasta arvode (SEK)</Label>
               <Input
-                id="partnerCutPercent"
+                id="installerFixedCut"
                 type="number"
                 min="0"
-                max="100"
-                step="0.1"
-                {...register('partnerCutPercent', { valueAsNumber: true })}
+                step="100"
+                {...register('installerFixedCut', { valueAsNumber: true })}
+                placeholder="t.ex. 23000"
               />
-              <p className="text-xs text-gray-500">
-                Andel som gar till installationspartner
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Fast belopp i SEK som går till installationspartner per installation
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="marginAlertThreshold">Marginal-varningsgrans (%)</Label>
+              <Label htmlFor="marginAlertThreshold">Marginal-varningsgräns (SEK)</Label>
               <Input
                 id="marginAlertThreshold"
                 type="number"
                 min="0"
-                max="100"
-                step="0.1"
+                step="100"
                 {...register('marginAlertThreshold', { valueAsNumber: true })}
+                placeholder="t.ex. 24000"
               />
-              <p className="text-xs text-gray-500">
-                Skickar varning om marginalen understiger denna niva
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Skickar varning om ProffsKontakts marginal understiger detta belopp
               </p>
             </div>
           </div>
@@ -188,8 +182,8 @@ export function OrgForm({ organization }: OrgFormProps) {
       </div>
 
       <div className="flex gap-4 pt-4">
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Sparar...' : isEditing ? 'Spara andringar' : 'Skapa organisation'}
+        <Button type="submit" disabled={isPending} variant="gradient">
+          {isPending ? 'Sparar...' : isEditing ? 'Spara ändringar' : 'Skapa organisation'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Avbryt

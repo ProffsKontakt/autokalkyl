@@ -6,7 +6,7 @@ import { OrgBrandingForm } from './org-branding-form';
 import { ROLES, Role } from '@/lib/auth/permissions';
 
 export const metadata = {
-  title: 'Installningar - Kalkyla.se',
+  title: 'Inställningar - Kalkyla.se',
 };
 
 export default async function SettingsPage() {
@@ -32,7 +32,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Organisationsinstallningar</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Organisationsinställningar</h1>
 
       <Card>
         <CardHeader>
@@ -47,7 +47,7 @@ export default async function SettingsPage() {
             <span className="text-sm text-gray-500">Slug (URL)</span>
             <p className="font-medium">{organization.slug}</p>
             <p className="text-xs text-gray-400">
-              Dina delade kalkyler visas pa: kalkyla.se/{organization.slug}/...
+              Dina delade kalkyler visas på: kalkyla.se/{organization.slug}/...
             </p>
           </div>
           {organization.isProffsKontaktAffiliated && (
@@ -55,9 +55,9 @@ export default async function SettingsPage() {
               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                 ProffsKontakt-affilierad
               </span>
-              {organization.partnerCutPercent && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Partner-provision: {organization.partnerCutPercent.toString()}%
+              {organization.installerFixedCut && (
+                <p className="text-xs text-gray-600 mt-1">
+                  Installatorns arvode: {organization.installerFixedCut.toString()} SEK
                 </p>
               )}
             </div>
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Varumarke</CardTitle>
+          <CardTitle>Varumärke</CardTitle>
         </CardHeader>
         <CardContent>
           <OrgBrandingForm
@@ -89,7 +89,7 @@ export default async function SettingsPage() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold">{organization.users?.length || 0}</p>
-              <p className="text-sm text-gray-500">Anvandare</p>
+              <p className="text-sm text-gray-500">Användare</p>
             </div>
             <div>
               <p className="text-2xl font-bold">0</p>

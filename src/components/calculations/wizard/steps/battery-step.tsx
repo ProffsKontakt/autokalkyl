@@ -59,9 +59,9 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Valj batteri</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Välj batteri</h2>
       <p className="text-sm text-gray-600 mb-6">
-        Valj ett eller flera batterier for att jamfora (max 4).
+        Välj ett eller flera batterier för att jämföra (max 4).
       </p>
 
       {/* Battery selector */}
@@ -72,7 +72,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
           className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
           disabled={batteries.length >= 4}
         >
-          <option value="">Valj batteri...</option>
+          <option value="">Välj batteri...</option>
           {batteryList
             .filter(b => !batteries.some(sel => sel.configId === b.id))
             .map((b) => (
@@ -87,7 +87,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
           disabled={!selectedBatteryId || batteries.length >= 4}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Lagg till
+          Lägg till
         </button>
       </div>
 
@@ -96,7 +96,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-500">Inga batterier valda.</p>
           <p className="text-sm text-gray-400 mt-1">
-            Valj minst ett batteri for att fortsatta.
+            Välj minst ett batteri för att fortsätta.
           </p>
         </div>
       ) : (
@@ -149,7 +149,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Inkl. batteri, vaxelriktare, installation
+                      Inkl. batteri, växelriktare, installation
                     </p>
                   </div>
 
@@ -172,7 +172,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Om separat fran totalpris
+                      Om separat från totalpris
                     </p>
                   </div>
                 </div>
@@ -194,7 +194,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                         </span>
                       </div>
                       <div className="flex justify-between col-span-2 pt-2 border-t">
-                        <span className="text-gray-600">Efter Gron Teknik (48.5%):</span>
+                        <span className="text-gray-600">Efter Grön Teknik (48.5%):</span>
                         <span className="font-medium text-green-600">
                           {formatSek(
                             (selected.totalPriceExVat + selected.installationCost) * 1.25 * (1 - 0.485)
@@ -225,7 +225,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
       {/* Comparison hint */}
       {batteries.length > 1 && (
         <p className="text-sm text-blue-600 mt-4">
-          {batteries.length} batterier valda - jamforelse visas i resultatsteget.
+          {batteries.length} batterier valda - jämförelse visas i resultatsteget.
         </p>
       )}
     </div>

@@ -16,8 +16,8 @@ datasource db {
 
 enum Role {
   SUPER_ADMIN // Platform-level admin, can access all organizations
-  ORG_ADMIN   // Organization admin, can manage users and settings
-  CLOSER      // Sales closer, can create and manage own calculations
+  ORG_ADMIN // Organization admin, can manage users and settings
+  CLOSER // Sales closer, can create and manage own calculations
 }
 
 enum Elomrade {
@@ -28,9 +28,9 @@ enum Elomrade {
 }
 
 enum CalculationStatus {
-  DRAFT     // Auto-saved draft, not complete
-  COMPLETE  // Finalized calculation
-  ARCHIVED  // Soft-deleted
+  DRAFT // Auto-saved draft, not complete
+  COMPLETE // Finalized calculation
+  ARCHIVED // Soft-deleted
 }
 
 // =============================================================================
@@ -38,22 +38,22 @@ enum CalculationStatus {
 // =============================================================================
 
 model Organization {
-  id                       String   @id @default(cuid())
-  name                     String
-  slug                     String   @unique // URL-friendly identifier: /acme-solar/calc123
-  logoUrl                  String?
-  primaryColor             String   @default("#3B82F6")   // Brand primary color
-  secondaryColor           String   @default("#1E40AF")   // Brand secondary color
+  id             String  @id @default(cuid())
+  name           String
+  slug           String  @unique // URL-friendly identifier: /acme-solar/calc123
+  logoUrl        String?
+  primaryColor   String  @default("#3B82F6") // Brand primary color
+  secondaryColor String  @default("#1E40AF") // Brand secondary color
 
   // ProffsKontakt affiliation
   // When affiliated: ProffsKontakt administers sales for this org
   // Margin calc: Sale Price (ex VAT) - Battery Cost - Installer Cut = ProffsKontakt Margin
   isProffsKontaktAffiliated Boolean  @default(false)
-  installerFixedCut        Decimal? @db.Decimal(10, 2)   // Fixed SEK amount to installer (e.g., 23000)
-  marginAlertThreshold     Decimal? @db.Decimal(10, 2)   // Min margin in SEK before alert (e.g., 24000)
+  installerFixedCut         Decimal? @db.Decimal(10, 2) // Fixed SEK amount to installer (e.g., 23000)
+  marginAlertThreshold      Decimal? @db.Decimal(10, 2) // Min margin in SEK before alert (e.g., 24000)
 
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   users          User[]
@@ -75,15 +75,15 @@ model User {
   passwordHash String
   name         String
   role         Role     @default(CLOSER)
-  orgId        String?  // Null for SUPER_ADMIN (platform-level access)
+  orgId        String? // Null for SUPER_ADMIN (platform-level access)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   // Relations
-  organization Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  sessions     Session[]
-  accounts     Account[]
+  organization        Organization?        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  sessions            Session[]
+  accounts            Account[]
   passwordResetTokens PasswordResetToken[]
 
   @@index([orgId])
@@ -165,7 +165,7 @@ model BatteryBrand {
   updatedAt DateTime @updatedAt
 
   // Relations
-  organization Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
   configs      BatteryConfig[]
 
   @@unique([orgId, name]) // No duplicate brand names per org
@@ -197,15 +197,15 @@ model BatteryConfig {
 
   // Flags
   isExtensionCabinet Boolean @default(false) // True for extension/add-on batteries
-  isNewStack         Boolean @default(true)  // True for new stack, false for refurbished
-  isActive           Boolean @default(true)  // Soft delete / hide from UI
+  isNewStack         Boolean @default(true) // True for new stack, false for refurbished
+  isActive           Boolean @default(true) // Soft delete / hide from UI
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  brand               BatteryBrand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  organization        Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  brand                BatteryBrand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  organization         Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
   calculationBatteries CalculationBattery[]
 
   @@unique([orgId, brandId, name]) // No duplicate config names per brand per org
@@ -226,18 +226,18 @@ model Natagare {
   nightRateSekKw Decimal @db.Decimal(10, 4) // e.g., 10.0000
 
   // Time windows (24h format)
-  dayStartHour Int @default(6)  // Day tariff starts at 06:00
+  dayStartHour Int @default(6) // Day tariff starts at 06:00
   dayEndHour   Int @default(22) // Day tariff ends at 22:00
 
   orgId     String
   isDefault Boolean @default(false) // Default natagare for new calculations
-  isActive  Boolean @default(true)  // Soft delete / hide from UI
+  isActive  Boolean @default(true) // Soft delete / hide from UI
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
   calculations Calculation[]
 
   @@unique([orgId, name]) // No duplicate natagare names per org
@@ -252,7 +252,7 @@ model ElectricityPrice {
   id       String   @id @default(cuid())
   elomrade Elomrade // SE1, SE2, SE3, SE4
   date     DateTime @db.Date // Date only (no time component)
-  hour     Int      // 0-23
+  hour     Int // 0-23
 
   priceOre Decimal @db.Decimal(10, 2) // Price in ore/kWh (e.g., 142.50)
 
@@ -267,7 +267,7 @@ model ElectricityPriceQuarterly {
   id       String   @id @default(cuid())
   elomrade Elomrade
   year     Int
-  quarter  Int      // 1-4
+  quarter  Int // 1-4
 
   avgDayPriceOre   Decimal @db.Decimal(10, 2) // Average day price in ore/kWh
   avgNightPriceOre Decimal @db.Decimal(10, 2) // Average night price in ore/kWh
@@ -287,12 +287,12 @@ model ElectricityPriceQuarterly {
 model Calculation {
   id        String            @id @default(cuid())
   orgId     String
-  createdBy String            // User ID who created
+  createdBy String // User ID who created
   status    CalculationStatus @default(DRAFT)
 
   // Customer Info (Step 1)
   customerName         String
-  postalCode           String?               // Optional, used for elomrade auto-detect
+  postalCode           String? // Optional, used for elomrade auto-detect
   elomrade             Elomrade
   natagareId           String
   annualConsumptionKwh Decimal  @db.Decimal(10, 2)
@@ -305,12 +305,12 @@ model Calculation {
   results Json?
 
   // Share Link Metadata (Phase 4)
-  shareCode      String?   @unique  // Unguessable nanoid for public sharing
-  shareExpiresAt DateTime?           // Optional expiration date
-  sharePassword  String?             // Optional bcrypt hash for password protection
-  shareCreatedAt DateTime?           // When link was generated
+  shareCode      String?   @unique // Unguessable nanoid for public sharing
+  shareExpiresAt DateTime? // Optional expiration date
+  sharePassword  String? // Optional bcrypt hash for password protection
+  shareCreatedAt DateTime? // When link was generated
   shareIsActive  Boolean   @default(true) // Can be deactivated without deleting
-  customGreeting String?             // Customizable greeting message
+  customGreeting String? // Customizable greeting message
 
   // Metadata
   createdAt   DateTime  @default(now())
@@ -318,8 +318,8 @@ model Calculation {
   finalizedAt DateTime?
 
   // Relations
-  organization Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  natagare     Natagare              @relation(fields: [natagareId], references: [id])
+  organization Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  natagare     Natagare             @relation(fields: [natagareId], references: [id])
   batteries    CalculationBattery[]
   views        CalculationView[]
   variants     CalculationVariant[]
@@ -361,9 +361,9 @@ model CalculationView {
   calculationId String
   viewedAt      DateTime @default(now())
   userAgent     String?
-  ipHash        String?  // SHA256 hash of IP, truncated for privacy
+  ipHash        String? // SHA256 hash of IP, truncated for privacy
 
-  calculation   Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  calculation Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
 
   @@index([calculationId])
   @@index([viewedAt])
@@ -376,12 +376,12 @@ model CalculationView {
 model CalculationVariant {
   id                   String   @id @default(cuid())
   calculationId        String
-  consumptionProfile   Json     // Modified 12x24 profile
+  consumptionProfile   Json // Modified 12x24 profile
   annualConsumptionKwh Decimal  @db.Decimal(10, 2)
-  results              Json     // Recalculated results
+  results              Json // Recalculated results
   createdAt            DateTime @default(now())
 
-  calculation          Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  calculation Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
 
   @@index([calculationId])
 }

@@ -7,6 +7,8 @@ import type { NextAuthConfig } from 'next-auth';
  * Credentials provider and database operations are in auth.ts (Node.js runtime only).
  */
 export const authConfig = {
+  // Trust the host header from Vercel's proxy
+  trustHost: true,
   pages: {
     signIn: '/login',
     error: '/login',

@@ -21,7 +21,7 @@ interface WizardNavigationProps {
 
 const STEP_LABELS = [
   'Kundinfo',
-  'Forbrukning',
+  'Förbrukning',
   'Batteri',
   'Resultat',
 ]
@@ -103,7 +103,7 @@ export function WizardNavigation({
               disabled={!canGoNext}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Slutfor kalkyl
+              Slutför kalkyl
             </button>
           ) : (
             <button
@@ -112,7 +112,7 @@ export function WizardNavigation({
               disabled={!canGoNext}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Nasta
+              Nästa
             </button>
           )}
         </div>

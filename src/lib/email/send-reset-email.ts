@@ -39,7 +39,7 @@ export async function sendPasswordResetEmail(
         to: email,
         userName,
         resetUrl,
-        subject: 'Aterstall ditt losenord - Kalkyla.se',
+        subject: 'Återställ ditt lösenord - Kalkyla.se',
       }),
     });
 

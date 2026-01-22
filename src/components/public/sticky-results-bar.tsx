@@ -43,16 +43,16 @@ export function StickyResultsBar({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div>
-              <p className="text-xs text-gray-500">Aterbetalningstid</p>
+              <p className="text-xs text-gray-500">Återbetalningstid</p>
               <p
                 className="text-lg font-bold"
                 style={{ color: primaryColor }}
               >
-                {results.paybackYears.toFixed(1)} ar
+                {results.paybackYears.toFixed(1)} år
               </p>
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs text-gray-500">Arlig besparing</p>
+              <p className="text-xs text-gray-500">Årlig besparing</p>
               <p className="text-lg font-bold text-gray-900">
                 {formatSek(results.totalAnnualSavings)}
               </p>

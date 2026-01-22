@@ -12,17 +12,17 @@ import { Label } from '@/components/ui/label';
 import { createBatteryConfig, updateBatteryConfig } from '@/actions/batteries';
 
 const batteryConfigSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
-  brandId: z.string().min(1, 'Valj ett varumarke'),
-  capacityKwh: z.number().positive('Kapacitet maste vara positiv'),
-  maxDischargeKw: z.number().positive('Maxeffekt urladdning maste vara positiv'),
-  maxChargeKw: z.number().positive('Maxeffekt laddning maste vara positiv'),
-  chargeEfficiency: z.number().min(0).max(100, 'Effektivitet maste vara 0-100%'),
-  dischargeEfficiency: z.number().min(0).max(100, 'Effektivitet maste vara 0-100%'),
-  warrantyYears: z.number().int().positive('Garantitid maste vara minst 1 ar'),
-  guaranteedCycles: z.number().int().positive('Cykler maste vara minst 1'),
-  degradationPerYear: z.number().min(0).max(100, 'Degradering maste vara 0-100%'),
-  costPrice: z.number().min(0, 'Inkopspris far inte vara negativt'),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken').max(100),
+  brandId: z.string().min(1, 'Välj ett varumärke'),
+  capacityKwh: z.number().positive('Kapacitet måste vara positiv'),
+  maxDischargeKw: z.number().positive('Maxeffekt urladdning måste vara positiv'),
+  maxChargeKw: z.number().positive('Maxeffekt laddning måste vara positiv'),
+  chargeEfficiency: z.number().min(0).max(100, 'Effektivitet måste vara 0-100%'),
+  dischargeEfficiency: z.number().min(0).max(100, 'Effektivitet måste vara 0-100%'),
+  warrantyYears: z.number().int().positive('Garantitid måste vara minst 1 år'),
+  guaranteedCycles: z.number().int().positive('Cykler måste vara minst 1'),
+  degradationPerYear: z.number().min(0).max(100, 'Degradering måste vara 0-100%'),
+  costPrice: z.number().min(0, 'Inköpspris får inte vara negativt'),
   isExtensionCabinet: z.boolean(),
   isNewStack: z.boolean(),
 });
@@ -120,17 +120,17 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
 
       {/* Section 1: Basic info */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Grundlaggande information</h3>
+        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Grundläggande information</h3>
 
         <div className="space-y-2">
-          <Label htmlFor="brandId">Varumarke *</Label>
+          <Label htmlFor="brandId">Varumärke *</Label>
           <select
             id="brandId"
             className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             {...register('brandId')}
             disabled={isEditing}
           >
-            <option value="">Valj varumarke</option>
+            <option value="">Välj varumärke</option>
             {brands.map((brand) => (
               <option key={brand.id} value={brand.id}>
                 {brand.name}
@@ -142,7 +142,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
           )}
           {isEditing && (
             <p className="text-xs text-gray-500">
-              Varumarke kan inte andras efter att konfigurationen skapats.
+              Varumärke kan inte ändras efter att konfigurationen skapats.
             </p>
           )}
         </div>
@@ -241,11 +241,11 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
 
       {/* Section 4: Warranty & Lifecycle */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Garanti och livslangd</h3>
+        <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Garanti och livslängd</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="warrantyYears">Garantitid (ar) *</Label>
+            <Label htmlFor="warrantyYears">Garantitid (år) *</Label>
             <Input
               id="warrantyYears"
               type="number"
@@ -271,7 +271,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="degradationPerYear">Degradering per ar (%) *</Label>
+            <Label htmlFor="degradationPerYear">Degradering per år (%) *</Label>
             <Input
               id="degradationPerYear"
               type="number"
@@ -292,7 +292,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
         <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Pris och typ</h3>
 
         <div className="space-y-2">
-          <Label htmlFor="costPrice">Inkopspris (SEK) *</Label>
+          <Label htmlFor="costPrice">Inköpspris (SEK) *</Label>
           <Input
             id="costPrice"
             type="number"
@@ -304,7 +304,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
             <p className="text-sm text-red-600">{errors.costPrice.message}</p>
           )}
           <p className="text-xs text-gray-500">
-            Organisationens inkopspris for detta batteri.
+            Organisationens inköpspris för detta batteri.
           </p>
         </div>
 
@@ -315,7 +315,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               {...register('isExtensionCabinet')}
             />
-            <span className="text-sm text-gray-700">Tillbehorsskap (expansion)</span>
+            <span className="text-sm text-gray-700">Tillbehörsskåp (expansion)</span>
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer">
@@ -328,8 +328,8 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
           </label>
         </div>
         <p className="text-xs text-gray-500">
-          Tillbehorsskap ar extra batterimoduler som laggs till en befintlig installation.
-          Nytt batteripaket avmarkeras for renoverade/atervunna batterier.
+          Tillbehörsskåp är extra batterimoduler som läggs till en befintlig installation.
+          Nytt batteripaket avmarkeras för renoverade/återvunna batterier.
         </p>
       </div>
 
@@ -338,7 +338,7 @@ export function BatteryConfigForm({ config, brands, brandId }: BatteryConfigForm
           {isPending
             ? 'Sparar...'
             : isEditing
-              ? 'Spara andringar'
+              ? 'Spara ändringar'
               : 'Skapa konfiguration'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>

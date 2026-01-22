@@ -37,11 +37,11 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
 
   const handleDelete = (id: string, name: string, isDefault: boolean) => {
     if (isDefault) {
-      setError('Forinstallda natagare kan inte tas bort.');
+      setError('Förinstallerade nätägare kan inte tas bort.');
       return;
     }
 
-    if (!confirm(`Ar du saker pa att du vill ta bort ${name}?`)) {
+    if (!confirm(`Är du säker på att du vill ta bort ${name}?`)) {
       return;
     }
 
@@ -63,7 +63,7 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-gray-500">
-          Inga natagare hittades. Lagg till din forsta natagare for att komma igang.
+          Inga nätägare hittades. Lägg till din första nätägare för att komma igång.
         </CardContent>
       </Card>
     );
@@ -95,7 +95,7 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
               </th>
               {(canEdit || canDelete) && (
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Atgarder
+                  Åtgärder
                 </th>
               )}
             </tr>
@@ -108,7 +108,7 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
                     <span className="font-medium text-gray-900">{n.name}</span>
                     {n.isDefault && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        Forinstalld
+                        Förinstallerad
                       </span>
                     )}
                   </div>

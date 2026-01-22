@@ -8,9 +8,9 @@ import { auth } from '@/lib/auth/auth';
 import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions';
 
 const natagareSchema = z.object({
-  name: z.string().min(2, 'Namn maste vara minst 2 tecken').max(100),
-  dayRateSekKw: z.number().min(0, 'Dagtariff far inte vara negativ'),
-  nightRateSekKw: z.number().min(0, 'Natttariff far inte vara negativ'),
+  name: z.string().min(2, 'Namn måste vara minst 2 tecken').max(100),
+  dayRateSekKw: z.number().min(0, 'Dagtariff får inte vara negativ'),
+  nightRateSekKw: z.number().min(0, 'Natttariff får inte vara negativ'),
   dayStartHour: z.number().int().min(0).max(23, 'Ogiltig starttid'),
   dayEndHour: z.number().int().min(0).max(23, 'Ogiltig sluttid'),
 });
@@ -30,12 +30,12 @@ export async function createNatagare(data: NatagareFormData) {
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_CREATE)) {
-    return { error: 'Du har inte behorighet att skapa natagare' };
+    return { error: 'Du har inte behörighet att skapa nätägare' };
   }
 
   const orgId = session.user.orgId;
   if (!orgId) {
-    return { error: 'Organisation kravs' };
+    return { error: 'Organisation krävs' };
   }
 
   const parsed = natagareSchema.safeParse(data);
@@ -51,7 +51,7 @@ export async function createNatagare(data: NatagareFormData) {
       where: { name: parsed.data.name },
     });
     if (existing) {
-      return { error: 'En natagare med detta namn finns redan' };
+      return { error: 'En nätägare med detta namn finns redan' };
     }
 
     // Explicitly include orgId for TypeScript - tenant client will override at runtime
@@ -72,7 +72,7 @@ export async function createNatagare(data: NatagareFormData) {
     return { success: true, natagareId: natagare.id };
   } catch (error) {
     console.error('Failed to create natagare:', error);
-    return { error: 'Kunde inte skapa natagare' };
+    return { error: 'Kunde inte skapa nätägare' };
   }
 }
 
@@ -93,12 +93,12 @@ export async function updateNatagare(
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_EDIT)) {
-    return { error: 'Du har inte behorighet att redigera natagare' };
+    return { error: 'Du har inte behörighet att redigera nätägare' };
   }
 
   const orgId = session.user.orgId;
   if (!orgId) {
-    return { error: 'Organisation kravs' };
+    return { error: 'Organisation krävs' };
   }
 
   try {
@@ -109,7 +109,7 @@ export async function updateNatagare(
       where: { id },
     });
     if (!existing) {
-      return { error: 'Natagare hittades inte' };
+      return { error: 'Nätägare hittades inte' };
     }
 
     // Build update data, excluding isDefault
@@ -126,7 +126,7 @@ export async function updateNatagare(
         where: { name: data.name },
       });
       if (duplicate) {
-        return { error: 'En natagare med detta namn finns redan' };
+        return { error: 'En nätägare med detta namn finns redan' };
       }
     }
 
@@ -140,7 +140,7 @@ export async function updateNatagare(
     return { success: true };
   } catch (error) {
     console.error('Failed to update natagare:', error);
-    return { error: 'Kunde inte uppdatera natagare' };
+    return { error: 'Kunde inte uppdatera nätägare' };
   }
 }
 
@@ -158,12 +158,12 @@ export async function deleteNatagare(id: string) {
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_DELETE)) {
-    return { error: 'Du har inte behorighet att ta bort natagare' };
+    return { error: 'Du har inte behörighet att ta bort nätägare' };
   }
 
   const orgId = session.user.orgId;
   if (!orgId) {
-    return { error: 'Organisation kravs' };
+    return { error: 'Organisation krävs' };
   }
 
   try {
@@ -174,12 +174,12 @@ export async function deleteNatagare(id: string) {
       where: { id },
     });
     if (!existing) {
-      return { error: 'Natagare hittades inte' };
+      return { error: 'Nätägare hittades inte' };
     }
 
     // Cannot delete default natagare
     if (existing.isDefault) {
-      return { error: 'Forinstallda natagare kan inte tas bort. Du kan endast andra priserna.' };
+      return { error: 'Förinstallda nätägare kan inte tas bort. Du kan endast ändra priserna.' };
     }
 
     await prisma.natagare.delete({
@@ -190,7 +190,7 @@ export async function deleteNatagare(id: string) {
     return { success: true };
   } catch (error) {
     console.error('Failed to delete natagare:', error);
-    return { error: 'Kunde inte ta bort natagare' };
+    return { error: 'Kunde inte ta bort nätägare' };
   }
 }
 
@@ -207,12 +207,12 @@ export async function getNatagare() {
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_VIEW)) {
-    return { error: 'Du har inte behorighet att se natagare', natagare: [] };
+    return { error: 'Du har inte behörighet att se nätägare', natagare: [] };
   }
 
   const orgId = session.user.orgId;
   if (!orgId) {
-    return { error: 'Organisation kravs', natagare: [] };
+    return { error: 'Organisation krävs', natagare: [] };
   }
 
   try {
@@ -223,7 +223,7 @@ export async function getNatagare() {
     return { natagare };
   } catch (error) {
     console.error('Failed to get natagare:', error);
-    return { error: 'Kunde inte hamta natagare', natagare: [] };
+    return { error: 'Kunde inte hämta nätägare', natagare: [] };
   }
 }
 
@@ -240,12 +240,12 @@ export async function getNatagareById(id: string) {
   const currentRole = session.user.role as Role;
 
   if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_VIEW)) {
-    return { error: 'Du har inte behorighet att se natagare' };
+    return { error: 'Du har inte behörighet att se nätägare' };
   }
 
   const orgId = session.user.orgId;
   if (!orgId) {
-    return { error: 'Organisation kravs' };
+    return { error: 'Organisation krävs' };
   }
 
   try {
@@ -255,13 +255,13 @@ export async function getNatagareById(id: string) {
     });
 
     if (!natagare) {
-      return { error: 'Natagare hittades inte' };
+      return { error: 'Nätägare hittades inte' };
     }
 
     return { natagare };
   } catch (error) {
     console.error('Failed to get natagare:', error);
-    return { error: 'Kunde inte hamta natagare' };
+    return { error: 'Kunde inte hämta nätägare' };
   }
 }
 

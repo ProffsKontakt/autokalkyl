@@ -89,14 +89,14 @@ export function ShareModal({
         onUpdate?.()
       }
     } catch {
-      setError('Nagot gick fel')
+      setError('Något gick fel')
     }
     setLoading(false)
   }
 
   // Deactivate link
   async function handleDeactivate() {
-    if (!confirm('Ar du saker? Lanken kommer sluta fungera.')) return
+    if (!confirm('Är du säker? Länken kommer sluta fungera.')) return
     setLoading(true)
     setError(null)
     try {
@@ -108,14 +108,14 @@ export function ShareModal({
         onUpdate?.()
       }
     } catch {
-      setError('Nagot gick fel')
+      setError('Något gick fel')
     }
     setLoading(false)
   }
 
   // Regenerate link (new code)
   async function handleRegenerate() {
-    if (!confirm('Ar du saker? Den gamla lanken kommer sluta fungera.')) return
+    if (!confirm('Är du säker? Den gamla länken kommer sluta fungera.')) return
     setLoading(true)
     setError(null)
     try {
@@ -128,7 +128,7 @@ export function ShareModal({
         onUpdate?.()
       }
     } catch {
-      setError('Nagot gick fel')
+      setError('Något gick fel')
     }
     setLoading(false)
   }
@@ -168,7 +168,7 @@ export function ShareModal({
           {shareUrl && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Delningslan
+                Delningslänk
               </label>
               <div className="flex gap-2">
                 <input
@@ -188,7 +188,7 @@ export function ShareModal({
                 </button>
               </div>
               {!linkActive && (
-                <p className="text-sm text-red-600 mt-1">Lanken ar inaktiverad</p>
+                <p className="text-sm text-red-600 mt-1">Länken är inaktiverad</p>
               )}
             </div>
           )}
@@ -208,7 +208,7 @@ export function ShareModal({
           {/* Expiration date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Utgangsdatum (valfritt)
+              Utgångsdatum (valfritt)
             </label>
             <input
               type="date"
@@ -218,21 +218,21 @@ export function ShareModal({
               className="w-full px-3 py-2 border rounded-md"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Lamna tomt for att lanken aldrig ska ga ut
+              Lämna tomt för att länken aldrig ska gå ut
             </p>
           </div>
 
           {/* Password protection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Losenordsskydd (valfritt)
+              Lösenordsskydd (valfritt)
             </label>
             <div className="flex gap-2">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={hasPassword ? '••••••••' : 'Ange losenord'}
+                placeholder={hasPassword ? '••••••••' : 'Ange lösenord'}
                 className="flex-1 px-3 py-2 border rounded-md"
               />
               <button
@@ -240,12 +240,12 @@ export function ShareModal({
                 onClick={() => setShowPassword(!showPassword)}
                 className="px-3 py-2 border rounded-md text-gray-500 hover:bg-gray-50"
               >
-                {showPassword ? 'Dolj' : 'Visa'}
+                {showPassword ? 'Dölj' : 'Visa'}
               </button>
             </div>
             {hasPassword && !password && (
               <p className="text-xs text-gray-500 mt-1">
-                Lanken har redan ett losenord. Ange ett nytt for att andra.
+                Länken har redan ett lösenord. Ange ett nytt för att ändra.
               </p>
             )}
           </div>
@@ -266,7 +266,7 @@ export function ShareModal({
               disabled={loading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? 'Genererar...' : 'Skapa delningslank'}
+              {loading ? 'Genererar...' : 'Skapa delningslänk'}
             </button>
           ) : (
             <>
@@ -275,14 +275,14 @@ export function ShareModal({
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {loading ? 'Sparar...' : 'Spara installningar'}
+                {loading ? 'Sparar...' : 'Spara inställningar'}
               </button>
               <button
                 onClick={handleRegenerate}
                 disabled={loading}
                 className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
               >
-                Ny lank
+                Ny länk
               </button>
               {linkActive ? (
                 <button

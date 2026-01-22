@@ -45,7 +45,7 @@ export function PasswordGate({ orgSlug, shareCode, error }: PasswordGateProps) {
               Skyddad kalkyl
             </h1>
             <p className="text-gray-600 mt-2">
-              Ange losenordet du fatt av din saljare
+              Ange lösenordet du fått av din säljare
             </p>
           </div>
 
@@ -58,14 +58,14 @@ export function PasswordGate({ orgSlug, shareCode, error }: PasswordGateProps) {
 
             <div>
               <label htmlFor="password" className="sr-only">
-                Losenord
+                Lösenord
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ange losenord"
+                placeholder="Ange lösenord"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
