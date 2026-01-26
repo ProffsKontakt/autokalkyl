@@ -1,22 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Providers } from "./providers";
+import { Geist } from "next/font/google";
+import { MinimalProviders } from "./providers-minimal";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Kalkyla.se - Battery ROI Calculator",
-  description: "Professional battery ROI calculator for Swedish solar installers. Calculate savings, visualize returns, and share proposals with customers.",
-  keywords: ["battery", "ROI", "calculator", "solar", "Sweden", "energy savings"],
+  title: "Kalkyla.se - Batterikalkyl & Solcellskalkyl",
+  description: "Jämför offerter på solceller och batterilager. Få gratis kalkyl och bli kontaktad av upp till 6 företag i ditt område. Beräkna ROI och besparingar.",
+  keywords: ["batterikalkyl", "solcellskalkyl", "batteri ROI", "solceller pris", "batterilagring kostnad", "grön teknik avdrag"],
+  openGraph: {
+    title: "Kalkyla.se - Jämför offerter på solceller & batterier",
+    description: "Få gratis kalkyl och bli kontaktad av upp till 6 företag i ditt område. Beräkna besparingar och återbetalningstid.",
+    type: "website",
+    locale: "sv_SE",
+    siteName: "Kalkyla.se",
+  },
 };
 
 export default function RootLayout({
@@ -47,9 +50,9 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}
+        className={`${geistSans.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}
       >
-        <Providers>{children}</Providers>
+        <MinimalProviders>{children}</MinimalProviders>
       </body>
     </html>
   );

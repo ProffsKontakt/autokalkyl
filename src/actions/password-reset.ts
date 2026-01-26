@@ -5,6 +5,9 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db/client';
 import { sendPasswordResetEmail } from '@/lib/email/send-reset-email';
+import { strongPasswordSchema } from '@/lib/validation/password';
+import { checkPasswordResetRateLimit } from '@/lib/rate-limit';
+import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger';
 
 const requestSchema = z.object({
   email: z.string().email('Ogiltig e-postadress'),
@@ -12,7 +15,7 @@ const requestSchema = z.object({
 
 const resetSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8, 'Lösenordet måste vara minst 8 tecken'),
+  password: strongPasswordSchema,
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Lösenorden matchar inte',
@@ -31,14 +34,33 @@ export async function requestPasswordReset(data: { email: string }) {
     return { error: parsed.error.issues[0].message };
   }
 
+  const email = parsed.data.email;
+
+  // Check rate limit before processing
+  const rateLimit = checkPasswordResetRateLimit(email);
+  if (!rateLimit.success) {
+    await logSecurityEvent({
+      type: SecurityEventType.PASSWORD_RESET_RATE_LIMITED,
+      email,
+    });
+    // Still return success to prevent enumeration, but don't send email
+    return { success: true };
+  }
+
   const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email },
+    where: { email },
   });
 
   // Always return success to prevent email enumeration
   if (!user || !user.isActive) {
     return { success: true };
   }
+
+  await logSecurityEvent({
+    type: SecurityEventType.PASSWORD_RESET_REQUESTED,
+    email,
+    userId: user.id,
+  });
 
   // Delete any existing tokens for this user
   await prisma.passwordResetToken.deleteMany({
@@ -99,17 +121,33 @@ export async function resetPassword(data: {
   });
 
   if (!resetToken) {
+    await logSecurityEvent({
+      type: SecurityEventType.PASSWORD_RESET_FAILED,
+      metadata: { reason: 'invalid_token' },
+    });
     return { error: 'Ogiltig eller utgången länk' };
   }
 
   // Check expiration
   if (resetToken.expiresAt < new Date()) {
     await prisma.passwordResetToken.delete({ where: { id: resetToken.id } });
+    await logSecurityEvent({
+      type: SecurityEventType.PASSWORD_RESET_FAILED,
+      userId: resetToken.userId,
+      email: resetToken.user.email,
+      metadata: { reason: 'token_expired' },
+    });
     return { error: 'Länken har gått ut. Begär en ny.' };
   }
 
   // Check if already used
   if (resetToken.usedAt) {
+    await logSecurityEvent({
+      type: SecurityEventType.PASSWORD_RESET_FAILED,
+      userId: resetToken.userId,
+      email: resetToken.user.email,
+      metadata: { reason: 'token_already_used' },
+    });
     return { error: 'Denna länk har redan använts' };
   }
 
@@ -127,6 +165,12 @@ export async function resetPassword(data: {
       data: { usedAt: new Date() },
     }),
   ]);
+
+  await logSecurityEvent({
+    type: SecurityEventType.PASSWORD_RESET_SUCCESS,
+    userId: resetToken.userId,
+    email: resetToken.user.email,
+  });
 
   return { success: true };
 }

@@ -1,25 +1,103 @@
-import Link from 'next/link';
+import type { Metadata } from 'next'
+import {
+  Hero,
+  HowItWorks,
+  Benefits,
+  TrustSignals,
+  Categories,
+  FAQ,
+  CTA,
+  Footer,
+} from '@/components/landing'
+
+export const metadata: Metadata = {
+  title: 'Batterikalkyl & Solcellskalkyl | Jämför offerter - Kalkyla.se',
+  description: 'Jämför offerter på solceller och batterilager. Få en gratis kalkyl och bli kontaktad av upp till 6 kvalitetsgranskade företag i ditt område. Beräkna ROI och besparingar.',
+  keywords: ['batterikalkyl', 'solcellskalkyl', 'batteri ROI', 'solceller pris 2026', 'batterilagring kostnad', 'grön teknik avdrag', 'solceller villa', 'batterilager hemma'],
+  openGraph: {
+    title: 'Kalkyla.se - Jämför offerter på solceller & batterier',
+    description: 'Få gratis kalkyl och bli kontaktad av upp till 6 företag. Beräkna besparingar och återbetalningstid för solceller och batterilager.',
+    type: 'website',
+    locale: 'sv_SE',
+    siteName: 'Kalkyla.se',
+    url: 'https://kalkyla.se',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Kalkyla.se - Jämför offerter på solceller & batterier',
+    description: 'Få gratis kalkyl och bli kontaktad av upp till 6 företag. Beräkna besparingar och återbetalningstid.',
+  },
+  alternates: {
+    canonical: 'https://kalkyla.se',
+  },
+}
+
+// JSON-LD structured data for SEO
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Kalkyla.se',
+  url: 'https://kalkyla.se',
+  description: 'Jämför offerter på solceller och batterilager. Få en gratis kalkyl och bli kontaktad av kvalitetsgranskade företag.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://kalkyla.se/kalkyl?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+}
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Vad kostar solceller 2026?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Priset för en komplett solcellsanläggning varierar beroende på storlek och kvalitet, men ligger oftast mellan 100 000 - 250 000 kr för en villa. Med grön teknik-avdraget på 50% blir din kostnad betydligt lägre.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Lönar sig batterilager?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ja, med dagens elpriser och effekttariffer kan ett batterilager ge en återbetalningstid på 5-8 år. Batteriet optimerar mot spotpriser och minskar effekttoppar som påverkar din elnätsavgift.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Vad är grön teknik-avdraget?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Grön teknik-avdraget ger dig 50% skattereduktion på arbetskostnaden för installation av solceller och batterier. Avdraget görs direkt på fakturan. Max 50 000 kr per person och år.',
+      },
+    },
+  ],
+}
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex w-full max-w-3xl flex-col items-center justify-center gap-8 py-32 px-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
-          Kalkyla.se
-        </h1>
-        <p className="text-xl text-zinc-600 dark:text-zinc-400">
-          Professional Battery ROI Calculator
-        </p>
-        <p className="max-w-lg text-zinc-500 dark:text-zinc-500">
-          Calculate energy savings, visualize returns, and share professional proposals with your customers.
-        </p>
-        <Link
-          href="/login"
-          className="mt-4 inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Logga in
-        </Link>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <main>
+        <Hero />
+        <HowItWorks />
+        <Categories />
+        <Benefits />
+        <TrustSignals />
+        <FAQ />
+        <CTA />
+        <Footer />
       </main>
-    </div>
-  );
+    </>
+  )
 }

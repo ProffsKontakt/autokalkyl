@@ -34,6 +34,45 @@ enum CalculationStatus {
 }
 
 // =============================================================================
+// LEAD CAPTURE ENUMS
+// =============================================================================
+
+enum PropertyType {
+  VILLA
+  BOSTADSRATT
+  LAGENHET
+  FORETAG
+}
+
+enum InterestType {
+  BATTERY
+  SOLAR
+  BOTH
+}
+
+enum BudgetRange {
+  UNDER_100K
+  RANGE_100K_200K
+  OVER_200K
+  UNKNOWN
+}
+
+enum Timeline {
+  ASAP
+  WITHIN_3_MONTHS
+  WITHIN_6_MONTHS
+  JUST_RESEARCHING
+}
+
+enum LeadStatus {
+  NEW
+  MATCHED
+  CONTACTED
+  CONVERTED
+  CLOSED
+}
+
+// =============================================================================
 // ORGANIZATION (Tenant)
 // =============================================================================
 
@@ -384,4 +423,89 @@ model CalculationVariant {
   calculation Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
 
   @@index([calculationId])
+}
+
+// =============================================================================
+// LEAD CAPTURE SYSTEM
+// =============================================================================
+
+model Lead {
+  id    String @id @default(cuid())
+  email String
+  phone String?
+  name  String
+
+  // Questionnaire data
+  propertyType     PropertyType
+  postalCode       String
+  elomrade         Elomrade
+  annualKwh        Decimal      @db.Decimal(10, 2)
+  hasExistingSolar Boolean      @default(false)
+  interestType     InterestType
+  budget           BudgetRange?
+  timeline         Timeline?
+
+  // Calculated results (snapshot at time of lead creation)
+  calculationSnapshot Json?
+
+  // Status tracking
+  status LeadStatus @default(NEW)
+  source String? // utm_source, campaign tracking
+
+  // Company matching
+  matchedCompanies LeadCompanyMatch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([elomrade])
+  @@index([createdAt])
+}
+
+model Company {
+  id         String  @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  webhookUrl String? // Optional CRM integration for lead notifications
+  isActive   Boolean @default(true)
+
+  // Service area - polygon data synced from Google Sheets
+  // Stored as GeoJSON: { type: "Polygon", coordinates: [[lon, lat], ...] }
+  serviceAreaPolygon Json?
+  lastSyncedAt       DateTime?
+
+  // Matching preferences
+  acceptsBattery Boolean @default(true)
+  acceptsSolar   Boolean @default(true)
+  maxLeadsPerDay Int     @default(10)
+  leadsToday     Int     @default(0)
+  leadsResetAt   DateTime?
+
+  matchedLeads LeadCompanyMatch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+model LeadCompanyMatch {
+  id        String @id @default(cuid())
+  leadId    String
+  companyId String
+
+  notifiedAt         DateTime?
+  notificationMethod String? // EMAIL, WEBHOOK
+
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([leadId, companyId])
+  @@index([leadId])
+  @@index([companyId])
 }

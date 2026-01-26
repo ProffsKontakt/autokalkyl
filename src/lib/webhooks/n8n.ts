@@ -1,5 +1,59 @@
 // src/lib/webhooks/n8n.ts
 
+/**
+ * Generic N8N webhook trigger.
+ *
+ * Fire-and-forget pattern: logs errors but never throws.
+ * Webhook failure should never block user actions.
+ */
+export async function triggerN8NWebhook(
+  webhookType: string,
+  payload: Record<string, unknown>
+): Promise<void> {
+  // Map webhook types to environment variable names
+  const webhookUrlMap: Record<string, string | undefined> = {
+    'margin-alert': process.env.N8N_MARGIN_ALERT_WEBHOOK_URL,
+    'lead-notification': process.env.N8N_LEAD_NOTIFICATION_WEBHOOK_URL,
+    'password-reset': process.env.N8N_PASSWORD_RESET_WEBHOOK_URL,
+  }
+
+  const webhookUrl = webhookUrlMap[webhookType]
+
+  if (!webhookUrl) {
+    // Dev mode: log to console instead
+    console.log(`[N8N] ${webhookType} (webhook not configured):`, payload)
+    return
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(process.env.N8N_WEBHOOK_SECRET && {
+          'X-Webhook-Secret': process.env.N8N_WEBHOOK_SECRET,
+        }),
+      },
+      body: JSON.stringify({
+        ...payload,
+        webhookType,
+        timestamp: new Date().toISOString(),
+        source: 'kalkyla',
+        environment: process.env.NODE_ENV,
+      }),
+    })
+
+    if (!response.ok) {
+      console.error(`[N8N] ${webhookType} webhook failed: ${response.status} ${response.statusText}`)
+    } else {
+      console.log(`[N8N] ${webhookType} webhook sent successfully`)
+    }
+  } catch (error) {
+    // Fire-and-forget: log but don't throw
+    console.error(`[N8N] ${webhookType} webhook error:`, error)
+  }
+}
+
 export interface MarginAlertPayload {
   eventType: 'calculation_saved'
   calculationId: string

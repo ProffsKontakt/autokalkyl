@@ -18,14 +18,20 @@ export default NextAuth(authConfig).auth;
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - api/auth (auth endpoints)
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public folder
-     * - public share links (/[org]/[code] pattern handled separately)
+     * Only match protected routes for performance.
+     * Public routes (landing page, kalkyl wizard, share links) are skipped entirely.
+     *
+     * Protected routes:
+     * - /dashboard/* (user dashboard)
+     * - /admin/* (super admin)
+     * - /login, /forgot-password, /reset-password (auth pages)
+     * - /api/* (except /api/auth and /api/public)
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)',
+    '/dashboard/:path*',
+    '/admin/:path*',
+    '/login',
+    '/forgot-password',
+    '/reset-password/:path*',
+    '/api/((?!auth|public).*)',
   ],
 };

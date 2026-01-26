@@ -7,11 +7,13 @@ import { prisma } from '@/lib/db/client';
 import { createTenantClient } from '@/lib/db/tenant-client';
 import { auth } from '@/lib/auth/auth';
 import { hasPermission, PERMISSIONS, ROLES, Role } from '@/lib/auth/permissions';
+import { strongPasswordSchema, optionalStrongPasswordSchema } from '@/lib/validation/password';
+import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger';
 
 const userSchema = z.object({
   email: z.string().email('Ogiltig e-postadress'),
   name: z.string().min(2, 'Namn måste vara minst 2 tecken'),
-  password: z.string().min(8, 'Lösenordet måste vara minst 8 tecken').optional(),
+  password: strongPasswordSchema.optional(),
   role: z.enum(['SUPER_ADMIN', 'ORG_ADMIN', 'CLOSER']),
   orgId: z.string().cuid().optional(), // Optional for SUPER_ADMIN
 });
@@ -90,6 +92,18 @@ export async function createUser(data: UserFormData) {
       },
     });
 
+    await logSecurityEvent({
+      type: SecurityEventType.USER_CREATED,
+      userId: session.user.id,
+      targetUserId: user.id,
+      orgId: session.user.orgId ?? undefined,
+      metadata: {
+        targetEmail: user.email,
+        targetRole: user.role,
+        targetOrgId: user.orgId,
+      },
+    });
+
     revalidatePath('/dashboard/users');
     revalidatePath('/admin/organizations');
     return { success: true, userId: user.id };
@@ -147,9 +161,17 @@ export async function updateUser(
     const updateData: Record<string, unknown> = {};
     if (data.email) updateData.email = data.email;
     if (data.name) updateData.name = data.name;
+
+    // Track role changes for audit
+    const roleChanged = data.role && data.role !== targetUser.role;
     if (data.role) updateData.role = data.role;
-    // Password update - only if provided (AUTH-04: admin password reset)
-    if (data.password && data.password.length >= 8) {
+
+    // Password update - validate with strong password requirements
+    if (data.password) {
+      const passwordValidation = strongPasswordSchema.safeParse(data.password);
+      if (!passwordValidation.success) {
+        return { error: passwordValidation.error.issues[0].message };
+      }
       updateData.passwordHash = await bcrypt.hash(data.password, 12);
     }
 
@@ -157,6 +179,38 @@ export async function updateUser(
       where: { id: userId },
       data: updateData,
     });
+
+    // Log security events
+    await logSecurityEvent({
+      type: SecurityEventType.USER_UPDATED,
+      userId: session.user.id,
+      targetUserId: userId,
+      metadata: {
+        fieldsUpdated: Object.keys(updateData),
+        passwordChanged: !!data.password,
+      },
+    });
+
+    if (roleChanged) {
+      await logSecurityEvent({
+        type: SecurityEventType.USER_ROLE_CHANGED,
+        userId: session.user.id,
+        targetUserId: userId,
+        metadata: {
+          previousRole: targetUser.role,
+          newRole: data.role,
+        },
+      });
+    }
+
+    if (data.password) {
+      await logSecurityEvent({
+        type: SecurityEventType.PASSWORD_CHANGED,
+        userId: session.user.id,
+        targetUserId: userId,
+        metadata: { adminReset: true },
+      });
+    }
 
     revalidatePath('/dashboard/users');
     return { success: true };
@@ -202,6 +256,16 @@ export async function deactivateUser(userId: string) {
     await prisma.user.update({
       where: { id: userId },
       data: { isActive: false },
+    });
+
+    await logSecurityEvent({
+      type: SecurityEventType.USER_DEACTIVATED,
+      userId: session.user.id,
+      targetUserId: userId,
+      metadata: {
+        targetEmail: targetUser.email,
+        targetRole: targetUser.role,
+      },
     });
 
     revalidatePath('/dashboard/users');

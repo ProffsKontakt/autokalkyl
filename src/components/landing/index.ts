@@ -1,0 +1,8 @@
+export { Hero } from './hero'
+export { HowItWorks } from './how-it-works'
+export { Benefits } from './benefits'
+export { TrustSignals } from './trust-signals'
+export { Categories } from './categories'
+export { FAQ } from './faq'
+export { CTA } from './cta'
+export { Footer } from './footer'

@@ -22,6 +22,8 @@ import type {
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
 import { VAT_RATE, GRON_TEKNIK_RATE } from '@/lib/calculations/constants'
+import { checkSharePasswordRateLimit, hashIp } from '@/lib/rate-limit'
+import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger'
 
 // =============================================================================
 // GENERATE/UPDATE SHARE LINK (Authenticated - Closer/Admin)
@@ -216,11 +218,13 @@ export async function regenerateShareLink(
 export async function getPublicCalculation(
   orgSlug: string,
   shareCode: string,
-  password?: string
+  password?: string,
+  clientIp?: string
 ): Promise<{
   data?: PublicCalculationData
   error?: string
   passwordRequired?: boolean
+  rateLimited?: boolean
 }> {
   // Find calculation by org slug and share code
   const calculation = await prisma.calculation.findFirst({
@@ -276,8 +280,30 @@ export async function getPublicCalculation(
     if (!password) {
       return { passwordRequired: true }
     }
+
+    // Rate limit password attempts by IP
+    const ipHash = clientIp ? hashIp(clientIp) : 'unknown'
+    const rateLimit = checkSharePasswordRateLimit(ipHash)
+    if (!rateLimit.success) {
+      const minutesLeft = Math.ceil((rateLimit.resetAt - Date.now()) / 60000)
+      await logSecurityEvent({
+        type: SecurityEventType.SHARE_PASSWORD_RATE_LIMITED,
+        ipHash,
+        metadata: { shareCode, orgSlug, minutesLeft },
+      })
+      return {
+        rateLimited: true,
+        error: `För många försök. Vänta ${minutesLeft} minuter.`,
+      }
+    }
+
     const valid = await bcrypt.compare(password, calculation.sharePassword)
     if (!valid) {
+      await logSecurityEvent({
+        type: SecurityEventType.SHARE_PASSWORD_FAILED,
+        ipHash,
+        metadata: { shareCode, orgSlug },
+      })
       return { error: 'Fel lösenord' }
     }
   }
