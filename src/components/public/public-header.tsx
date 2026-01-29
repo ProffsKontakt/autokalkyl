@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import { Battery } from 'lucide-react'
+import { useState } from 'react'
 
 interface PublicHeaderProps {
   orgName: string
@@ -8,6 +11,8 @@ interface PublicHeaderProps {
 }
 
 export function PublicHeader({ orgName, logoUrl, primaryColor }: PublicHeaderProps) {
+  const [logoError, setLogoError] = useState(false)
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-700/50">
       <div
@@ -16,13 +21,15 @@ export function PublicHeader({ orgName, logoUrl, primaryColor }: PublicHeaderPro
       />
       <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {logoUrl ? (
+          {logoUrl && !logoError ? (
             <Image
               src={logoUrl}
               alt={`${orgName} logo`}
               width={120}
               height={40}
               className="h-10 w-auto object-contain"
+              onError={() => setLogoError(true)}
+              unoptimized // Allow external URLs
             />
           ) : (
             <span

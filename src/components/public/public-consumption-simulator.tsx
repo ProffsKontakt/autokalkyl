@@ -20,8 +20,9 @@ import {
   VAT_RATE,
   GRON_TEKNIK_RATE,
   DEFAULT_GRID_SERVICES_RATE,
-  DEFAULT_CYCLES_PER_DAY,
   DEFAULT_AVG_DISCHARGE_PERCENT,
+  DEFAULT_POST_CAMPAIGN_RATE,
+  MONTH_NAMES_SV,
 } from '@/lib/calculations/constants'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
@@ -46,6 +47,10 @@ interface PublicConsumptionSimulatorProps {
   }
   onResultsChange?: (results: CalculationResultsPublic, profile: number[][], annualKwh: number) => void
   primaryColor: string
+  // Phase 6: Calculation parameters (optional, defaults to realistic values)
+  cyclesPerDay?: number
+  peakShavingPercent?: number
+  postCampaignRate?: number
 }
 
 export function PublicConsumptionSimulator({
@@ -55,9 +60,14 @@ export function PublicConsumptionSimulator({
   originalResults,
   battery,
   natagare,
+  elomrade,
   quarterlyPrices,
   onResultsChange,
   primaryColor,
+  // Phase 6: Use reasonable defaults that match admin panel
+  cyclesPerDay = 1.5,
+  peakShavingPercent = 50,
+  postCampaignRate = DEFAULT_POST_CAMPAIGN_RATE,
 }: PublicConsumptionSimulatorProps) {
   // State
   const [profile, setProfile] = useState<number[][]>(() =>
@@ -126,7 +136,8 @@ export function PublicConsumptionSimulator({
     await new Promise(resolve => setTimeout(resolve, 100))
 
     try {
-      // Use the actual calculation engine with proper inputs
+      // Use the actual calculation engine with Phase 6 parameters
+      const isEmaldo = battery.brandName.toLowerCase().includes('emaldo')
       const { results: engineResults } = calculateBatteryROI({
         battery: {
           capacityKwh: battery.capacityKwh,
@@ -136,7 +147,14 @@ export function PublicConsumptionSimulator({
           dischargeEfficiency: battery.dischargeEfficiency / 100,
           costPrice: 0, // Not needed for public recalc
         },
-        cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+        // Phase 6: Use actual calculation parameters
+        cyclesPerDay,
+        peakShavingPercent,
+        currentPeakKw: 8, // Default peak for residential
+        postCampaignRatePerKwYear: postCampaignRate,
+        elomrade,
+        isEmaldoBattery: isEmaldo,
+        totalProjectionYears: 10,
         avgDischargePercent: DEFAULT_AVG_DISCHARGE_PERCENT,
         dayPriceOre: quarterlyPrices.avgDayPriceOre,
         nightPriceOre: quarterlyPrices.avgNightPriceOre,
@@ -172,7 +190,7 @@ export function PublicConsumptionSimulator({
     }
 
     setIsRecalculating(false)
-  }, [profile, annualKwh, battery, natagare, quarterlyPrices, onResultsChange])
+  }, [profile, annualKwh, battery, natagare, elomrade, quarterlyPrices, cyclesPerDay, peakShavingPercent, postCampaignRate, onResultsChange])
 
   // Reset to original
   const handleReset = () => {
@@ -198,7 +216,7 @@ export function PublicConsumptionSimulator({
               Din förbrukning
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              Klicka på en stapel för att justera din förbrukning och se hur det påverkar din besparing.
+              Detta är en snittlig dag i {MONTH_NAMES_SV[selectedMonth]}. Klicka på en stapel för att justera din förbrukning.
             </p>
           </div>
           {hasChanges && (
