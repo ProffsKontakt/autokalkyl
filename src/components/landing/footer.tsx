@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -9,7 +10,16 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="text-2xl font-bold">
+            <Link href="/" className="inline-flex items-center gap-3 text-2xl font-bold">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
+                <Image
+                  src="/kalkyla.png"
+                  alt="Kalkyla"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
+              </div>
               Kalkyla.se
             </Link>
             <p className="mt-4 text-gray-400 max-w-md">

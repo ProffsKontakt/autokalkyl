@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { logoutAction } from '@/actions/auth'
 import { ROLES } from '@/lib/auth/permissions'
@@ -12,7 +13,6 @@ import {
   Settings,
   Shield,
   LogOut,
-  Zap,
   ChevronDown,
   Network,
   Bolt,
@@ -122,7 +122,13 @@ export function DashboardNav({ user }: DashboardNavProps) {
               className="flex items-center gap-2.5 group"
             >
               <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/20 group-hover:shadow-blue-500/30 transition-shadow">
-                <Zap className="w-5 h-5 text-white" />
+                <Image
+                  src="/kalkyla.png"
+                  alt="Kalkyla"
+                  width={22}
+                  height={22}
+                  className="w-5 h-5"
+                />
               </div>
               <span className="text-lg font-semibold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                 Kalkyla

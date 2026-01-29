@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { logoutAction } from '@/actions/auth'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
@@ -12,7 +13,6 @@ import {
   Settings,
   Shield,
   LogOut,
-  Zap,
   ChevronDown,
   Network,
   Bolt,
@@ -93,7 +93,13 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         <div className="p-6 border-b border-slate-200/50 dark:border-slate-700/50">
           <Link href="/dashboard" className="flex items-center gap-3 group">
             <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
-              <Zap className="w-5 h-5 text-white" />
+              <Image
+                src="/kalkyla.png"
+                alt="Kalkyla"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
               Kalkyla

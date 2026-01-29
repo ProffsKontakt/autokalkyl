@@ -1,5 +1,5 @@
 import { LoginForm } from './login-form'
-import { Zap } from 'lucide-react'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Logga in - Kalkyla.se',
@@ -15,7 +15,13 @@ export default function LoginPage() {
 
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-            <Zap className="w-6 h-6 text-white" />
+            <Image
+              src="/kalkyla.png"
+              alt="Kalkyla"
+              width={28}
+              height={28}
+              className="w-7 h-7"
+            />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
             Kalkyla.se
