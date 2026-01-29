@@ -342,22 +342,23 @@ export async function getPublicCalculation(
   })
 
   // Extract public-safe results
+  // Note: Field names from engine use *Sek, *Years, *Percent suffixes
   let resultsPublic: CalculationResultsPublic | null = null
-  if (calculation.results) {
+  if (calculation.results && Object.keys(calculation.results as object).length > 0) {
     const r = calculation.results as Record<string, number>
     resultsPublic = {
-      totalPriceExVat: r.totalPriceExVat,
-      totalPriceIncVat: r.totalPriceIncVat,
-      costAfterGronTeknik: r.costAfterGronTeknik,
-      effectiveCapacityKwh: r.effectiveCapacityKwh,
-      annualEnergyKwh: r.annualEnergyKwh,
-      spotprisSavings: r.spotprisSavings,
-      effectTariffSavings: r.effectTariffSavings,
-      gridServicesIncome: r.gridServicesIncome,
-      totalAnnualSavings: r.totalAnnualSavings,
-      paybackYears: r.paybackYears,
-      roi10Year: r.roi10Year,
-      roi15Year: r.roi15Year,
+      totalPriceExVat: r.totalPriceExVat ?? batteries[0]?.totalPriceExVat,
+      totalPriceIncVat: r.totalIncVatSek ?? batteries[0]?.totalPriceIncVat,
+      costAfterGronTeknik: r.costAfterGronTeknikSek ?? batteries[0]?.costAfterGronTeknik,
+      effectiveCapacityKwh: r.effectiveCapacityPerCycleKwh,
+      annualEnergyKwh: r.energyFromBatteryPerYearKwh,
+      spotprisSavings: r.spotprisSavingsSek,
+      effectTariffSavings: r.effectTariffSavingsSek,
+      gridServicesIncome: r.gridServicesIncomeSek,
+      totalAnnualSavings: r.totalAnnualSavingsSek,
+      paybackYears: r.paybackPeriodYears,
+      roi10Year: r.roi10YearPercent,
+      roi15Year: r.roi15YearPercent,
       // Exclude sensitive fields: marginSek, costPriceTotal, installerCut
     }
   }

@@ -20,7 +20,9 @@ import { ConsumptionStep } from './steps/consumption-step'
 import { BatteryStep } from './steps/battery-step'
 import { ResultsStep } from './steps/results-step'
 import { finalizeCalculation } from '@/actions/calculations'
-import type { Elomrade } from '@/lib/calculations/types'
+import { calculateBatteryROI } from '@/lib/calculations/engine'
+import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_CYCLES_PER_DAY, DEFAULT_AVG_DISCHARGE_PERCENT } from '@/lib/calculations/constants'
+import type { Elomrade, BatterySpec } from '@/lib/calculations/types'
 
 interface NatagareInfo {
   id: string
@@ -115,13 +117,65 @@ export function CalculationWizard({
   }
 
   const handleFinalize = async () => {
-    // TODO: Calculate final results and finalize
-    if (store.calculationId) {
-      const result = await finalizeCalculation(store.calculationId, {})
-      if (result.success) {
-        store.reset()
-        router.push('/dashboard/calculations')
-      }
+    if (!store.calculationId) return
+
+    // Get prices for the selected elomrade
+    const prices = store.elomrade && quarterlyPrices ? quarterlyPrices[store.elomrade] : null
+    if (!prices) {
+      console.error('No prices available for elomrade:', store.elomrade)
+      return
+    }
+
+    // Look up the selected natagare to get effect tariff rates
+    const selectedNatagare = natagareList.find(n => n.id === store.natagareId)
+    if (!selectedNatagare) {
+      console.error('Natagare not found:', store.natagareId)
+      return
+    }
+
+    // Calculate results for the primary battery (first selected)
+    const primarySelection = store.batteries[0]
+    if (!primarySelection) {
+      console.error('No battery selected')
+      return
+    }
+
+    const batteryInfo = batteryList.find(b => b.id === primarySelection.configId)
+    if (!batteryInfo) {
+      console.error('Battery config not found:', primarySelection.configId)
+      return
+    }
+
+    const batterySpec: BatterySpec = {
+      capacityKwh: batteryInfo.capacityKwh,
+      chargeEfficiency: batteryInfo.chargeEfficiency,
+      dischargeEfficiency: batteryInfo.dischargeEfficiency,
+      maxDischargeKw: batteryInfo.maxDischargeKw,
+      maxChargeKw: batteryInfo.maxChargeKw,
+      costPrice: batteryInfo.costPrice,
+    }
+
+    const { results } = calculateBatteryROI({
+      battery: batterySpec,
+      cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+      avgDischargePercent: DEFAULT_AVG_DISCHARGE_PERCENT,
+      dayPriceOre: prices.avgDayPriceOre,
+      nightPriceOre: prices.avgNightPriceOre,
+      effectTariffDayRate: selectedNatagare.dayRateSekKw,
+      effectTariffNightRate: selectedNatagare.nightRateSekKw,
+      gridServicesRatePerKwYear: DEFAULT_GRID_SERVICES_RATE,
+      totalPriceExVat: primarySelection.totalPriceExVat,
+      installationCost: primarySelection.installationCost,
+      vatRate: VAT_RATE,
+      gronTeknikRate: GRON_TEKNIK_RATE,
+      installerCut: orgSettings?.installerFixedCut ?? undefined,
+      batteryCostPrice: batteryInfo.costPrice,
+    })
+
+    const result = await finalizeCalculation(store.calculationId, results)
+    if (result.success) {
+      store.reset()
+      router.push('/dashboard/calculations')
     }
   }
 
