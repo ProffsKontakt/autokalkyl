@@ -13,6 +13,7 @@ import {
   calcEffectiveCapacity,
   calcAnnualEnergy,
   calcSpotprisSavings,
+  calcSpotprisSavingsV2,
   calcEffectTariffSavings,
   calcGridServicesIncome,
   calcTotalAnnualSavings,
@@ -23,6 +24,11 @@ import {
   calcRoi10Year,
   calcRoi15Year,
 } from './formulas'
+import { calculateActualPeakShaving } from './constraints'
+import { EMALDO_STODTJANSTER_RATES, EMALDO_CAMPAIGN_MONTHS, DEFAULT_ROUND_TRIP_EFFICIENCY } from './constants'
+
+// Helper to create Decimal from number
+const d = (n: number) => new Decimal(n)
 
 /**
  * LOGIC-10: Main calculation function using decimal.js for precision.
@@ -45,26 +51,75 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
   // LOGIC-02
   const annualEnergy = calcAnnualEnergy(effectiveCapacity, inputs.cyclesPerDay)
 
-  // LOGIC-03
-  const spotprisSavings = calcSpotprisSavings(
-    annualEnergy,
+  // SPOT-01: Use corrected formula V2
+  const spotprisSavings = calcSpotprisSavingsV2(
+    inputs.battery.capacityKwh,
+    inputs.cyclesPerDay,
+    DEFAULT_ROUND_TRIP_EFFICIENCY,
     inputs.dayPriceOre,
-    inputs.nightPriceOre
+    inputs.nightPriceOre,
+    365
   )
 
-  // LOGIC-04
+  // PEAK-01, PEAK-02, PEAK-03: Peak shaving with capacity constraint
+  let peakShavingResults: {
+    targetKw: number
+    actualKw: number
+    newPeakKw: number
+    isConstrained: boolean
+    constraintMessage: string | null
+  }
+  if (inputs.currentPeakKw && inputs.peakShavingPercent && inputs.peakShavingPercent > 0) {
+    peakShavingResults = calculateActualPeakShaving(
+      inputs.currentPeakKw,
+      inputs.peakShavingPercent,
+      inputs.battery.maxDischargeKw
+    )
+  } else {
+    peakShavingResults = {
+      actualKw: 0,
+      newPeakKw: inputs.currentPeakKw || 0,
+      targetKw: 0,
+      isConstrained: false,
+      constraintMessage: null
+    }
+  }
+
+  // PEAK-03: Effect tariff savings based on actual kW shaved
   const effectTariffSavings = calcEffectTariffSavings(
-    inputs.battery.maxDischargeKw,
+    peakShavingResults.actualKw,
     inputs.effectTariffDayRate
   )
 
-  // LOGIC-05
-  const gridServicesIncome = calcGridServicesIncome(
-    inputs.battery.maxDischargeKw,
-    inputs.gridServicesRatePerKwYear
-  )
+  // GRID-01, GRID-02, GRID-03, GRID-04: Stodtjanster calculation
+  const totalYears = inputs.totalProjectionYears || 10
+  let stodtjansterGuaranteed = d(0)
+  let stodtjansterPostCampaign = d(0)
 
-  // LOGIC-06
+  if (inputs.isEmaldoBattery && inputs.elomrade) {
+    // Emaldo: Zone-based guaranteed income
+    const monthlyRate = EMALDO_STODTJANSTER_RATES[inputs.elomrade]
+    stodtjansterGuaranteed = d(monthlyRate).times(EMALDO_CAMPAIGN_MONTHS)
+
+    // Post-campaign projection
+    const campaignYears = EMALDO_CAMPAIGN_MONTHS / 12
+    const postCampaignYears = Math.max(0, totalYears - campaignYears)
+    const postCampaignAnnual = d(inputs.postCampaignRatePerKwYear || 500).times(inputs.battery.maxDischargeKw)
+    stodtjansterPostCampaign = postCampaignAnnual.times(postCampaignYears)
+  } else {
+    // Non-Emaldo: Use gridServicesRatePerKwYear directly
+    stodtjansterPostCampaign = d(inputs.gridServicesRatePerKwYear)
+      .times(inputs.battery.maxDischargeKw)
+      .times(totalYears)
+  }
+
+  const stodtjansterTotal = stodtjansterGuaranteed.plus(stodtjansterPostCampaign)
+  const stodtjansterAnnualAverage = stodtjansterTotal.div(totalYears)
+
+  // Keep gridServicesIncome for backwards compatibility (uses annual average)
+  const gridServicesIncome = stodtjansterAnnualAverage
+
+  // LOGIC-06: Use annual average for stodtjanster
   const totalAnnualSavings = calcTotalAnnualSavings(
     spotprisSavings,
     effectTariffSavings,
@@ -113,6 +168,13 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     paybackPeriodYears: paybackPeriod,
     roi10YearPercent: roi10Year,
     roi15YearPercent: roi15Year,
+    // Phase 6: Enhanced results
+    peakShavingKw: peakShavingResults.actualKw,
+    newPeakKw: peakShavingResults.newPeakKw,
+    stodtjansterGuaranteedSek: stodtjansterGuaranteed,
+    stodtjansterPostCampaignSek: stodtjansterPostCampaign,
+    stodtjansterTotalSek: stodtjansterTotal,
+    stodtjansterAnnualAverageSek: stodtjansterAnnualAverage,
   }
 
   return {
@@ -140,5 +202,12 @@ export function serializeResults(decimals: CalculationResultsDecimal): Calculati
     paybackPeriodYears: decimals.paybackPeriodYears.toNumber(),
     roi10YearPercent: decimals.roi10YearPercent.toNumber(),
     roi15YearPercent: decimals.roi15YearPercent.toNumber(),
+    // Phase 6: Enhanced results
+    peakShavingKw: decimals.peakShavingKw,
+    newPeakKw: decimals.newPeakKw,
+    stodtjansterGuaranteedSek: decimals.stodtjansterGuaranteedSek?.toNumber(),
+    stodtjansterPostCampaignSek: decimals.stodtjansterPostCampaignSek?.toNumber(),
+    stodtjansterTotalSek: decimals.stodtjansterTotalSek?.toNumber(),
+    stodtjansterAnnualAverageSek: decimals.stodtjansterAnnualAverageSek?.toNumber(),
   }
 }

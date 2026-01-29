@@ -46,6 +46,13 @@ export interface CalculationInputs {
   // For margin calculation (ProffsKontakt affiliates only)
   installerCut?: number // SEK
   batteryCostPrice?: number // SEK
+  // Phase 6: Control parameters
+  peakShavingPercent?: number // 0-100, from slider
+  currentPeakKw?: number // Customer's current peak for shaving calc
+  postCampaignRatePerKwYear?: number // SEK/kW/year after Emaldo campaign
+  elomrade?: 'SE1' | 'SE2' | 'SE3' | 'SE4' // For zone-based stodtjanster
+  isEmaldoBattery?: boolean // Determines stodtjanster calculation method
+  totalProjectionYears?: number // For stodtjanster projection, default 10
 }
 
 /**
@@ -65,6 +72,13 @@ export interface CalculationResults {
   paybackPeriodYears: number
   roi10YearPercent: number
   roi15YearPercent: number
+  // Phase 6: Enhanced results
+  peakShavingKw?: number // Actual kW shaved (after constraint)
+  newPeakKw?: number // Peak after shaving
+  stodtjansterGuaranteedSek?: number // Emaldo guaranteed portion
+  stodtjansterPostCampaignSek?: number // Post-campaign portion
+  stodtjansterTotalSek?: number // Combined over projection period
+  stodtjansterAnnualAverageSek?: number // Average per year
 }
 
 /**
@@ -83,6 +97,13 @@ export interface CalculationResultsDecimal {
   paybackPeriodYears: Decimal
   roi10YearPercent: Decimal
   roi15YearPercent: Decimal
+  // Phase 6: Enhanced results
+  peakShavingKw?: number // Actual kW shaved (after constraint)
+  newPeakKw?: number // Peak after shaving
+  stodtjansterGuaranteedSek?: Decimal // Emaldo guaranteed portion
+  stodtjansterPostCampaignSek?: Decimal // Post-campaign portion
+  stodtjansterTotalSek?: Decimal // Combined over projection period
+  stodtjansterAnnualAverageSek?: Decimal // Average per year
 }
 
 /**
