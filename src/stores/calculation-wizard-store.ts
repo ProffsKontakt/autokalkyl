@@ -211,7 +211,7 @@ export const useCalculationWizardStore = create<WizardState>()(
       }),
     }),
     {
-      name: 'kalkyla-wizard-draft',
+      name: 'kalkyla-wizard-draft-v2', // Bumped version to reset cached values
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         // Only persist form data, not transient UI state
