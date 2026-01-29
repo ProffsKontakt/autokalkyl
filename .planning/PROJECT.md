@@ -51,7 +51,16 @@ All v1 requirements shipped in v1.0:
 
 ### Active
 
-(None — next milestone will define new requirements)
+**Current Milestone: v1.1 — Fixed ROI Calculations**
+
+**Goal:** Fix calculation accuracy issues — spotprisoptimering formula, stödtjänster income with Emaldo campaign rates, effektavgifter control, and transparent breakdowns showing how each savings number is derived.
+
+**Target features:**
+- Spotprisoptimering fix with cycles/day slider and correct formula
+- Stödtjänster (grid services) with Emaldo zone-based guaranteed income
+- Effektavgifter slider for peak shaving control (% or max kW)
+- Calculation transparency showing breakdown of each savings category
+- Prospect-safe visibility (no margins/cuts visible)
 
 ### Out of Scope
 
@@ -106,4 +115,4 @@ All v1 requirements shipped in v1.0:
 | Fire-and-forget webhooks | Never block UX for alerts | ✓ Good — errors logged, UX preserved |
 
 ---
-*Last updated: 2026-01-20 after v1.0 milestone*
+*Last updated: 2026-01-29 after v1.1 milestone start*
