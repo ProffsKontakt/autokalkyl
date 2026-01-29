@@ -20,8 +20,8 @@ export interface ConsumptionPreset {
 export const SYSTEM_PRESETS: ConsumptionPreset[] = [
   {
     id: 'electric-heating',
-    name: 'Elvarmning',
-    description: 'Hog forbrukning vinter, lag sommar, jamn over dygnet',
+    name: 'Elvärmning',
+    description: 'Hög förbrukning vinter, låg sommar, jämn över dygnet',
     hourlyPattern: [
       3, 3, 2, 2, 2, 3, 5, 6, 5, 4, 4, 4, 4, 4, 4, 5, 6, 7, 6, 5, 5, 4, 4, 3,
     ],
@@ -29,8 +29,8 @@ export const SYSTEM_PRESETS: ConsumptionPreset[] = [
   },
   {
     id: 'heat-pump',
-    name: 'Varmepump',
-    description: 'Hog forbrukning morgon/kvall, lag mitt pa dagen',
+    name: 'Värmepump',
+    description: 'Hög förbrukning morgon/kväll, låg mitt på dagen',
     hourlyPattern: [
       3, 2, 2, 2, 2, 4, 7, 8, 5, 3, 3, 3, 3, 3, 3, 4, 6, 8, 7, 5, 4, 4, 3, 3,
     ],
@@ -39,7 +39,7 @@ export const SYSTEM_PRESETS: ConsumptionPreset[] = [
   {
     id: 'ev-charging',
     name: 'Elbilsladdning',
-    description: 'Huvudsakligen nattetid, nagot kvall',
+    description: 'Huvudsakligen nattetid, något kväll',
     hourlyPattern: [
       8, 8, 8, 8, 6, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 5, 6, 7, 8, 8, 8,
     ],
@@ -48,7 +48,7 @@ export const SYSTEM_PRESETS: ConsumptionPreset[] = [
   {
     id: 'solar-prosumer',
     name: 'Solcellsproducent',
-    description: 'Lag egenanvandning dagtid tack vare solceller',
+    description: 'Låg egenanvändning dagtid tack vare solceller',
     hourlyPattern: [
       5, 4, 4, 3, 3, 4, 5, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 6, 7, 7, 6, 5, 5, 5,
     ],

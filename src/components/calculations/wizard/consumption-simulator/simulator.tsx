@@ -72,7 +72,7 @@ export function ConsumptionSimulator() {
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Manad
+            Månad
           </label>
           {!copyMode ? (
             <button
@@ -80,7 +80,7 @@ export function ConsumptionSimulator() {
               onClick={handleCopyStart}
               className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              Kopiera monster...
+              Kopiera mönster...
             </button>
           ) : (
             <div className="flex gap-2">
@@ -90,7 +90,7 @@ export function ConsumptionSimulator() {
                 disabled={copyTargets.length === 0}
                 className="text-sm text-green-600 hover:text-green-800 disabled:text-gray-400 dark:text-green-400 dark:hover:text-green-300"
               >
-                Kopiera till {copyTargets.length} manad(er)
+                Kopiera till {copyTargets.length} månad(er)
               </button>
               <button
                 type="button"
@@ -141,7 +141,7 @@ export function ConsumptionSimulator() {
             Dygnsprofil - {MONTHS[selectedMonth]}
           </label>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            Klicka pa en stapel for att redigera
+            Klicka på en stapel för att redigera
           </span>
         </div>
         <DayChart
@@ -156,13 +156,13 @@ export function ConsumptionSimulator() {
           <div>
             <span className="text-sm text-gray-600 dark:text-gray-400">Profil totalt: </span>
             <span className="text-sm font-medium dark:text-white">
-              {Math.round(profileTotal).toLocaleString('sv-SE')} kWh/ar
+              {Math.round(profileTotal).toLocaleString('sv-SE')} kWh/år
             </span>
           </div>
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Mal: </span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Mål: </span>
             <span className="text-sm font-medium dark:text-white">
-              {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/ar
+              {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/år
             </span>
           </div>
           <div className={`text-sm ${Math.abs(Number(variance)) > 5 ? 'text-amber-600' : 'text-green-600'}`}>
@@ -176,7 +176,7 @@ export function ConsumptionSimulator() {
             onClick={scaleProfileToAnnual}
             className="w-full px-4 py-2 text-sm text-blue-600 bg-blue-50 rounded hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
           >
-            Skala profilen till {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/ar
+            Skala profilen till {annualConsumptionKwh.toLocaleString('sv-SE')} kWh/år
           </button>
         )}
       </div>

@@ -46,7 +46,7 @@ export function ROITimelineChart({ results, batteryName }: ROITimelineChartProps
 
   return (
     <div className="bg-white border rounded-lg p-4">
-      <h3 className="font-medium text-gray-900 mb-4">ROI-utveckling over 15 ar</h3>
+      <h3 className="font-medium text-gray-900 mb-4">ROI-utveckling över 15 år</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
@@ -109,7 +109,7 @@ export function ROITimelineChart({ results, batteryName }: ROITimelineChartProps
             stroke="#22C55E"
             strokeWidth={2}
             label={{
-              value: `Break-even ar ${breakEvenYear}`,
+              value: `Break-even år ${breakEvenYear}`,
               position: 'top',
               fill: '#22C55E',
               fontSize: 11,

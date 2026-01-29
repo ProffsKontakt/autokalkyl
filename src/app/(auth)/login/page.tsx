@@ -23,7 +23,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-slate-500 dark:text-slate-400 text-sm">
-          Logga in for att fortsatta
+          Logga in för att fortsätta
         </p>
       </div>
 

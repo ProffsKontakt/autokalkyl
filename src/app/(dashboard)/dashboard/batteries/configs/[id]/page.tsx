@@ -52,7 +52,7 @@ export default async function EditBatteryConfigPage({
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Redigera batterikonfiguration</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Uppdatera specifikationer for {config.name}.
+          Uppdatera specifikationer för {config.name}.
         </p>
       </div>
 

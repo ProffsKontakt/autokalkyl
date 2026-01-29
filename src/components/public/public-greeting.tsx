@@ -6,7 +6,7 @@ interface PublicGreetingProps {
   customGreeting: string | null
 }
 
-const DEFAULT_GREETING = `Hej {namn}, har ar din batterikalkyl som du och {closer} har pratat om. Nedan ser du hur mycket du kan spara med ett batterisystem.`
+const DEFAULT_GREETING = `Hej {namn}, här är din batterikalkyl som du och {closer} har pratat om. Nedan ser du hur mycket du kan spara med ett batterisystem.`
 
 export function PublicGreeting({
   customerName,

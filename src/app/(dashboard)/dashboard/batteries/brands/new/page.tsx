@@ -4,7 +4,7 @@ import { BatteryBrandForm } from '@/components/batteries/battery-brand-form';
 import { hasPermission, PERMISSIONS, Role } from '@/lib/auth/permissions';
 
 export const metadata = {
-  title: 'Nytt varumarke - Kalkyla.se',
+  title: 'Nytt varumärke - Kalkyla.se',
 };
 
 export default async function NewBatteryBrandPage() {
@@ -21,9 +21,9 @@ export default async function NewBatteryBrandPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Nytt batterivarumarke</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Nytt batterivarumärke</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Skapa ett nytt varumarke for att kunna lagga till batterikonfigurationer.
+          Skapa ett nytt varumärke för att kunna lägga till batterikonfigurationer.
         </p>
       </div>
 

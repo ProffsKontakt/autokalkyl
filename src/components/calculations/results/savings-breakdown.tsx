@@ -14,17 +14,17 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
     {
       name: 'Spotprisoptimering',
       value: results.spotprisSavingsSek,
-      description: 'Ladda billigt pa natten, anvand dagtid',
+      description: 'Ladda billigt på natten, använd dagtid',
     },
     {
       name: 'Effekttariffbesparing',
       value: results.effectTariffSavingsSek,
-      description: 'Minska toppeffekt, lagre natnatsavgift',
+      description: 'Minska toppeffekt, lägre nätavgift',
     },
     {
-      name: 'Stodtjanster',
+      name: 'Stödtjänster',
       value: results.gridServicesIncomeSek,
-      description: 'Intakt fran frekvensreglering m.m.',
+      description: 'Intäkt från frekvensreglering m.m.',
     },
   ].filter(d => d.value > 0)
 
@@ -35,7 +35,7 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
 
   return (
     <div className="bg-white border rounded-lg p-4">
-      <h3 className="font-medium text-gray-900 mb-4">Besparingsfordelning</h3>
+      <h3 className="font-medium text-gray-900 mb-4">Besparingsfördelning</h3>
 
       <div className="flex items-center gap-6">
         <div className="w-48 h-48">

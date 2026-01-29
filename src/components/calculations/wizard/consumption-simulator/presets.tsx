@@ -17,7 +17,7 @@ export function Presets({ onApply }: PresetsProps) {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Snabbval - forbrukningsmonster
+        Snabbval - förbrukningsmönster
       </label>
       <div className="grid grid-cols-2 gap-2">
         {SYSTEM_PRESETS.map((preset) => (
