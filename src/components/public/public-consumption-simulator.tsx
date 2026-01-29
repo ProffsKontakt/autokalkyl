@@ -208,15 +208,15 @@ export function PublicConsumptionSimulator({
   }))
 
   return (
-    <section className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="p-6 border-b">
+    <section className="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Din förbrukning
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Detta är en snittlig dag i {MONTH_NAMES_SV[selectedMonth]}. Klicka på en stapel för att justera din förbrukning.
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Detta är ett snitt över hur konsumtionen över den genomsnittliga dagen i {MONTH_NAMES_SV[selectedMonth]} ser ut. Klicka på en stapel för att justera din förbrukning och se hur det påverkar din besparing.
             </p>
           </div>
           {hasChanges && (
@@ -229,7 +229,7 @@ export function PublicConsumptionSimulator({
       </div>
 
       {/* Month tabs - swipeable on mobile */}
-      <div className="border-b overflow-x-auto scrollbar-hide">
+      <div className="border-b border-gray-200 dark:border-slate-700 overflow-x-auto scrollbar-hide">
         <div className="flex px-4 py-2 gap-1 min-w-max">
           {MONTHS.map((month, index) => (
             <button
@@ -238,7 +238,7 @@ export function PublicConsumptionSimulator({
               className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedMonth === index
                   ? 'text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'
               }`}
               style={
                 selectedMonth === index
@@ -300,7 +300,7 @@ export function PublicConsumptionSimulator({
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-4 mt-4 text-xs text-gray-500">
+        <div className="flex flex-wrap gap-4 mt-4 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: primaryColor }} />
             <span>Dagförbrukning</span>
@@ -321,8 +321,8 @@ export function PublicConsumptionSimulator({
       {/* Edit modal */}
       {editingHour !== null && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-            <h4 className="text-lg font-medium mb-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-sm w-full mx-4">
+            <h4 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">
               Ändra förbrukning kl {editingHour.toString().padStart(2, '0')}:00
             </h4>
             <div className="flex gap-2">
@@ -332,16 +332,16 @@ export function PublicConsumptionSimulator({
                 onChange={(e) => setEditValue(e.target.value)}
                 step="0.1"
                 min="0"
-                className="flex-1 px-3 py-2 border rounded-md"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 autoFocus
                 onKeyDown={(e) => e.key === 'Enter' && handleEditSubmit()}
               />
-              <span className="self-center text-gray-500">kWh</span>
+              <span className="self-center text-gray-500 dark:text-gray-400">kWh</span>
             </div>
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setEditingHour(null)}
-                className="flex-1 px-4 py-2 border rounded-md hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200"
               >
                 Avbryt
               </button>
@@ -358,12 +358,12 @@ export function PublicConsumptionSimulator({
       )}
 
       {/* Update button */}
-      <div className="p-4 bg-gray-50 border-t">
+      <div className="p-4 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-200 dark:border-slate-700">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             Årsförbrukning: <span className="font-medium">{Math.round(annualKwh).toLocaleString('sv-SE')} kWh</span>
             {annualKwh !== originalAnnualKwh && (
-              <span className="text-amber-600 ml-2">
+              <span className="text-amber-600 dark:text-amber-400 ml-2">
                 ({annualKwh > originalAnnualKwh ? '+' : ''}
                 {Math.round(annualKwh - originalAnnualKwh).toLocaleString('sv-SE')})
               </span>
@@ -375,7 +375,7 @@ export function PublicConsumptionSimulator({
             className={`px-6 py-2 rounded-md font-medium transition-colors ${
               isDirty
                 ? 'text-white hover:opacity-90'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }`}
             style={isDirty ? { backgroundColor: primaryColor } : undefined}
           >

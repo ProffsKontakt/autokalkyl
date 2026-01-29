@@ -59,14 +59,14 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
   return (
     <div className="space-y-6">
       {/* Savings breakdown */}
-      <section className="bg-white rounded-lg shadow-sm p-6">
+      <section className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Årlig besparing: {formatSek(results.totalAnnualSavings)}
           </h3>
           <button
             onClick={() => setShowDetailedBreakdown(!showDetailedBreakdown)}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
           >
             {showDetailedBreakdown ? 'Visa mindre' : 'Visa detaljer'}
           </button>
@@ -102,8 +102,8 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="flex-1 text-gray-700">{item.name}</span>
-                  <span className="font-medium">{formatSek(item.value)}/år</span>
+                  <span className="flex-1 text-gray-700 dark:text-gray-300">{item.name}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatSek(item.value)}/år</span>
                 </div>
               ))}
             </div>
@@ -113,30 +113,30 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
         {/* Detailed breakdown (expanded) */}
         {showDetailedBreakdown && (
           <div className="space-y-4 text-sm">
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Spotprisoptimering</h4>
-              <p className="text-gray-600 mb-2">
+            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Spotprisoptimering</h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
                 Batteriet laddar när elpriset är lågt (natt) och använder energin när priset är högt (dag).
               </p>
-              <p className="text-lg font-bold text-green-600">
+              <p className="text-lg font-bold text-green-600 dark:text-green-400">
                 {formatSek(results.spotprisSavings)}/år
               </p>
             </div>
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Effekttariffbesparing</h4>
-              <p className="text-gray-600 mb-2">
+            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Effekttariffbesparing</h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
                 Batteriet minskar dina effekttoppar och sänker din elnätavgift.
               </p>
-              <p className="text-lg font-bold text-blue-600">
+              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
                 {formatSek(results.effectTariffSavings)}/år
               </p>
             </div>
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Stödtjänster</h4>
-              <p className="text-gray-600 mb-2">
+            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Stödtjänster</h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">
                 Du kan tjäna pengar på att låta elnätet använda ditt batteri för frekvensreglering.
               </p>
-              <p className="text-lg font-bold text-purple-600">
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
                 {formatSek(results.gridServicesIncome)}/år
               </p>
             </div>
@@ -145,18 +145,19 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
       </section>
 
       {/* ROI Timeline Chart */}
-      <section className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <section className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Avkastning över tid
         </h3>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={timelineData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.2} />
               <XAxis
                 dataKey="year"
                 label={{ value: 'År', position: 'insideBottom', offset: -5 }}
                 tick={{ fontSize: 12 }}
+                stroke="#9CA3AF"
               />
               <YAxis
                 tickFormatter={(value) => {
@@ -169,10 +170,17 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
                   return value.toString()
                 }}
                 tick={{ fontSize: 12 }}
+                stroke="#9CA3AF"
               />
               <Tooltip
                 formatter={(value) => formatSek(Number(value))}
                 labelFormatter={(label) => `År ${label}`}
+                contentStyle={{
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#F3F4F6',
+                }}
               />
               <Legend />
               <ReferenceLine
@@ -214,7 +222,7 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-sm text-gray-500 mt-4 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
           Efter {results.paybackYears.toFixed(1)} år har du tjänat tillbaka din investering.
           På 15 år sparar du totalt {formatSek(results.totalAnnualSavings * 15 - results.costAfterGronTeknik)}.
         </p>

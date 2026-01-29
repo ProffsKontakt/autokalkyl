@@ -35,7 +35,7 @@ export function StickyResultsBar({
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 transition-transform duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 shadow-lg z-40 transition-transform duration-300 ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
@@ -43,7 +43,7 @@ export function StickyResultsBar({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div>
-              <p className="text-xs text-gray-500">Återbetalningstid</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Återbetalningstid</p>
               <p
                 className="text-lg font-bold"
                 style={{ color: primaryColor }}
@@ -52,8 +52,8 @@ export function StickyResultsBar({
               </p>
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs text-gray-500">Årlig besparing</p>
-              <p className="text-lg font-bold text-gray-900">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Årlig besparing</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {formatSek(results.totalAnnualSavings)}
               </p>
             </div>
