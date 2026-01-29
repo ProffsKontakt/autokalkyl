@@ -17,7 +17,11 @@ import {
   calculateProfileTotal,
   scaleProfileToTotal,
 } from '@/lib/calculations/presets'
-import { DEFAULT_ANNUAL_CONSUMPTION_KWH } from '@/lib/calculations/constants'
+import {
+  DEFAULT_ANNUAL_CONSUMPTION_KWH,
+  DEFAULT_CYCLES_PER_DAY,
+  DEFAULT_POST_CAMPAIGN_RATE,
+} from '@/lib/calculations/constants'
 
 /**
  * Battery selection in the wizard.
@@ -53,6 +57,11 @@ interface WizardState {
   // Step 3: Battery Selection (supports multiple for comparison)
   batteries: BatterySelection[]
 
+  // Phase 6: Calculation controls
+  cyclesPerDay: number
+  peakShavingPercent: number
+  postCampaignRate: number
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -69,6 +78,9 @@ interface WizardState {
   addBattery: (battery: BatterySelection) => void
   removeBattery: (index: number) => void
   updateBatteryPricing: (index: number, data: Partial<{ totalPriceExVat: number; installationCost: number }>) => void
+  updateCyclesPerDay: (cycles: number) => void
+  updatePeakShavingPercent: (percent: number) => void
+  updatePostCampaignRate: (rate: number) => void
   markSaved: (calculationId: string) => void
   setSaving: (isSaving: boolean) => void
   loadFromServer: (data: {
@@ -100,6 +112,9 @@ const initialState = {
   annualConsumptionKwh: DEFAULT_ANNUAL_CONSUMPTION_KWH,
   consumptionProfile: { data: createEmptyProfile() } as ConsumptionProfile,
   batteries: [] as BatterySelection[],
+  cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+  peakShavingPercent: 50,
+  postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
 }
 
 /**
@@ -162,6 +177,10 @@ export const useCalculationWizardStore = create<WizardState>()(
         )
       })),
 
+      updateCyclesPerDay: (cycles) => set({ cyclesPerDay: cycles }),
+      updatePeakShavingPercent: (percent) => set({ peakShavingPercent: percent }),
+      updatePostCampaignRate: (rate) => set({ postCampaignRate: rate }),
+
       markSaved: (calculationId) => set({
         calculationId,
         lastSavedAt: new Date(),
@@ -186,6 +205,9 @@ export const useCalculationWizardStore = create<WizardState>()(
       reset: () => set({
         ...initialState,
         consumptionProfile: { data: createEmptyProfile() },
+        cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+        peakShavingPercent: 50,
+        postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
       }),
     }),
     {
@@ -202,6 +224,9 @@ export const useCalculationWizardStore = create<WizardState>()(
         consumptionProfile: state.consumptionProfile,
         batteries: state.batteries,
         currentStep: state.currentStep,
+        cyclesPerDay: state.cyclesPerDay,
+        peakShavingPercent: state.peakShavingPercent,
+        postCampaignRate: state.postCampaignRate,
       }),
     }
   )
