@@ -45,11 +45,12 @@ All 92 requirements shipped.
 4. High cycles warning appears when warranty life tradeoff applies
 5. All three savings categories show in calculation results with correct values
 
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md - Fix formulas, add constants, install Sonner
+- [ ] 06-02-PLAN.md - Extend store, create slider control components
+- [ ] 06-03-PLAN.md - Integrate controls into results view
 
 ### Phase 7: Calculation Transparency
 
@@ -77,7 +78,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | - | Complete | 2026-01-20 |
-| 6. Calculation Engine | v1.1 | 0/TBD | Not started | - |
+| 6. Calculation Engine | v1.1 | 0/3 | Planned | - |
 | 7. Calculation Transparency | v1.1 | 0/TBD | Not started | - |
 
 ---
