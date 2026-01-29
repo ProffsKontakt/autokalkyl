@@ -248,8 +248,9 @@ async function checkAndTriggerMarginAlert(
       select: { shareCode: true, _count: { select: { views: true } } },
     })
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kalkyla.se'
     const shareUrl = calc?.shareCode
-      ? `https://${org.slug}.kalkyla.se/${calc.shareCode}`
+      ? `${baseUrl}/${org.slug}/${calc.shareCode}`
       : null
 
     // Fire-and-forget - don't await, just call

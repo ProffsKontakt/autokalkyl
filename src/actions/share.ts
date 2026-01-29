@@ -98,7 +98,8 @@ export async function generateShareLink(
     },
   })
 
-  const shareUrl = `https://${calculation.organization.slug}.kalkyla.se/${shareCode}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kalkyla.se'
+  const shareUrl = `${baseUrl}/${calculation.organization.slug}/${shareCode}`
 
   return { shareCode, shareUrl }
 }
@@ -200,7 +201,8 @@ export async function regenerateShareLink(
     },
   })
 
-  const shareUrl = `https://${calculation.organization.slug}.kalkyla.se/${newShareCode}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kalkyla.se'
+  const shareUrl = `${baseUrl}/${calculation.organization.slug}/${newShareCode}`
 
   return { shareCode: newShareCode, shareUrl }
 }

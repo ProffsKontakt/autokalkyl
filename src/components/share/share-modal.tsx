@@ -26,8 +26,9 @@ export function ShareModal({
   onUpdate,
 }: ShareModalProps) {
   // State
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kalkyla.se'
   const [shareUrl, setShareUrl] = useState<string | null>(
-    existingShareCode ? `https://${orgSlug}.kalkyla.se/${existingShareCode}` : null
+    existingShareCode ? `${baseUrl}/${orgSlug}/${existingShareCode}` : null
   )
   const [expiresAt, setExpiresAt] = useState<string>(
     existingExpiresAt ? new Date(existingExpiresAt).toISOString().split('T')[0] : ''

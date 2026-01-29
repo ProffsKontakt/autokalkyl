@@ -48,6 +48,7 @@ export function OrgForm({ organization }: OrgFormProps) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<OrgFormData>({
     resolver: zodResolver(orgSchema),
@@ -119,14 +120,24 @@ export function OrgForm({ organization }: OrgFormProps) {
           <div className="space-y-2">
             <Label htmlFor="primaryColor">Primärfärg</Label>
             <div className="flex gap-2">
-              <Input type="color" className="w-12 h-10 p-1" {...register('primaryColor')} />
+              <input
+                type="color"
+                className="w-12 h-10 p-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 cursor-pointer"
+                value={watch('primaryColor') || '#3B82F6'}
+                onChange={(e) => setValue('primaryColor', e.target.value, { shouldDirty: true })}
+              />
               <Input {...register('primaryColor')} />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="secondaryColor">Sekundärfärg</Label>
             <div className="flex gap-2">
-              <Input type="color" className="w-12 h-10 p-1" {...register('secondaryColor')} />
+              <input
+                type="color"
+                className="w-12 h-10 p-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 cursor-pointer"
+                value={watch('secondaryColor') || '#1E40AF'}
+                onChange={(e) => setValue('secondaryColor', e.target.value, { shouldDirty: true })}
+              />
               <Input {...register('secondaryColor')} />
             </div>
           </div>
