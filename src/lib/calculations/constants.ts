@@ -30,6 +30,9 @@ export const EMALDO_CAMPAIGN_MONTHS = 36 // Campaign duration in months
 // Warning threshold for high cycles
 export const HIGH_CYCLES_WARNING_THRESHOLD = 2
 
+// Default spot price spread for simplified calculations (~1 SEK/kWh = 100 öre)
+export const DEFAULT_SPOT_SPREAD_ORE = 100
+
 // Time windows (same as natagare defaults)
 export const DEFAULT_DAY_START_HOUR = 6
 export const DEFAULT_DAY_END_HOUR = 22

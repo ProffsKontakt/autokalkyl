@@ -141,19 +141,19 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
             />
             {/* Center text */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center">
+              <div className="text-center px-2">
                 <motion.p
                   key={activeId || 'total'}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-2xl font-bold text-slate-800 dark:text-slate-100"
+                  className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight"
                 >
                   {formatSek(activeId
                     ? rawData.find(d => d.id === activeId)?.value || 0
                     : total
                   )}
                 </motion.p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
                   {activeId
                     ? rawData.find(d => d.id === activeId)?.label
                     : 'per år'

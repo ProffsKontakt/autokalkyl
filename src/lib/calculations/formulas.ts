@@ -93,6 +93,36 @@ export function calcSpotprisSavingsV2(
 }
 
 /**
+ * SPOT-01: Calculate spotpris optimization savings (V3 - Simplified).
+ *
+ * Uses a fixed ~1 SEK/kWh (100 öre) spread for simpler sales calculations.
+ * Formula: capacity × efficiency × cycles × spread × days
+ *
+ * Example for 15 kWh battery with 1.5 cycles:
+ * 15 × 0.8 × 1.5 = 18 kWh/day × 1 SEK = 18 SEK/day × 365 = 6,570 SEK/year
+ *
+ * @param capacityKwh - Battery capacity in kWh
+ * @param cyclesPerDay - Daily charge/discharge cycles (typically 0.5-3)
+ * @param efficiency - Round-trip efficiency (default 0.8 for 80%)
+ * @param spreadOre - Price spread in öre/kWh (default 100 = ~1 SEK)
+ * @param daysPerYear - Days per year (default 365)
+ */
+export function calcSpotprisSavingsV3(
+  capacityKwh: number,
+  cyclesPerDay: number,
+  efficiency: number,
+  spreadOre: number = 100,
+  daysPerYear: number = 365
+): Decimal {
+  // Daily kWh cycled = capacity × efficiency × cycles
+  const dailyKwh = d(capacityKwh).times(efficiency).times(cyclesPerDay)
+  // Daily savings = dailyKwh × spread (in SEK)
+  const dailySavings = dailyKwh.times(spreadOre).div(100) // ore to SEK
+  // Annual savings
+  return dailySavings.times(daysPerYear)
+}
+
+/**
  * LOGIC-04: Calculate effect tariff savings.
  *
  * Savings from reducing peak power demand using battery discharge.

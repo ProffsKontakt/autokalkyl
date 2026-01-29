@@ -14,6 +14,7 @@ import {
   calcAnnualEnergy,
   calcSpotprisSavings,
   calcSpotprisSavingsV2,
+  calcSpotprisSavingsV3,
   calcEffectTariffSavings,
   calcGridServicesIncome,
   calcTotalAnnualSavings,
@@ -25,7 +26,7 @@ import {
   calcRoi15Year,
 } from './formulas'
 import { calculateActualPeakShaving } from './constraints'
-import { EMALDO_STODTJANSTER_RATES, EMALDO_CAMPAIGN_MONTHS, DEFAULT_ROUND_TRIP_EFFICIENCY } from './constants'
+import { EMALDO_STODTJANSTER_RATES, EMALDO_CAMPAIGN_MONTHS, DEFAULT_ROUND_TRIP_EFFICIENCY, DEFAULT_SPOT_SPREAD_ORE } from './constants'
 
 // Helper to create Decimal from number
 const d = (n: number) => new Decimal(n)
@@ -51,13 +52,13 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
   // LOGIC-02
   const annualEnergy = calcAnnualEnergy(effectiveCapacity, inputs.cyclesPerDay)
 
-  // SPOT-01: Use corrected formula V2
-  const spotprisSavings = calcSpotprisSavingsV2(
+  // SPOT-01: Use simplified V3 formula with ~1 SEK/kWh spread
+  // Example: 15 kWh × 0.8 × 1.5 cycles = 18 kWh/day × 1 SEK = 18 SEK/day × 365 = 6,570 SEK/year
+  const spotprisSavings = calcSpotprisSavingsV3(
     inputs.battery.capacityKwh,
     inputs.cyclesPerDay,
     DEFAULT_ROUND_TRIP_EFFICIENCY,
-    inputs.dayPriceOre,
-    inputs.nightPriceOre,
+    DEFAULT_SPOT_SPREAD_ORE,
     365
   )
 
@@ -95,29 +96,35 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
   const totalYears = inputs.totalProjectionYears || 10
   let stodtjansterGuaranteed = d(0)
   let stodtjansterPostCampaign = d(0)
+  let stodtjansterAnnualYear1to3 = d(0) // Actual annual value for year 1-3
+  let stodtjansterAnnualYear4Plus = d(0) // Actual annual value for year 4+
 
   if (inputs.isEmaldoBattery && inputs.elomrade) {
     // Emaldo: Zone-based guaranteed income
     const monthlyRate = EMALDO_STODTJANSTER_RATES[inputs.elomrade]
-    stodtjansterGuaranteed = d(monthlyRate).times(EMALDO_CAMPAIGN_MONTHS)
+    // Year 1-3: Guaranteed monthly rate × 12 = annual
+    stodtjansterAnnualYear1to3 = d(monthlyRate).times(12) // e.g., 1110 × 12 = 13,320 SEK/year
+    stodtjansterGuaranteed = d(monthlyRate).times(EMALDO_CAMPAIGN_MONTHS) // Total for 36 months
 
     // Post-campaign projection
     const campaignYears = EMALDO_CAMPAIGN_MONTHS / 12
     const postCampaignYears = Math.max(0, totalYears - campaignYears)
     const postCampaignAnnual = d(inputs.postCampaignRatePerKwYear || 500).times(inputs.battery.maxDischargeKw)
+    stodtjansterAnnualYear4Plus = postCampaignAnnual
     stodtjansterPostCampaign = postCampaignAnnual.times(postCampaignYears)
   } else {
     // Non-Emaldo: Use gridServicesRatePerKwYear directly
-    stodtjansterPostCampaign = d(inputs.gridServicesRatePerKwYear)
-      .times(inputs.battery.maxDischargeKw)
-      .times(totalYears)
+    const annualRate = d(inputs.gridServicesRatePerKwYear).times(inputs.battery.maxDischargeKw)
+    stodtjansterAnnualYear1to3 = annualRate
+    stodtjansterAnnualYear4Plus = annualRate
+    stodtjansterPostCampaign = annualRate.times(totalYears)
   }
 
   const stodtjansterTotal = stodtjansterGuaranteed.plus(stodtjansterPostCampaign)
   const stodtjansterAnnualAverage = stodtjansterTotal.div(totalYears)
 
-  // Keep gridServicesIncome for backwards compatibility (uses annual average)
-  const gridServicesIncome = stodtjansterAnnualAverage
+  // For annual display, use actual year 1-3 value (not averaged) - more accurate for sales
+  const gridServicesIncome = stodtjansterAnnualYear1to3
 
   // LOGIC-06: Use annual average for stodtjanster
   const totalAnnualSavings = calcTotalAnnualSavings(
