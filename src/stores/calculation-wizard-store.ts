@@ -205,7 +205,7 @@ export const useCalculationWizardStore = create<WizardState>()(
       reset: () => set({
         ...initialState,
         consumptionProfile: { data: createEmptyProfile() },
-        cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+        cyclesPerDay: 1.5, // Standard daily cycling
         peakShavingPercent: 50,
         postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
       }),

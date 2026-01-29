@@ -147,10 +147,10 @@ export function ShareModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-[fadeIn_0.15s_ease-out]">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-[fadeIn_0.15s_ease-out]">
       <div
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 animate-[slideUp_0.2s_ease-out]"
+        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col animate-[slideUp_0.2s_ease-out]"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
@@ -163,8 +163,8 @@ export function ShareModal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-4 space-y-4">
+        {/* Content - scrollable */}
+        <div className="p-4 space-y-4 overflow-y-auto flex-1">
           {/* Share URL */}
           {shareUrl && (
             <div>

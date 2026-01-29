@@ -10,8 +10,8 @@ export const VAT_RATE = 0.25 // 25%
 export const GRON_TEKNIK_RATE = 0.485 // 48.5% deduction
 
 // Default calculation parameters
-export const DEFAULT_GRID_SERVICES_RATE = 500 // SEK/kW/year
-export const DEFAULT_CYCLES_PER_DAY = 1
+export const DEFAULT_GRID_SERVICES_RATE = 600 // SEK/kW/year (market rate)
+export const DEFAULT_CYCLES_PER_DAY = 1.5 // Standard daily cycling for home battery
 export const DEFAULT_AVG_DISCHARGE_PERCENT = 85
 export const DEFAULT_ANNUAL_CONSUMPTION_KWH = 20000
 export const DEFAULT_ROUND_TRIP_EFFICIENCY = 0.8 // 80% round-trip efficiency
