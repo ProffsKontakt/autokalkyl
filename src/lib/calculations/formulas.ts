@@ -64,6 +64,35 @@ export function calcSpotprisSavings(
 }
 
 /**
+ * SPOT-01: Calculate spotpris optimization savings (V2 - Direct formula).
+ *
+ * Uses the correct formula: spread × efficiency × cycles × capacity × days
+ *
+ * @param capacityKwh - Battery capacity in kWh
+ * @param cyclesPerDay - Daily charge/discharge cycles (typically 0.5-3)
+ * @param efficiency - Round-trip efficiency (default 0.8 for 80%)
+ * @param dayPriceOre - Average day price in ore/kWh
+ * @param nightPriceOre - Average night price in ore/kWh
+ * @param daysPerYear - Days per year (default 365)
+ */
+export function calcSpotprisSavingsV2(
+  capacityKwh: number,
+  cyclesPerDay: number,
+  efficiency: number,
+  dayPriceOre: number,
+  nightPriceOre: number,
+  daysPerYear: number = 365
+): Decimal {
+  const spread = d(dayPriceOre).minus(nightPriceOre)
+  return spread
+    .times(efficiency)
+    .times(cyclesPerDay)
+    .times(capacityKwh)
+    .times(daysPerYear)
+    .div(100) // ore to SEK
+}
+
+/**
  * LOGIC-04: Calculate effect tariff savings.
  *
  * Savings from reducing peak power demand using battery discharge.

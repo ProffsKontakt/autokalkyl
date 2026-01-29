@@ -14,6 +14,21 @@ export const DEFAULT_GRID_SERVICES_RATE = 500 // SEK/kW/year
 export const DEFAULT_CYCLES_PER_DAY = 1
 export const DEFAULT_AVG_DISCHARGE_PERCENT = 85
 export const DEFAULT_ANNUAL_CONSUMPTION_KWH = 20000
+export const DEFAULT_ROUND_TRIP_EFFICIENCY = 0.8 // 80% round-trip efficiency
+export const DEFAULT_POST_CAMPAIGN_RATE = 500 // SEK/kW/year after campaign
+
+// Emaldo stodtjanster rates by zone (GRID-01, GRID-02)
+export const EMALDO_STODTJANSTER_RATES = {
+  SE1: 1110, // SEK/month
+  SE2: 1110,
+  SE3: 1110,
+  SE4: 1370,
+} as const
+
+export const EMALDO_CAMPAIGN_MONTHS = 36 // Campaign duration in months
+
+// Warning threshold for high cycles
+export const HIGH_CYCLES_WARNING_THRESHOLD = 2
 
 // Time windows (same as natagare defaults)
 export const DEFAULT_DAY_START_HOUR = 6
