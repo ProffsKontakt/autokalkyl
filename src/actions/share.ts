@@ -20,6 +20,7 @@ import type {
   CalculationResultsPublic,
   CalculationBreakdownPublic,
   CalculationResultsPublicWithBreakdown,
+  CalculationOverrides,
 } from '@/lib/share/types'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -403,22 +404,41 @@ export async function getPublicCalculation(
     }
   })
 
+  // Extract overrides from calculation (OVRD-03)
+  const overrides = calculation.overrides as CalculationOverrides | null
+
   // Extract public-safe results
   // Note: Field names from engine use *Sek, *Years, *Percent suffixes
   let resultsPublic: CalculationResultsPublicWithBreakdown | null = null
   if (calculation.results && Object.keys(calculation.results as object).length > 0) {
     const r = calculation.results as Record<string, number>
+
+    // Apply overrides to savings (OVRD-01, OVRD-04)
+    // Prospects see overridden values as if calculated
+    const spotprisSavings = overrides?.spotprisSavingsSek ?? r.spotprisSavingsSek
+    const effectTariffSavings = overrides?.effectTariffSavingsSek ?? r.effectTariffSavingsSek
+    const gridServicesIncome = overrides?.stodtjansterIncomeSek ?? r.gridServicesIncomeSek
+
+    // Recalculate totals if any savings are overridden
+    const totalAnnualSavings = spotprisSavings + effectTariffSavings + gridServicesIncome
+
+    // Recalculate payback if total changed
+    const costAfterGronTeknik = r.costAfterGronTeknikSek ?? batteries[0]?.costAfterGronTeknik
+    const paybackYears = totalAnnualSavings > 0
+      ? costAfterGronTeknik / totalAnnualSavings
+      : r.paybackPeriodYears
+
     resultsPublic = {
       totalPriceExVat: r.totalPriceExVat ?? batteries[0]?.totalPriceExVat,
       totalPriceIncVat: r.totalIncVatSek ?? batteries[0]?.totalPriceIncVat,
-      costAfterGronTeknik: r.costAfterGronTeknikSek ?? batteries[0]?.costAfterGronTeknik,
+      costAfterGronTeknik,
       effectiveCapacityKwh: r.effectiveCapacityPerCycleKwh,
       annualEnergyKwh: r.energyFromBatteryPerYearKwh,
-      spotprisSavings: r.spotprisSavingsSek,
-      effectTariffSavings: r.effectTariffSavingsSek,
-      gridServicesIncome: r.gridServicesIncomeSek,
-      totalAnnualSavings: r.totalAnnualSavingsSek,
-      paybackYears: r.paybackPeriodYears,
+      spotprisSavings,
+      effectTariffSavings,
+      gridServicesIncome,
+      totalAnnualSavings,
+      paybackYears,
       roi10Year: r.roi10YearPercent,
       roi15Year: r.roi15YearPercent,
       // Exclude sensitive fields: marginSek, costPriceTotal, installerCut
@@ -429,19 +449,19 @@ export async function getPublicCalculation(
       const battery = calculation.batteries[0]
       const config = battery.batteryConfig
 
-      // Extract input values for breakdown
+      // Extract input values for breakdown, applying input overrides (OVRD-02)
       const inputs = {
         capacityKwh: Number(config.capacityKwh),
         efficiency: Number(config.chargeEfficiency) * Number(config.dischargeEfficiency),
-        cyclesPerDay: r.cyclesPerDay ?? 1,
-        spreadOre: r.spreadOre ?? 100,
+        cyclesPerDay: overrides?.cyclesPerDay ?? r.cyclesPerDay ?? 1,
+        spreadOre: overrides?.spreadOre ?? r.spreadOre ?? 100,
         currentPeakKw: r.currentPeakKw ?? Number(calculation.annualConsumptionKwh) / 8760, // Estimate from annual consumption
-        peakShavingPercent: r.peakShavingPercent ?? 50,
-        tariffRateSekKw: Number(calculation.natagare.dayRateSekKw),
+        peakShavingPercent: overrides?.peakShavingPercent ?? r.peakShavingPercent ?? 50,
+        tariffRateSekKw: overrides?.tariffRateSekKw ?? Number(calculation.natagare.dayRateSekKw),
         elomrade: calculation.elomrade,
         isEmaldoBattery: config.brand.name.toLowerCase().includes('emaldo'),
         batteryCapacityKw: Number(config.maxDischargeKw),
-        postCampaignRatePerKwYear: r.postCampaignRatePerKwYear ?? 500,
+        postCampaignRatePerKwYear: overrides?.postCampaignRate ?? r.postCampaignRatePerKwYear ?? 500,
       }
 
       resultsPublic.breakdown = buildPublicBreakdown(r, inputs)
