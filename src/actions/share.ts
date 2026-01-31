@@ -18,6 +18,8 @@ import type {
   ViewStats,
   PublicBatteryInfo,
   CalculationResultsPublic,
+  CalculationBreakdownPublic,
+  CalculationResultsPublicWithBreakdown,
 } from '@/lib/share/types'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -212,6 +214,66 @@ export async function regenerateShareLink(
 // =============================================================================
 
 /**
+ * Build public breakdown data from calculation results and stored inputs.
+ * Filters out sensitive business data (TRANS-04).
+ */
+function buildPublicBreakdown(
+  results: Record<string, number | undefined>,
+  inputs: {
+    capacityKwh: number
+    efficiency: number
+    cyclesPerDay: number
+    spreadOre: number
+    currentPeakKw: number
+    peakShavingPercent: number
+    tariffRateSekKw: number
+    elomrade: string
+    isEmaldoBattery: boolean
+    batteryCapacityKw: number
+    postCampaignRatePerKwYear: number
+  }
+): CalculationBreakdownPublic {
+  const targetPeakShaving = inputs.currentPeakKw * (inputs.peakShavingPercent / 100)
+  const actualPeakShaving = results.peakShavingKw ?? 0
+
+  return {
+    spotpris: {
+      capacityKwh: inputs.capacityKwh,
+      cyclesPerDay: inputs.cyclesPerDay,
+      efficiency: inputs.efficiency,
+      spreadOre: inputs.spreadOre,
+      annualSavingsSek: results.spotprisSavingsSek ?? 0,
+    },
+    effekt: {
+      currentPeakKw: inputs.currentPeakKw,
+      peakShavingPercent: inputs.peakShavingPercent,
+      actualPeakShavingKw: actualPeakShaving,
+      newPeakKw: inputs.currentPeakKw - actualPeakShaving,
+      tariffRateSekKw: inputs.tariffRateSekKw,
+      annualSavingsSek: results.effectTariffSavingsSek ?? 0,
+      isConstrained: actualPeakShaving < targetPeakShaving * 0.99, // 1% tolerance
+    },
+    stodtjanster: {
+      elomrade: inputs.elomrade,
+      isEmaldoBattery: inputs.isEmaldoBattery,
+      batteryCapacityKw: inputs.batteryCapacityKw,
+      guaranteedMonthlySek: inputs.isEmaldoBattery && results.stodtjansterGuaranteedSek
+        ? results.stodtjansterGuaranteedSek / 36  // 36-month campaign
+        : undefined,
+      guaranteedAnnualSek: inputs.isEmaldoBattery && results.stodtjansterGuaranteedSek
+        ? results.stodtjansterGuaranteedSek / 3   // 3 years
+        : undefined,
+      postCampaignRatePerKwYear: inputs.postCampaignRatePerKwYear,
+      postCampaignAnnualSek: results.stodtjansterPostCampaignSek
+        ? results.stodtjansterPostCampaignSek / 7  // 10 years - 3 campaign years
+        : undefined,
+      displayedAnnualSek: results.gridServicesIncomeSek ?? 0,
+    },
+  }
+  // NOTE: marginSek, costPriceTotal, installerCut are NOT included (TRANS-04)
+}
+
+/**
  * Get a calculation by share code for public view.
  *
  * This is called from the public view page (no authentication required).
@@ -343,7 +405,7 @@ export async function getPublicCalculation(
 
   // Extract public-safe results
   // Note: Field names from engine use *Sek, *Years, *Percent suffixes
-  let resultsPublic: CalculationResultsPublic | null = null
+  let resultsPublic: CalculationResultsPublicWithBreakdown | null = null
   if (calculation.results && Object.keys(calculation.results as object).length > 0) {
     const r = calculation.results as Record<string, number>
     resultsPublic = {
@@ -360,6 +422,29 @@ export async function getPublicCalculation(
       roi10Year: r.roi10YearPercent,
       roi15Year: r.roi15YearPercent,
       // Exclude sensitive fields: marginSek, costPriceTotal, installerCut
+    }
+
+    // Build breakdown data for transparency (TRANS-02)
+    if (batteries[0]) {
+      const battery = calculation.batteries[0]
+      const config = battery.batteryConfig
+
+      // Extract input values for breakdown
+      const inputs = {
+        capacityKwh: Number(config.capacityKwh),
+        efficiency: Number(config.chargeEfficiency) * Number(config.dischargeEfficiency),
+        cyclesPerDay: r.cyclesPerDay ?? 1,
+        spreadOre: r.spreadOre ?? 100,
+        currentPeakKw: r.currentPeakKw ?? Number(calculation.annualConsumptionKwh) / 8760, // Estimate from annual consumption
+        peakShavingPercent: r.peakShavingPercent ?? 50,
+        tariffRateSekKw: Number(calculation.natagare.dayRateSekKw),
+        elomrade: calculation.elomrade,
+        isEmaldoBattery: config.brand.name.toLowerCase().includes('emaldo'),
+        batteryCapacityKw: Number(config.maxDischargeKw),
+        postCampaignRatePerKwYear: r.postCampaignRatePerKwYear ?? 500,
+      }
+
+      resultsPublic.breakdown = buildPublicBreakdown(r, inputs)
     }
   }
 
