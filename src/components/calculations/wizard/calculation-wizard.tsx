@@ -21,7 +21,7 @@ import { BatteryStep } from './steps/battery-step'
 import { ResultsStep } from './steps/results-step'
 import { finalizeCalculation } from '@/actions/calculations'
 import { calculateBatteryROI } from '@/lib/calculations/engine'
-import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_CYCLES_PER_DAY, DEFAULT_AVG_DISCHARGE_PERCENT } from '@/lib/calculations/constants'
+import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT } from '@/lib/calculations/constants'
 import type { Elomrade, BatterySpec } from '@/lib/calculations/types'
 
 interface NatagareInfo {
@@ -155,9 +155,10 @@ export function CalculationWizard({
       costPrice: batteryInfo.costPrice,
     }
 
+    // Use store values for slider controls (matches what salesperson sees in ResultsStep)
     const { results } = calculateBatteryROI({
       battery: batterySpec,
-      cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
+      cyclesPerDay: store.cyclesPerDay,
       avgDischargePercent: DEFAULT_AVG_DISCHARGE_PERCENT,
       dayPriceOre: prices.avgDayPriceOre,
       nightPriceOre: prices.avgNightPriceOre,
@@ -170,6 +171,13 @@ export function CalculationWizard({
       gronTeknikRate: GRON_TEKNIK_RATE,
       installerCut: orgSettings?.installerFixedCut ?? undefined,
       batteryCostPrice: batteryInfo.costPrice,
+      // Phase 6: Use actual slider values from store
+      peakShavingPercent: store.peakShavingPercent,
+      currentPeakKw: 8, // TODO: Get from customer data
+      postCampaignRatePerKwYear: store.postCampaignRate,
+      elomrade: store.elomrade || undefined,
+      isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
+      totalProjectionYears: 10,
     })
 
     const result = await finalizeCalculation(store.calculationId, results)
