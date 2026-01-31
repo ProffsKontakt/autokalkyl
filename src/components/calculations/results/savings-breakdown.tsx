@@ -4,9 +4,16 @@ import { motion } from 'framer-motion'
 import { ResponsivePie } from '@nivo/pie'
 import type { CalculationResults } from '@/lib/calculations/types'
 import { useState } from 'react'
+import { OverridableValue } from '@/components/calculations/overridable-value'
+import { saveOverrides, clearOverrides } from '@/actions/calculations'
+import type { CalculationOverrides } from '@/lib/share/types'
+import { toast } from 'sonner'
 
 interface SavingsBreakdownProps {
   results: CalculationResults
+  calculationId?: string
+  initialOverrides?: CalculationOverrides
+  isPublicView?: boolean
 }
 
 const COLORS = {
@@ -15,14 +22,67 @@ const COLORS = {
   stodtjanster: { main: '#8B5CF6', gradient: ['#A78BFA', '#7C3AED'] },
 }
 
-export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
+export function SavingsBreakdown({
+  results,
+  calculationId,
+  initialOverrides = {},
+  isPublicView = false,
+}: SavingsBreakdownProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [overrides, setOverrides] = useState<CalculationOverrides>(initialOverrides)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Apply overrides to display values
+  const displayValues = {
+    spotprisSavings: overrides.spotprisSavingsSek ?? results.spotprisSavingsSek,
+    effectTariffSavings: overrides.effectTariffSavingsSek ?? results.effectTariffSavingsSek,
+    gridServicesIncome: overrides.stodtjansterIncomeSek ?? results.gridServicesIncomeSek,
+  }
+
+  const handleOverride = async (
+    key: keyof CalculationOverrides,
+    value: number | null
+  ) => {
+    if (!calculationId) return
+
+    const newOverrides = { ...overrides, [key]: value }
+    setOverrides(newOverrides)
+    setIsSaving(true)
+
+    const result = await saveOverrides(calculationId, newOverrides)
+    if (result.error) {
+      toast.error(result.error)
+      // Revert on error
+      setOverrides(overrides)
+    } else {
+      toast.success('Värde uppdaterat')
+    }
+    setIsSaving(false)
+  }
+
+  const handleClearAll = async () => {
+    if (!calculationId) return
+
+    setIsSaving(true)
+    const result = await clearOverrides(calculationId)
+    if (result.error) {
+      toast.error(result.error)
+    } else {
+      setOverrides({})
+      toast.success('Alla justeringar återställda')
+    }
+    setIsSaving(false)
+  }
+
+  const hasAnyOverride = Object.values(overrides).some(v => v !== null && v !== undefined)
 
   const rawData = [
     {
       id: 'spotpris',
       label: 'Spotprisoptimering',
-      value: results.spotprisSavingsSek,
+      value: displayValues.spotprisSavings,
+      calculatedValue: results.spotprisSavingsSek,
+      overrideKey: 'spotprisSavingsSek' as keyof CalculationOverrides,
       description: 'Ladda billigt på natten, använd dagtid',
       color: COLORS.spotpris.main,
       icon: '⚡',
@@ -30,7 +90,9 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
     {
       id: 'effekttariff',
       label: 'Effekttariffbesparing',
-      value: results.effectTariffSavingsSek,
+      value: displayValues.effectTariffSavings,
+      calculatedValue: results.effectTariffSavingsSek,
+      overrideKey: 'effectTariffSavingsSek' as keyof CalculationOverrides,
       description: 'Minska toppeffekt, lägre nätavgift',
       color: COLORS.effekttariff.main,
       icon: '📊',
@@ -38,7 +100,9 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
     {
       id: 'stodtjanster',
       label: 'Stödtjänster',
-      value: results.gridServicesIncomeSek,
+      value: displayValues.gridServicesIncome,
+      calculatedValue: results.gridServicesIncomeSek,
+      overrideKey: 'stodtjansterIncomeSek' as keyof CalculationOverrides,
       description: 'Intäkt från frekvensreglering m.m.',
       color: COLORS.stodtjanster.main,
       icon: '🔌',
@@ -200,9 +264,20 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                      {formatSek(item.value)}
-                    </span>
+                    {!isPublicView && calculationId ? (
+                      <OverridableValue
+                        calculatedValue={item.calculatedValue}
+                        overrideValue={overrides[item.overrideKey] ?? null}
+                        onOverride={(v) => handleOverride(item.overrideKey, v)}
+                        formatFn={(n) => Math.round(n).toLocaleString('sv-SE')}
+                        suffix=" kr"
+                        className="text-sm font-semibold"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                        {formatSek(item.value)}
+                      </span>
+                    )}
                     <div className="flex items-center justify-end gap-1 mt-0.5">
                       <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
                         <motion.div
@@ -248,6 +323,31 @@ export function SavingsBreakdown({ results }: SavingsBreakdownProps) {
                 </motion.span>
               </div>
             </motion.div>
+
+            {/* Override indicator */}
+            {!isPublicView && hasAnyOverride && (
+              <motion.div
+                variants={itemVariants}
+                className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Manuella justeringar aktiva
+                  </span>
+                  <button
+                    onClick={handleClearAll}
+                    disabled={isSaving}
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 underline disabled:opacity-50"
+                    type="button"
+                  >
+                    Återställ alla
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

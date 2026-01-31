@@ -57,6 +57,9 @@ export function ResultsStep({
     cyclesPerDay,
     peakShavingPercent,
     postCampaignRate,
+    // Phase 7: Calculation ID and overrides
+    calculationId,
+    overrides,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -211,7 +214,12 @@ export function ResultsStep({
 
       {/* Detailed breakdown for primary battery */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <SavingsBreakdown results={primaryResult.results} />
+        <SavingsBreakdown
+          results={primaryResult.results}
+          calculationId={calculationId ?? undefined}
+          initialOverrides={overrides}
+          isPublicView={false}
+        />
         <ROITimelineChart results={primaryResult.results} batteryName={primaryResult.batteryName} />
       </div>
 
