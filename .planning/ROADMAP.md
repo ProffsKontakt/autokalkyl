@@ -52,24 +52,30 @@ Plans:
 - [ ] 06-02-PLAN.md - Extend store, create slider control components
 - [ ] 06-03-PLAN.md - Integrate controls into results view
 
-### Phase 7: Calculation Transparency
+### Phase 7: Calculation Transparency & Manual Overrides
 
-**Goal**: Prospects can see how each savings number is derived while sensitive business data stays hidden
+**Goal**: Prospects can see how each savings number is derived while sensitive business data stays hidden. Salesperson can manually override any calculation value with instant sync to shared links.
 
 **Depends on**: Phase 6
 
-**Requirements**: SPOT-04, GRID-05, PEAK-04, TRANS-01, TRANS-02, TRANS-03, TRANS-04
+**Requirements**: SPOT-04, GRID-05, PEAK-04, TRANS-01, TRANS-02, TRANS-03, TRANS-04, OVRD-01, OVRD-02, OVRD-03, OVRD-04
 
 **Success Criteria** (what must be TRUE):
 1. Each savings category (spotpris, stodtjanster, effektavgifter) has expandable breakdown showing calculation inputs
 2. Prospect view displays all savings breakdowns with battery price
 3. Prospect view hides margins, org cuts, and internal business data
 4. Breakdown shows the formula/logic used to derive each savings number
+5. Salesperson can manually override any savings total or input value
+6. Overrides sync instantly to already-shared calculation links
+7. Overrides are invisible to prospects (they see adjusted values as calculated)
 
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md - Create breakdown components (ExpandableBreakdown, Spotpris, Effekt, Stodtjanster)
+- [ ] 07-02-PLAN.md - Extend types and integrate breakdowns into public view
+- [ ] 07-03-PLAN.md - Override infrastructure (schema, types, store, OverridableValue component)
+- [ ] 07-04-PLAN.md - Override integration (save action, public apply, admin UI)
 
 ## Progress
 
@@ -79,8 +85,8 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | - | Complete | 2026-01-20 |
 | 6. Calculation Engine | v1.1 | 0/3 | Planned | - |
-| 7. Calculation Transparency | v1.1 | 0/TBD | Not started | - |
+| 7. Calculation Transparency | v1.1 | 0/4 | Planned | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-01-29*
+*Last updated: 2026-01-31*
