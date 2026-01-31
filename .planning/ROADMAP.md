@@ -25,7 +25,7 @@ All 92 requirements shipped.
 
 **Milestone Goal:** Fix calculation accuracy for spotprisoptimering, stodtjanster, and effektavgifter with transparent breakdowns showing how each savings number is derived.
 
-- [ ] **Phase 6: Calculation Engine** - Fix formulas and add control sliders for all three savings categories (2/3 plans complete)
+- [x] **Phase 6: Calculation Engine** - Fix formulas and add control sliders for all three savings categories (verified 2026-01-31)
 - [x] **Phase 7: Calculation Transparency** - Add breakdowns and prospect-safe visibility (verified 2026-01-31)
 
 ## Phase Details
@@ -48,9 +48,9 @@ All 92 requirements shipped.
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 06-01-PLAN.md - Fix formulas, add constants, install Sonner
-- [ ] 06-02-PLAN.md - Extend store, create slider control components
-- [ ] 06-03-PLAN.md - Integrate controls into results view
+- [x] 06-01-PLAN.md - Fix formulas, add constants, install Sonner
+- [x] 06-02-PLAN.md - Extend store, create slider control components
+- [x] 06-03-PLAN.md - Integrate controls into results view
 
 ### Phase 7: Calculation Transparency & Manual Overrides
 
@@ -84,7 +84,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | - | Complete | 2026-01-20 |
-| 6. Calculation Engine | v1.1 | 2/3 | In Progress | - |
+| 6. Calculation Engine | v1.1 | 3/3 | Complete | 2026-01-31 |
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 
 ---
