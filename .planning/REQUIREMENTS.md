@@ -36,6 +36,13 @@ Requirements for milestone v1.1: Fixed ROI Calculations.
 - [ ] **TRANS-03**: Prospect view shows battery price
 - [ ] **TRANS-04**: Prospect view hides margins, org cuts, and internal business data
 
+### Manual Overrides
+
+- [ ] **OVRD-01**: Salesperson can manually override any calculated savings total (spotpris, stodtjanster, effektavgifter)
+- [ ] **OVRD-02**: Salesperson can manually override individual calculation inputs (cycles, peak %, rates, etc.)
+- [ ] **OVRD-03**: Overrides are saved and sync instantly to already-shared calculation links
+- [ ] **OVRD-04**: Overrides are hidden from prospects (they see adjusted numbers as calculated values)
+
 ## Future Requirements
 
 Deferred to later milestones.
@@ -62,24 +69,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPOT-01 | Phase 6 | Pending |
 | SPOT-02 | Phase 6 | Pending |
 | SPOT-03 | Phase 6 | Pending |
-| SPOT-04 | Phase 7 | Pending |
+| SPOT-04 | Phase 7 | Complete |
 | GRID-01 | Phase 6 | Pending |
 | GRID-02 | Phase 6 | Pending |
 | GRID-03 | Phase 6 | Pending |
 | GRID-04 | Phase 6 | Pending |
-| GRID-05 | Phase 7 | Pending |
+| GRID-05 | Phase 7 | Complete |
 | PEAK-01 | Phase 6 | Pending |
 | PEAK-02 | Phase 6 | Pending |
 | PEAK-03 | Phase 6 | Pending |
-| PEAK-04 | Phase 7 | Pending |
-| TRANS-01 | Phase 7 | Pending |
-| TRANS-02 | Phase 7 | Pending |
-| TRANS-03 | Phase 7 | Pending |
-| TRANS-04 | Phase 7 | Pending |
+| PEAK-04 | Phase 7 | Complete |
+| TRANS-01 | Phase 7 | Complete |
+| TRANS-02 | Phase 7 | Complete |
+| TRANS-03 | Phase 7 | Complete |
+| TRANS-04 | Phase 7 | Complete |
+| OVRD-01 | Phase 7 | Complete |
+| OVRD-02 | Phase 7 | Complete |
+| OVRD-03 | Phase 7 | Complete |
+| OVRD-04 | Phase 7 | Complete |
 
 **Coverage:**
-- v1.1 requirements: 17 total
-- Mapped to phases: 17
+- v1.1 requirements: 21 total
+- Mapped to phases: 21
 - Unmapped: 0
 
 ---

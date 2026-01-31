@@ -25,8 +25,8 @@ All 92 requirements shipped.
 
 **Milestone Goal:** Fix calculation accuracy for spotprisoptimering, stodtjanster, and effektavgifter with transparent breakdowns showing how each savings number is derived.
 
-- [ ] **Phase 6: Calculation Engine** - Fix formulas and add control sliders for all three savings categories
-- [ ] **Phase 7: Calculation Transparency** - Add breakdowns and prospect-safe visibility
+- [ ] **Phase 6: Calculation Engine** - Fix formulas and add control sliders for all three savings categories (2/3 plans complete)
+- [x] **Phase 7: Calculation Transparency** - Add breakdowns and prospect-safe visibility (verified 2026-01-31)
 
 ## Phase Details
 
@@ -72,10 +72,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 07-01-PLAN.md - Create breakdown components (ExpandableBreakdown, Spotpris, Effekt, Stodtjanster)
-- [ ] 07-02-PLAN.md - Extend types and integrate breakdowns into public view
-- [ ] 07-03-PLAN.md - Override infrastructure (schema, types, store, OverridableValue component)
-- [ ] 07-04-PLAN.md - Override integration (save action, public apply, admin UI)
+- [x] 07-01-PLAN.md - Create breakdown components (ExpandableBreakdown, Spotpris, Effekt, Stodtjanster)
+- [x] 07-02-PLAN.md - Extend types and integrate breakdowns into public view
+- [x] 07-03-PLAN.md - Override infrastructure (schema, types, store, OverridableValue component)
+- [x] 07-04-PLAN.md - Override integration (save action, public apply, admin UI)
 
 ## Progress
 
@@ -84,8 +84,8 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | - | Complete | 2026-01-20 |
-| 6. Calculation Engine | v1.1 | 0/3 | Planned | - |
-| 7. Calculation Transparency | v1.1 | 0/4 | Planned | - |
+| 6. Calculation Engine | v1.1 | 2/3 | In Progress | - |
+| 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 
 ---
 *Roadmap created: 2026-01-29*
