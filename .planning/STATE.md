@@ -9,26 +9,26 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 
 ## Current Position
 
-Phase: 6 of 7 (Calculation Engine)
-Plan: 2 of TBD
+Phase: 7 of 7 (Calculation Transparency)
+Plan: 1 of 4
 Status: In progress
-Last activity: 2026-01-29 - Completed 06-02-PLAN.md
+Last activity: 2026-01-31 - Completed 07-01-PLAN.md
 
-Progress: [==========================] v1.0 complete | v1.1 [██░░░░░░░░░░░░░░░░░░░░░░░░] 8%
+Progress: [==========================] v1.0 complete | v1.1 [███░░░░░░░░░░░░░░░░░░░░░░░] 14%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2 (v1.1)
-- Average duration: 3.5min
-- Total execution time: 7min
+- Total plans completed: 3 (v1.1)
+- Average duration: 3min
+- Total execution time: 9min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 6 | 2/TBD | 7min | 3.5min |
-| 7 | 0/TBD | - | - |
+| 6 | 2/3 | 7min | 3.5min |
+| 7 | 1/4 | 2min | 2min |
 
 *Updated after each plan completion*
 
@@ -47,6 +47,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 | Constraint functions return structured objects | Enable rich UI feedback (targetValue, actualValue, isConstrained, message) | 06-01 | 2026-01-29 |
 | No debounce on slider changes | Zustand performant enough for immediate updates | 06-02 | 2026-01-29 |
 | useRef for toast warning flag | Prevents unnecessary re-renders | 06-02 | 2026-01-29 |
+| Button + motion.div over native details/summary | Full control over animation timing, smoother UX | 07-01 | 2026-01-31 |
+| Local formatSek helper in each breakdown | Self-contained components, simple pattern | 07-01 | 2026-01-31 |
 
 ### Pending Todos
 
@@ -60,14 +62,14 @@ Production readiness notes (carried from v1.0):
 
 ## Session Continuity
 
-Last session: 2026-01-29T22:50:08Z
-Stopped at: Completed 06-02-PLAN.md (Slider Controls & Store Extension)
+Last session: 2026-01-31T10:41:17Z
+Stopped at: Completed 07-01-PLAN.md (Breakdown Components)
 Resume file: None
 
-Previous plan summary (06-02-SUMMARY.md):
-- Extended wizard store with cyclesPerDay (default 1), peakShavingPercent (default 50), postCampaignRate (default 500)
-- Created CyclesSlider with 0.5-3 range, toast warning at > 2
-- Created PeakShavingSlider with 0-100% range, capacity constraint display
-- Created StodtjansterInput showing Emaldo zone-based income + post-campaign config
-- Created AnimatedValue utility for consistent value animations
-- All components use direct Zustand state binding with no debouncing
+Previous plan summary (07-01-SUMMARY.md):
+- Created ExpandableBreakdown wrapper with Framer Motion animations and three color themes
+- Created SpotprisBreakdown showing capacity × efficiency × cycles × spread × 365 formula
+- Created EffektBreakdown showing peak × reduction% × tariff × 12 with constraint display
+- Created StodtjansterBreakdown showing Emaldo zone-based income + post-campaign breakdown
+- All components support dark mode and use Swedish explanatory text
+- 389 lines of TypeScript-validated code
