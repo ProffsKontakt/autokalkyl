@@ -837,3 +837,193 @@ Things that couldn't be fully resolved:
 
 **Research date:** 2026-01-31
 **Valid until:** 30 days (stable domain, established patterns)
+
+---
+
+## Addendum: Manual Overrides (OVRD-01 through OVRD-04)
+
+**Added:** 2026-01-31 after user feedback during planning
+
+### Requirements Summary
+
+- **OVRD-01**: Salesperson can manually override any calculated savings total (spotpris, stodtjanster, effektavgifter)
+- **OVRD-02**: Salesperson can manually override individual calculation inputs (cycles, peak %, rates, etc.)
+- **OVRD-03**: Overrides are saved and sync instantly to already-shared calculation links
+- **OVRD-04**: Overrides are hidden from prospects (they see adjusted numbers as calculated values)
+
+### Architecture Approach
+
+**Key insight:** Shared calculations are fetched on page load from the database. The public view reads stored results, not recalculates. This means:
+
+1. When a salesperson overrides a value, we update the stored calculation in the database
+2. Any subsequent load of the shared link gets the updated values
+3. No WebSocket or real-time push needed - the "instant sync" happens naturally on next page load
+
+### Data Structure
+
+Extend the calculation store and database schema to track overrides:
+
+```typescript
+// Store extension
+interface CalculationOverrides {
+  // Savings total overrides (OVRD-01)
+  spotprisSavingsSek?: number | null  // null = use calculated
+  stodtjansterIncomeSek?: number | null
+  effectTariffSavingsSek?: number | null
+
+  // Input overrides (OVRD-02) - already in store from Phase 6
+  cyclesPerDay?: number
+  peakShavingPercent?: number
+  postCampaignRate?: number
+
+  // Additional input overrides
+  spreadOre?: number
+  tariffRateSekKw?: number
+}
+
+// When saving calculation
+interface SavedCalculation {
+  results: CalculationResults      // Computed values
+  overrides?: CalculationOverrides  // Manual adjustments
+  // Display logic: override ?? computed
+}
+```
+
+### UI Pattern: Inline Override
+
+For totals (OVRD-01), add an "edit" icon next to each savings value:
+
+```typescript
+// components/calculations/overridable-value.tsx
+interface OverridableValueProps {
+  label: string
+  calculatedValue: number
+  overrideValue: number | null
+  onOverride: (value: number | null) => void
+  formatFn?: (n: number) => string
+}
+
+export function OverridableValue({
+  label,
+  calculatedValue,
+  overrideValue,
+  onOverride,
+  formatFn = (n) => Math.round(n).toLocaleString('sv-SE') + ' kr',
+}: OverridableValueProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const displayValue = overrideValue ?? calculatedValue
+  const isOverridden = overrideValue !== null
+
+  const handleSave = () => {
+    const parsed = parseFloat(inputValue.replace(/[^0-9.-]/g, ''))
+    if (!isNaN(parsed)) {
+      onOverride(parsed)
+    }
+    setIsEditing(false)
+  }
+
+  const handleReset = () => {
+    onOverride(null)
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="w-32 px-2 py-1 border rounded text-right"
+          autoFocus
+          onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+        />
+        <button onClick={handleSave}>✓</button>
+        <button onClick={() => setIsEditing(false)}>✗</button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className={isOverridden ? 'text-blue-600' : ''}>
+        {formatFn(displayValue)}
+      </span>
+      <button
+        onClick={() => {
+          setInputValue(displayValue.toString())
+          setIsEditing(true)
+        }}
+        className="text-gray-400 hover:text-gray-600"
+        title="Redigera värde"
+      >
+        ✏️
+      </button>
+      {isOverridden && (
+        <button
+          onClick={handleReset}
+          className="text-gray-400 hover:text-red-500 text-xs"
+          title="Återställ till beräknat värde"
+        >
+          ↩
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+### Hiding Overrides from Prospects (OVRD-04)
+
+The public view already uses `CalculationResultsPublic` which is a filtered subset. Overrides are applied server-side before this filtering:
+
+```typescript
+// actions/share.ts - getPublicCalculation
+export async function getPublicCalculation(shareId: string): Promise<CalculationResultsPublic> {
+  const calc = await db.calculation.findUnique({ where: { shareId } })
+
+  // Apply overrides to results (salesperson's manual adjustments)
+  const effectiveResults = {
+    ...calc.results,
+    spotprisSavingsSek: calc.overrides?.spotprisSavingsSek ?? calc.results.spotprisSavingsSek,
+    stodtjansterIncomeSek: calc.overrides?.stodtjansterIncomeSek ?? calc.results.stodtjansterIncomeSek,
+    effectTariffSavingsSek: calc.overrides?.effectTariffSavingsSek ?? calc.results.effectTariffSavingsSek,
+  }
+
+  // Filter to public subset - overrides are invisible
+  return filterToPublic(effectiveResults)
+  // NOTE: calc.overrides is NOT included in return - OVRD-04 satisfied
+}
+```
+
+### Database Changes
+
+Minimal schema change needed:
+
+```prisma
+model Calculation {
+  // existing fields...
+
+  overrides  Json?  // CalculationOverrides - null means no overrides
+}
+```
+
+### Instant Sync Behavior (OVRD-03)
+
+1. Salesperson edits value → Store updates → Server action saves to DB
+2. Prospect (already has link open) refreshes or navigates → Gets updated values
+3. No WebSocket needed since:
+   - Prospects don't keep connections open
+   - Fresh load = fresh data
+   - "Instant" means "next load", not "push notification"
+
+If true real-time push is needed later, could add:
+- SWR with polling every 30s
+- WebSocket for premium orgs
+But this is out of scope for v1.1.
+
+### Confidence
+
+- **Architecture:** HIGH - Using existing database/store patterns
+- **UI Pattern:** MEDIUM - Standard inline-edit, but needs polish
+- **Privacy (OVRD-04):** HIGH - Existing public type filtering works
