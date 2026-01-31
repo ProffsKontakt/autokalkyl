@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MinimalProviders } from "./providers-minimal";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -55,6 +56,7 @@ export default function RootLayout({
       >
         <MinimalProviders>{children}</MinimalProviders>
         <Toaster richColors closeButton position="top-right" />
+        <SpeedInsights />
       </body>
     </html>
   );
