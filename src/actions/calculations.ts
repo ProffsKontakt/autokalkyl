@@ -14,7 +14,9 @@ import { prisma } from '@/lib/db/client'
 import { createTenantClient } from '@/lib/db/tenant-client'
 import { triggerMarginAlert } from '@/lib/webhooks/n8n'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 import type { ConsumptionProfile, Elomrade } from '@/lib/calculations/types'
+import type { CalculationOverrides } from '@/lib/share/types'
 
 // =============================================================================
 // ZOD SCHEMAS
@@ -572,4 +574,85 @@ export async function deleteCalculation(id: string) {
     console.error('Delete calculation error:', error)
     return { error: 'Kunde inte ta bort kalkyl' }
   }
+}
+
+// =============================================================================
+// SAVE OVERRIDES (Phase 7 - OVRD-03)
+// =============================================================================
+
+/**
+ * Save manual overrides for a calculation.
+ * Overrides replace calculated values in shared links.
+ *
+ * IMPORTANT: Only closers can override their own calculations,
+ * admins can override any calculation in their org.
+ */
+export async function saveOverrides(
+  calculationId: string,
+  overrides: CalculationOverrides
+): Promise<{ success?: boolean; error?: string }> {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: 'Inte inloggad' }
+  }
+
+  const role = session.user.role as Role
+  if (!hasPermission(role, PERMISSIONS.CALCULATION_EDIT)) {
+    return { error: 'Saknar behörighet' }
+  }
+
+  const tenantDb = session.user.orgId
+    ? createTenantClient(session.user.orgId)
+    : prisma
+
+  const calculation = await tenantDb.calculation.findUnique({
+    where: { id: calculationId },
+  })
+
+  if (!calculation) {
+    return { error: 'Kalkylen hittades inte' }
+  }
+
+  // Closers can only override their own calculations
+  if (role === 'CLOSER' && calculation.createdBy !== session.user.id) {
+    return { error: 'Du kan bara andra dina egna kalkyler' }
+  }
+
+  // Clean overrides: remove null values to keep DB clean
+  const cleanedOverrides: Record<string, number> = {}
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value !== null && value !== undefined) {
+      cleanedOverrides[key] = value
+    }
+  }
+
+  // If all overrides are null, set to null (no overrides)
+  const finalOverrides = Object.keys(cleanedOverrides).length > 0
+    ? cleanedOverrides
+    : Prisma.JsonNull
+
+  await tenantDb.calculation.update({
+    where: { id: calculationId },
+    data: { overrides: finalOverrides },
+  })
+
+  return { success: true }
+}
+
+/**
+ * Clear all overrides for a calculation.
+ */
+export async function clearOverrides(
+  calculationId: string
+): Promise<{ success?: boolean; error?: string }> {
+  return saveOverrides(calculationId, {
+    spotprisSavingsSek: null,
+    stodtjansterIncomeSek: null,
+    effectTariffSavingsSek: null,
+    cyclesPerDay: null,
+    peakShavingPercent: null,
+    postCampaignRate: null,
+    spreadOre: null,
+    tariffRateSekKw: null,
+  })
 }
