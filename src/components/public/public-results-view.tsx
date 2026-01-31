@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { CalculationResultsPublic } from '@/lib/share/types'
+import type { CalculationResultsPublicWithBreakdown } from '@/lib/share/types'
 import {
   PieChart,
   Pie,
@@ -16,9 +16,12 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts'
+import { SpotprisBreakdown } from '@/components/calculations/breakdowns/spotpris-breakdown'
+import { EffektBreakdown } from '@/components/calculations/breakdowns/effekt-breakdown'
+import { StodtjansterBreakdown } from '@/components/calculations/breakdowns/stodtjanster-breakdown'
 
 interface PublicResultsViewProps {
-  results: CalculationResultsPublic
+  results: CalculationResultsPublicWithBreakdown
   primaryColor: string
 }
 
@@ -31,8 +34,6 @@ function formatSek(value: number): string {
 }
 
 export function PublicResultsView({ results, primaryColor }: PublicResultsViewProps) {
-  const [showDetailedBreakdown, setShowDetailedBreakdown] = useState(false)
-
   // Savings breakdown data
   const savingsData = [
     { name: 'Spotprisoptimering', value: results.spotprisSavings, color: '#10B981' },
@@ -60,89 +61,92 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
     <div className="space-y-6">
       {/* Savings breakdown */}
       <section className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Årlig besparing: {formatSek(results.totalAnnualSavings)}
-          </h3>
-          <button
-            onClick={() => setShowDetailedBreakdown(!showDetailedBreakdown)}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            {showDetailedBreakdown ? 'Visa mindre' : 'Visa detaljer'}
-          </button>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Årlig besparing: {formatSek(results.totalAnnualSavings)}
+        </h3>
+
+        <div className="flex flex-col lg:flex-row items-center gap-6">
+          <div className="w-48 h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={savingsData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
+                >
+                  {savingsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex-1 space-y-3">
+            {savingsData.map((item) => (
+              <div key={item.name} className="flex items-center gap-3">
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="flex-1 text-gray-700 dark:text-gray-300">{item.name}</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">{formatSek(item.value)}/år</span>
+              </div>
+            ))}
+          </div>
         </div>
-
-        {/* Grouped view (default) */}
-        {!showDetailedBreakdown && (
-          <div className="flex flex-col lg:flex-row items-center gap-6">
-            <div className="w-48 h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={savingsData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
-                    paddingAngle={2}
-                  >
-                    {savingsData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex-1 space-y-3">
-              {savingsData.map((item) => (
-                <div key={item.name} className="flex items-center gap-3">
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="flex-1 text-gray-700 dark:text-gray-300">{item.name}</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatSek(item.value)}/år</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Detailed breakdown (expanded) */}
-        {showDetailedBreakdown && (
-          <div className="space-y-4 text-sm">
-            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Spotprisoptimering</h4>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                Batteriet laddar när elpriset är lågt (natt) och använder energin när priset är högt (dag).
-              </p>
-              <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                {formatSek(results.spotprisSavings)}/år
-              </p>
-            </div>
-            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Effekttariffbesparing</h4>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                Batteriet minskar dina effekttoppar och sänker din elnätavgift.
-              </p>
-              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                {formatSek(results.effectTariffSavings)}/år
-              </p>
-            </div>
-            <div className="border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Stödtjänster</h4>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                Du kan tjäna pengar på att låta elnätet använda ditt batteri för frekvensreglering.
-              </p>
-              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                {formatSek(results.gridServicesIncome)}/år
-              </p>
-            </div>
-          </div>
-        )}
       </section>
+
+      {/* TRANS-02: Expandable formula breakdowns */}
+      {results.breakdown && (
+        <section className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Så har vi räknat
+          </h3>
+
+          {/* SPOT-04: Spotpris breakdown */}
+          {results.spotprisSavings > 0 && (
+            <SpotprisBreakdown
+              capacityKwh={results.breakdown.spotpris.capacityKwh}
+              cyclesPerDay={results.breakdown.spotpris.cyclesPerDay}
+              efficiency={results.breakdown.spotpris.efficiency}
+              spreadOre={results.breakdown.spotpris.spreadOre}
+              annualSavingsSek={results.breakdown.spotpris.annualSavingsSek}
+            />
+          )}
+
+          {/* PEAK-04: Effektavgift breakdown */}
+          {results.effectTariffSavings > 0 && (
+            <EffektBreakdown
+              currentPeakKw={results.breakdown.effekt.currentPeakKw}
+              peakShavingPercent={results.breakdown.effekt.peakShavingPercent}
+              actualPeakShavingKw={results.breakdown.effekt.actualPeakShavingKw}
+              newPeakKw={results.breakdown.effekt.newPeakKw}
+              tariffRateSekKw={results.breakdown.effekt.tariffRateSekKw}
+              annualSavingsSek={results.breakdown.effekt.annualSavingsSek}
+              isConstrained={results.breakdown.effekt.isConstrained}
+            />
+          )}
+
+          {/* GRID-05: Stodtjanster breakdown */}
+          {results.gridServicesIncome > 0 && (
+            <StodtjansterBreakdown
+              elomrade={results.breakdown.stodtjanster.elomrade}
+              isEmaldoBattery={results.breakdown.stodtjanster.isEmaldoBattery}
+              batteryCapacityKw={results.breakdown.stodtjanster.batteryCapacityKw}
+              guaranteedMonthlySek={results.breakdown.stodtjanster.guaranteedMonthlySek}
+              guaranteedAnnualSek={results.breakdown.stodtjanster.guaranteedAnnualSek}
+              postCampaignRatePerKwYear={results.breakdown.stodtjanster.postCampaignRatePerKwYear}
+              postCampaignAnnualSek={results.breakdown.stodtjanster.postCampaignAnnualSek}
+              displayedAnnualSek={results.breakdown.stodtjanster.displayedAnnualSek}
+            />
+          )}
+        </section>
+      )}
 
       {/* ROI Timeline Chart */}
       <section className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6">
