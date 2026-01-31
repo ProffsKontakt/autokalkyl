@@ -10,25 +10,25 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 7 of 7 (Calculation Transparency)
-Plan: 3 of 4
-Status: In progress
-Last activity: 2026-01-31 - Completed 07-03-PLAN.md
+Plan: 4 of 4 (at checkpoint)
+Status: In progress - awaiting human verification
+Last activity: 2026-01-31 - Completed 07-04-PLAN.md (checkpoint reached)
 
-Progress: [==========================] v1.0 complete | v1.1 [█████░░░░░░░░░░░░░░░░░░░░░] 21%
+Progress: [==========================] v1.0 complete | v1.1 [██████░░░░░░░░░░░░░░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5 (v1.1)
+- Total plans completed: 6 (v1.1)
 - Average duration: 3min
-- Total execution time: 14min
+- Total execution time: 19min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 6 | 2/3 | 7min | 3.5min |
-| 7 | 3/4 | 7min | 2.3min |
+| 7 | 4/4 | 12min | 3min |
 
 *Updated after each plan completion*
 
@@ -53,6 +53,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 | Remove redundant "Visa detaljer" toggle | Breakdown components more informative than simple text | 07-02 | 2026-01-31 |
 | Null-based override semantics | Clearer intent, easier to serialize, matches JSON semantics | 07-03 | 2026-01-31 |
 | Inline edit with hover icons | Lower friction than separate edit mode, maintains context | 07-03 | 2026-01-31 |
+| Prisma.JsonNull for clearing overrides | Proper null handling for Prisma Json fields | 07-04 | 2026-01-31 |
+| Apply overrides server-side before public view | Satisfies OVRD-04 - prospects cannot tell values were overridden | 07-04 | 2026-01-31 |
+| Recalculate totals when overrides present | Ensures derived values stay consistent with manual adjustments | 07-04 | 2026-01-31 |
 
 ### Pending Todos
 
@@ -66,13 +69,14 @@ Production readiness notes (carried from v1.0):
 
 ## Session Continuity
 
-Last session: 2026-01-31T10:51:16Z
-Stopped at: Completed 07-03-PLAN.md (Override Infrastructure)
+Last session: 2026-01-31T11:01:31Z
+Stopped at: Checkpoint reached in 07-04-PLAN.md (Override Integration)
 Resume file: None
 
-Previous plan summary (07-03-SUMMARY.md):
-- Added overrides Json? field to Calculation schema for manual value adjustments
-- Created CalculationOverrides type with 8 override fields (3 savings + 5 inputs)
-- Extended wizard store with override state and actions (setOverride, clearAllOverrides, hasAnyOverride)
-- Built OverridableValue component for inline editing with hover icons and visual feedback
-- Schema ready for db push before 07-04
+Previous plan summary (07-04-SUMMARY.md):
+- Created saveOverrides and clearOverrides server actions with RBAC
+- Applied overrides in getPublicCalculation before filtering to public types
+- Integrated OverridableValue into SavingsBreakdown for inline editing
+- Recalculates totals and payback when overrides are present
+- Overrides object never returned to public view (OVRD-04 compliance)
+- Checkpoint: awaiting human verification of override flow end-to-end
