@@ -343,6 +343,10 @@ model Calculation {
   // Results (calculated server-side)
   results Json?
 
+  // Manual overrides (Phase 7 - OVRD-01 to OVRD-04)
+  // Salespeople can override calculated values; these are applied before public view
+  overrides Json? // CalculationOverrides type - null means no overrides
+
   // Share Link Metadata (Phase 4)
   shareCode      String?   @unique // Unguessable nanoid for public sharing
   shareExpiresAt DateTime? // Optional expiration date
@@ -430,7 +434,7 @@ model CalculationVariant {
 // =============================================================================
 
 model Lead {
-  id    String @id @default(cuid())
+  id    String  @id @default(cuid())
   email String
   phone String?
   name  String
@@ -478,10 +482,10 @@ model Company {
   lastSyncedAt       DateTime?
 
   // Matching preferences
-  acceptsBattery Boolean @default(true)
-  acceptsSolar   Boolean @default(true)
-  maxLeadsPerDay Int     @default(10)
-  leadsToday     Int     @default(0)
+  acceptsBattery Boolean   @default(true)
+  acceptsSolar   Boolean   @default(true)
+  maxLeadsPerDay Int       @default(10)
+  leadsToday     Int       @default(0)
   leadsResetAt   DateTime?
 
   matchedLeads LeadCompanyMatch[]

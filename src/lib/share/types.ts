@@ -146,6 +146,31 @@ export interface PublicCalculationData {
 }
 
 // =============================================================================
+// MANUAL OVERRIDES (Admin only - never exposed to public)
+// =============================================================================
+
+/**
+ * Manual overrides that salespeople can apply to calculations.
+ * These values replace calculated values when present.
+ *
+ * IMPORTANT: Overrides are NEVER included in public types.
+ * They are applied server-side before filtering to public data (OVRD-04).
+ */
+export interface CalculationOverrides {
+  // Savings total overrides (OVRD-01)
+  spotprisSavingsSek?: number | null      // null = use calculated
+  stodtjansterIncomeSek?: number | null
+  effectTariffSavingsSek?: number | null
+
+  // Input overrides (OVRD-02)
+  cyclesPerDay?: number | null
+  peakShavingPercent?: number | null
+  postCampaignRate?: number | null
+  spreadOre?: number | null
+  tariffRateSekKw?: number | null
+}
+
+// =============================================================================
 // VIEW STATISTICS
 // =============================================================================
 
