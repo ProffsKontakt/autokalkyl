@@ -62,6 +62,18 @@ interface WizardState {
   peakShavingPercent: number
   postCampaignRate: number
 
+  // Phase 7: Override state (OVRD-01, OVRD-02)
+  overrides: {
+    spotprisSavingsSek: number | null
+    stodtjansterIncomeSek: number | null
+    effectTariffSavingsSek: number | null
+    cyclesPerDay: number | null
+    peakShavingPercent: number | null
+    postCampaignRate: number | null
+    spreadOre: number | null
+    tariffRateSekKw: number | null
+  }
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -81,6 +93,9 @@ interface WizardState {
   updateCyclesPerDay: (cycles: number) => void
   updatePeakShavingPercent: (percent: number) => void
   updatePostCampaignRate: (rate: number) => void
+  setOverride: (key: keyof typeof initialState.overrides, value: number | null) => void
+  clearAllOverrides: () => void
+  hasAnyOverride: () => boolean
   markSaved: (calculationId: string) => void
   setSaving: (isSaving: boolean) => void
   loadFromServer: (data: {
@@ -115,6 +130,16 @@ const initialState = {
   cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
   peakShavingPercent: 50,
   postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
+  overrides: {
+    spotprisSavingsSek: null,
+    stodtjansterIncomeSek: null,
+    effectTariffSavingsSek: null,
+    cyclesPerDay: null,
+    peakShavingPercent: null,
+    postCampaignRate: null,
+    spreadOre: null,
+    tariffRateSekKw: null,
+  },
 }
 
 /**
@@ -181,6 +206,28 @@ export const useCalculationWizardStore = create<WizardState>()(
       updatePeakShavingPercent: (percent) => set({ peakShavingPercent: percent }),
       updatePostCampaignRate: (rate) => set({ postCampaignRate: rate }),
 
+      setOverride: (key, value) => set((state) => ({
+        overrides: { ...state.overrides, [key]: value }
+      })),
+
+      clearAllOverrides: () => set({
+        overrides: {
+          spotprisSavingsSek: null,
+          stodtjansterIncomeSek: null,
+          effectTariffSavingsSek: null,
+          cyclesPerDay: null,
+          peakShavingPercent: null,
+          postCampaignRate: null,
+          spreadOre: null,
+          tariffRateSekKw: null,
+        }
+      }),
+
+      hasAnyOverride: () => {
+        const state = get()
+        return Object.values(state.overrides).some(v => v !== null)
+      },
+
       markSaved: (calculationId) => set({
         calculationId,
         lastSavedAt: new Date(),
@@ -208,6 +255,16 @@ export const useCalculationWizardStore = create<WizardState>()(
         cyclesPerDay: 1.5, // Standard daily cycling
         peakShavingPercent: 50,
         postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
+        overrides: {
+          spotprisSavingsSek: null,
+          stodtjansterIncomeSek: null,
+          effectTariffSavingsSek: null,
+          cyclesPerDay: null,
+          peakShavingPercent: null,
+          postCampaignRate: null,
+          spreadOre: null,
+          tariffRateSekKw: null,
+        },
       }),
     }),
     {
@@ -227,6 +284,7 @@ export const useCalculationWizardStore = create<WizardState>()(
         cyclesPerDay: state.cyclesPerDay,
         peakShavingPercent: state.peakShavingPercent,
         postCampaignRate: state.postCampaignRate,
+        overrides: state.overrides,
       }),
     }
   )
