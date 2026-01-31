@@ -47,6 +47,43 @@ export interface PublicBatteryInfo {
 }
 
 /**
+ * Breakdown data for public transparency view.
+ * Includes calculation inputs for each savings category.
+ * EXCLUDES: margins, org cuts, cost prices (TRANS-04)
+ */
+export interface CalculationBreakdownPublic {
+  // Spotpris breakdown (SPOT-04)
+  spotpris: {
+    capacityKwh: number
+    cyclesPerDay: number
+    efficiency: number         // 0.8 for 80%
+    spreadOre: number          // ~100 ore default
+    annualSavingsSek: number
+  }
+  // Effektavgift breakdown (PEAK-04)
+  effekt: {
+    currentPeakKw: number
+    peakShavingPercent: number
+    actualPeakShavingKw: number
+    newPeakKw: number
+    tariffRateSekKw: number
+    annualSavingsSek: number
+    isConstrained: boolean
+  }
+  // Stodtjanster breakdown (GRID-05)
+  stodtjanster: {
+    elomrade: string
+    isEmaldoBattery: boolean
+    batteryCapacityKw: number
+    guaranteedMonthlySek?: number
+    guaranteedAnnualSek?: number
+    postCampaignRatePerKwYear?: number
+    postCampaignAnnualSek?: number
+    displayedAnnualSek: number
+  }
+}
+
+/**
  * Results subset safe for public view.
  * Excludes: marginSek, costPriceTotal, installerCut - these are sensitive business data.
  */
@@ -66,6 +103,13 @@ export interface CalculationResultsPublic {
 }
 
 /**
+ * Extended CalculationResultsPublic with breakdown support.
+ */
+export interface CalculationResultsPublicWithBreakdown extends CalculationResultsPublic {
+  breakdown?: CalculationBreakdownPublic
+}
+
+/**
  * Public calculation data structure.
  * This is the full payload returned to the public view page.
  * No sensitive pricing (margin, cost price, installer cut) is included.
@@ -78,7 +122,7 @@ export interface PublicCalculationData {
     annualConsumptionKwh: number
     consumptionProfile: { data: number[][] }
     customGreeting: string | null
-    results: CalculationResultsPublic | null
+    results: CalculationResultsPublicWithBreakdown | null
     batteries: PublicBatteryInfo[]
     natagare: {
       name: string
