@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 8 of 13 (Schema & Migration Foundation)
-Plan: Ready to plan
-Status: Ready to plan
-Last activity: 2026-02-01 — v1.2 roadmap created
+Plan: 2 of 2 in phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 08-02-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [__________] 0%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#_________] 10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (v1.1)
-- Average duration: 3.6min
-- Total execution time: 29min
+- Total plans completed: 8 (v1.1 + 08-02)
+- Average duration: ~3.5min
+- Total execution time: ~32min
 
 **By Phase:**
 
@@ -29,6 +29,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [__________] 0%
 |-------|-------|-------|----------|
 | 6 | 3/3 | 12min | 4min |
 | 7 | 4/4 | 17min | 4.25min |
+| 8 | 1/2 | ~3min | ~3min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -38,8 +39,11 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [__________] 0%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+Recent from v1.2:
+- DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
+- Old estimation formula (annual/8760) replaced with constant fallback
+
 Recent from v1.1:
-- currentPeakKw hardcoded to 8 kW (revisit in v1.2 — FIX-03 addresses this)
 - Apply overrides server-side for invisible sync
 
 ### Pending Todos
@@ -54,14 +58,14 @@ None.
 - 113 existing calculations need backward compatibility during migration
 
 **Tech debt carried from v1.1:**
-- currentPeakKw hardcoded in 6+ locations (Phase 8 addresses)
+- ~~currentPeakKw hardcoded in 6+ locations~~ (RESOLVED in 08-02)
 - No input validation for unrealistic slider combinations
 - totalProjectionYears fixed at 10 years
 
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: v1.2 roadmap created, ready to plan Phase 8
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
 
-Next action: `/gsd:plan-phase 8`
+Next action: Execute 08-01-PLAN.md (schema migration)
