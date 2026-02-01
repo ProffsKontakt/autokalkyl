@@ -22,6 +22,7 @@ import {
   DEFAULT_GRID_SERVICES_RATE,
   DEFAULT_AVG_DISCHARGE_PERCENT,
   DEFAULT_POST_CAMPAIGN_RATE,
+  DEFAULT_CURRENT_PEAK_KW,
   MONTH_NAMES_SV,
 } from '@/lib/calculations/constants'
 
@@ -150,7 +151,7 @@ export function PublicConsumptionSimulator({
         // Phase 6: Use actual calculation parameters
         cyclesPerDay,
         peakShavingPercent,
-        currentPeakKw: 8, // Default peak for residential
+        currentPeakKw: DEFAULT_CURRENT_PEAK_KW,
         postCampaignRatePerKwYear: postCampaignRate,
         elomrade,
         isEmaldoBattery: isEmaldo,

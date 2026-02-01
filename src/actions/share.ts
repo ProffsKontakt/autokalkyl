@@ -24,7 +24,7 @@ import type {
 } from '@/lib/share/types'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
-import { VAT_RATE, GRON_TEKNIK_RATE } from '@/lib/calculations/constants'
+import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import { checkSharePasswordRateLimit, hashIp } from '@/lib/rate-limit'
 import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger'
 
@@ -455,7 +455,7 @@ export async function getPublicCalculation(
         efficiency: Number(config.chargeEfficiency) * Number(config.dischargeEfficiency),
         cyclesPerDay: overrides?.cyclesPerDay ?? r.cyclesPerDay ?? 1,
         spreadOre: overrides?.spreadOre ?? r.spreadOre ?? 100,
-        currentPeakKw: r.currentPeakKw ?? Number(calculation.annualConsumptionKwh) / 8760, // Estimate from annual consumption
+        currentPeakKw: r.currentPeakKw ?? DEFAULT_CURRENT_PEAK_KW,
         peakShavingPercent: overrides?.peakShavingPercent ?? r.peakShavingPercent ?? 50,
         tariffRateSekKw: overrides?.tariffRateSekKw ?? Number(calculation.natagare.dayRateSekKw),
         elomrade: calculation.elomrade,
