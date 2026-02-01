@@ -95,11 +95,12 @@ Plans:
   3. System generates monthly consumption distribution based on heating type
   4. User can view visual curve showing seasonal consumption pattern
   5. Winter months show higher consumption for electric heating types
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 10-01: Annual kWh input and heating type selection
-- [ ] 10-02: Seasonal distribution algorithm and visualization
+- [ ] 10-01-PLAN.md — Core logic with TDD (distribution algorithm, estimation formula)
+- [ ] 10-02-PLAN.md — Store extension and UI components (slider, radio buttons, chart)
+- [ ] 10-03-PLAN.md — Wizard integration and results page chart
 
 ### Phase 11: Peak Calculation Engine
 **Goal:** Accurate peak tariff calculations using natagare-specific methods
@@ -156,11 +157,11 @@ Plans:
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
-| 10. Consumption Profiles | v1.2 | 0/2 | Not started | - |
+| 10. Consumption Profiles | v1.2 | 0/3 | Planned | - |
 | 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (Phase 9 complete)*
+*Last updated: 2026-02-01 (Phase 10 planned)*
