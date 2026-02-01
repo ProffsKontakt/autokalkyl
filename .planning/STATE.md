@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 8 of 13 (Schema & Migration Foundation)
-Plan: 2 of 2 in phase
-Status: In progress
-Last activity: 2026-02-01 — Completed 08-02-PLAN.md
+Plan: 2 of 2 in phase (both complete)
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 08-01-PLAN.md (schema extensions)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#_________] 10%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##________] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (v1.1 + 08-02)
+- Total plans completed: 9 (v1.1 + Phase 8)
 - Average duration: ~3.5min
-- Total execution time: ~32min
+- Total execution time: ~35min
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#_________] 10%
 |-------|-------|-------|----------|
 | 6 | 3/3 | 12min | 4min |
 | 7 | 4/4 | 17min | 4.25min |
-| 8 | 1/2 | ~3min | ~3min |
+| 8 | 2/2 | ~6min | ~3min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -42,6 +42,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent from v1.2:
 - DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
 - Old estimation formula (annual/8760) replaced with constant fallback
+- HeatingType enum added with 5 Swedish heating types (08-01)
+- Natagare peak calculation fields added with sensible defaults (08-01)
 
 Recent from v1.1:
 - Apply overrides server-side for invisible sync
@@ -65,7 +67,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 08-02-PLAN.md
+Stopped at: Completed Phase 8 (both plans)
 Resume file: None
 
-Next action: Execute 08-01-PLAN.md (schema migration)
+Next action: `/gsd:plan-phase 9` (Natagare Centralization)
