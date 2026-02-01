@@ -85,6 +85,17 @@ enum HeatingType {
 }
 
 // =============================================================================
+// APPROVAL STATUS (Phase 9 - Natagare Global Scope)
+// =============================================================================
+
+enum ApprovalStatus {
+  APPROVED          // Global, visible to all orgs
+  PENDING           // Org-only, awaiting Super Admin approval
+  REJECTED          // Org-only, rejected by Super Admin
+  DUPLICATE_REVIEW  // Migration flagged as duplicate, needs manual resolution
+}
+
+// =============================================================================
 // ORGANIZATION (Tenant)
 // =============================================================================
 
@@ -136,6 +147,7 @@ model User {
   sessions            Session[]
   accounts            Account[]
   passwordResetTokens PasswordResetToken[]
+  approvedNatagare    Natagare[]           @relation("NatagareApprovedBy")
 
   @@index([orgId])
   @@index([email])
@@ -265,7 +277,7 @@ model BatteryConfig {
 }
 
 // =============================================================================
-// NATAGARE (Grid Operator) - Tenant-scoped
+// NATAGARE (Grid Operator) - Global scope with approval workflow (Phase 9)
 // =============================================================================
 
 model Natagare {
@@ -280,9 +292,19 @@ model Natagare {
   dayStartHour Int @default(6) // Day tariff starts at 06:00
   dayEndHour   Int @default(22) // Day tariff ends at 22:00
 
-  orgId     String
+  // Organization scope (Phase 9 - Global Scope)
+  // null orgId = global natagare (Super Admin managed)
+  // non-null orgId = org-specific natagare (pending approval or rejected)
+  orgId     String?
   isDefault Boolean @default(false) // Default natagare for new calculations
   isActive  Boolean @default(true) // Soft delete / hide from UI
+
+  // Global scope and approval workflow (Phase 9)
+  globalScope      Boolean        @default(false) // true = Super Admin managed, visible to all
+  approvalStatus   ApprovalStatus @default(APPROVED) // Workflow state
+  requestedByOrgId String? // Org that requested this natagare (for pending items)
+  approvedAt       DateTime? // When Super Admin approved
+  approvedByUserId String? // Which Super Admin approved
 
   // Peak calculation settings (Phase 8 - v1.2 foundation)
   // How to calculate billing peak from consumption data
@@ -297,11 +319,13 @@ model Natagare {
   updatedAt DateTime @updatedAt
 
   // Relations
-  organization Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organization Organization?  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  approvedBy   User?          @relation("NatagareApprovedBy", fields: [approvedByUserId], references: [id])
   calculations Calculation[]
 
-  @@unique([orgId, name]) // No duplicate natagare names per org
+  @@unique([orgId, name]) // No duplicate natagare names per org (null orgId = one global per name)
   @@index([orgId])
+  @@index([approvalStatus])
 }
 
 // =============================================================================
