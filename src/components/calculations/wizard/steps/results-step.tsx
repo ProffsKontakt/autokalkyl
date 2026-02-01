@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { calculateBatteryROI } from '@/lib/calculations/engine'
-import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT } from '@/lib/calculations/constants'
+import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import { SummaryCards } from '@/components/calculations/results/summary-cards'
 import { SavingsBreakdown } from '@/components/calculations/results/savings-breakdown'
 import { ROITimelineChart } from '@/components/calculations/results/roi-timeline-chart'
@@ -106,7 +106,7 @@ export function ResultsStep({
         batteryCostPrice: batteryInfo.costPrice,
         // Phase 6: New control parameters
         peakShavingPercent,
-        currentPeakKw: 8, // TODO: Get from customer data or make configurable
+        currentPeakKw: DEFAULT_CURRENT_PEAK_KW,
         postCampaignRatePerKwYear: postCampaignRate,
         elomrade: elomrade || undefined,
         isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
@@ -187,7 +187,7 @@ export function ResultsStep({
           </div>
           <div>
             <PeakShavingSlider
-              currentPeakKw={8}
+              currentPeakKw={DEFAULT_CURRENT_PEAK_KW}
               batteryMaxDischargeKw={primaryResult.batteryInfo.maxDischargeKw}
             />
           </div>

@@ -21,7 +21,7 @@ import { BatteryStep } from './steps/battery-step'
 import { ResultsStep } from './steps/results-step'
 import { finalizeCalculation } from '@/actions/calculations'
 import { calculateBatteryROI } from '@/lib/calculations/engine'
-import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT } from '@/lib/calculations/constants'
+import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import type { Elomrade, BatterySpec } from '@/lib/calculations/types'
 
 interface NatagareInfo {
@@ -173,7 +173,7 @@ export function CalculationWizard({
       batteryCostPrice: batteryInfo.costPrice,
       // Phase 6: Use actual slider values from store
       peakShavingPercent: store.peakShavingPercent,
-      currentPeakKw: 8, // TODO: Get from customer data
+      currentPeakKw: DEFAULT_CURRENT_PEAK_KW,
       postCampaignRatePerKwYear: store.postCampaignRate,
       elomrade: store.elomrade || undefined,
       isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
