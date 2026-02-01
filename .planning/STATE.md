@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 8
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-01 — Milestone v1.2 started
+Phase: 8 of 13 (Schema & Migration Foundation)
+Plan: Ready to plan
+Status: Ready to plan
+Last activity: 2026-02-01 — v1.2 roadmap created
 
-Progress: v1.0 ✓ | v1.1 ✓ | v1.2 [░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [__________] 0%
 
 ## Performance Metrics
 
@@ -30,7 +30,7 @@ Progress: v1.0 ✓ | v1.1 ✓ | v1.2 [░░░░░░░░░░░░░░
 | 6 | 3/3 | 12min | 4min |
 | 7 | 4/4 | 17min | 4.25min |
 
-*Updated: 2026-02-01 (milestone complete)*
+*v1.2 metrics will be tracked as phases complete*
 
 ## Accumulated Context
 
@@ -38,7 +38,9 @@ Progress: v1.0 ✓ | v1.1 ✓ | v1.2 [░░░░░░░░░░░░░░
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
-See .planning/milestones/v1.1-ROADMAP.md for full decision log.
+Recent from v1.1:
+- currentPeakKw hardcoded to 8 kW (revisit in v1.2 — FIX-03 addresses this)
+- Apply overrides server-side for invisible sync
 
 ### Pending Todos
 
@@ -46,19 +48,20 @@ None.
 
 ### Blockers/Concerns
 
-Production readiness notes (carried from v1.0):
-- Vattenfall/E.ON effekttariff rates not officially published yet (deadline Jan 2027) - using placeholder rates
-- mgrey.se API has no SLA - implemented manual entry fallback
+**From research (info-level, not blocking):**
+- PostHog may be blocked by bot detection (ANLY-07 addresses)
+- Vattenfall/E.ON peak methods not finalized (system must be configurable)
+- 113 existing calculations need backward compatibility during migration
 
-Tech debt from v1.1 (info-level, not blocking):
-- currentPeakKw hardcoded to 8 kW (needs customer consumption data input)
+**Tech debt carried from v1.1:**
+- currentPeakKw hardcoded in 6+ locations (Phase 8 addresses)
 - No input validation for unrealistic slider combinations
 - totalProjectionYears fixed at 10 years
 
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: v1.2 milestone started, defining requirements
+Stopped at: v1.2 roadmap created, ready to plan Phase 8
 Resume file: None
 
-Next action: Complete requirements definition → roadmap creation
+Next action: `/gsd:plan-phase 8`

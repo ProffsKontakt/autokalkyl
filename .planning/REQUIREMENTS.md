@@ -83,39 +83,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONS-01 | TBD | Pending |
-| CONS-02 | TBD | Pending |
-| CONS-03 | TBD | Pending |
-| CONS-04 | TBD | Pending |
-| CONS-05 | TBD | Pending |
-| PEAK-05 | TBD | Pending |
-| PEAK-06 | TBD | Pending |
-| PEAK-07 | TBD | Pending |
-| PEAK-08 | TBD | Pending |
-| PEAK-09 | TBD | Pending |
-| PEAK-10 | TBD | Pending |
-| NATA-06 | TBD | Pending |
-| NATA-07 | TBD | Pending |
-| NATA-08 | TBD | Pending |
-| NATA-09 | TBD | Pending |
-| NATA-10 | TBD | Pending |
-| NATA-11 | TBD | Pending |
-| ANLY-07 | TBD | Pending |
-| ANLY-08 | TBD | Pending |
-| ANLY-09 | TBD | Pending |
-| ANLY-10 | TBD | Pending |
-| ANLY-11 | TBD | Pending |
-| ANLY-12 | TBD | Pending |
-| FIX-01 | TBD | Pending |
-| FIX-02 | TBD | Pending |
-| FIX-03 | TBD | Pending |
-| FIX-04 | TBD | Pending |
+| CONS-01 | Phase 10 | Pending |
+| CONS-02 | Phase 10 | Pending |
+| CONS-03 | Phase 10 | Pending |
+| CONS-04 | Phase 10 | Pending |
+| CONS-05 | Phase 10 | Pending |
+| PEAK-05 | Phase 11 | Pending |
+| PEAK-06 | Phase 11 | Pending |
+| PEAK-07 | Phase 11 | Pending |
+| PEAK-08 | Phase 11 | Pending |
+| PEAK-09 | Phase 11 | Pending |
+| PEAK-10 | Phase 11 | Pending |
+| NATA-06 | Phase 9 | Pending |
+| NATA-07 | Phase 9 | Pending |
+| NATA-08 | Phase 9 | Pending |
+| NATA-09 | Phase 9 | Pending |
+| NATA-10 | Phase 9 | Pending |
+| NATA-11 | Phase 9 | Pending |
+| ANLY-07 | Phase 12 | Pending |
+| ANLY-08 | Phase 12 | Pending |
+| ANLY-09 | Phase 12 | Pending |
+| ANLY-10 | Phase 12 | Pending |
+| ANLY-11 | Phase 12 | Pending |
+| ANLY-12 | Phase 12 | Pending |
+| FIX-01 | Phase 13 | Pending |
+| FIX-02 | Phase 13 | Pending |
+| FIX-03 | Phase 8 | Pending |
+| FIX-04 | Phase 13 | Pending |
 
 **Coverage:**
-- v1.2 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- v1.2 requirements: 27 total
+- Mapped to phases: 27/27
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-01 (traceability complete)*
