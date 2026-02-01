@@ -1,167 +1,315 @@
 # Project Research Summary
 
-**Project:** Kalkyla.se - Multi-tenant Battery ROI Calculator SaaS
-**Domain:** Swedish energy market sales enablement tool
-**Researched:** 2026-01-19
+**Project:** Kalkyla.se v1.2 - Realistic Consumption & Peak Tariffs
+**Domain:** Battery ROI Calculator enhancement for Swedish market
+**Researched:** 2026-02-01
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Kalkyla.se is a multi-tenant SaaS platform that enables solar/battery installers to create and share ROI calculations with prospects. The product sits at the intersection of CPQ (Configure, Price, Quote) software and Swedish energy market specifics, requiring expertise in both multi-tenant architecture and domain-specific calculations (effekttariff, Gron Teknik deductions, Nord Pool spot prices). The recommended approach leverages Next.js 15 with App Router, Prisma with PostgreSQL (Neon), and Auth.js v5, with critical emphasis on tenant isolation from day one and decimal precision for financial calculations.
+v1.2 transforms Kalkyla from a generic battery calculator into a Swedish-market-specific tool with realistic consumption modeling and accurate peak tariff calculations. The core insight from research is that **Swedish electricity consumption varies dramatically by heating type** (direktverkande el uses 3-4x more than fjarrvarme), and **grid operators use different peak calculation methods** (Ellevio averages 3 peaks, Vattenfall uses 5). The current system uses hardcoded generic values that produce inaccurate ROI projections.
 
-The Swedish market presents both opportunity and complexity. Effekttariff (power tariff) rules vary by natagare (grid operator), Gron Teknik tax deductions changed rates in June 2025, and Nord Pool shifted to 15-minute Market Time Units in October 2025. These domain specifics must be configurable, not hardcoded. The stack is well-documented and production-ready, but the calculation engine requires careful research into Swedish regulations.
+The recommended approach is to **extend the existing architecture** rather than rebuild. Only one new dependency is needed (posthog-node for server-side analytics). The work is primarily domain modeling, calculation logic enhancement, and careful data migration. The existing Zustand store, Server Action patterns, and calculation engine accommodate all v1.2 requirements with targeted extensions.
 
-Key risks center on multi-tenant data leakage (a breach, not a bug), financial calculation precision errors that compound over 25-year projections, and N8N webhook security vulnerabilities (CVE-2026-21858). Mitigation requires Row-Level Security at the database layer, decimal.js for all financial math, and keeping N8N isolated and updated. The architecture should be defense-in-depth: Prisma Client Extensions for tenant filtering, RLS as backup, and API-level validation as final check.
+The highest risks are **data migration** (113 existing calculations must not break) and **scattered hardcoded values** (the `currentPeakKw = 8` constant exists in at least 6 locations). Both require careful auditing before implementation. The Ellevio peak calculation method is well-documented and can be implemented with high confidence; other grid operators (Vattenfall, E.ON) are still finalizing their methods, so the system should be configurable per nataegare.
+
+---
 
 ## Key Findings
 
-### Recommended Stack
+### 1. Stack: Minimal Additions Required
 
-The user's predefined stack (Next.js, Prisma, PostgreSQL, NextAuth, Tailwind, Vercel) is production-ready and aligns with 2025/2026 best practices. Key additions include Recharts for ROI visualizations, React Hook Form + Zod for validated inputs, and nuqs for shareable URL state (critical for calculation sharing). Neon is recommended over Supabase for pure serverless PostgreSQL without BaaS overhead.
+v1.2 requires **one new library**: `posthog-node` for server-side event capture (calculation completions, share link generation). All other features use existing stack components.
 
-**Core technologies:**
-- **Next.js 15.5+**: App Router with React Server Components, Turbopack for fast dev
-- **Prisma 6.x + Neon**: Type-safe ORM with serverless PostgreSQL, scale-to-zero pricing
-- **Auth.js v5**: Credentials auth with Prisma adapter, App Router native
-- **Recharts**: SVG-based charts for ROI visualizations, React-friendly API
-- **React Hook Form + Zod**: Form state with schema validation, reusable client/server
-- **TanStack Query + nuqs + Zustand**: Server state, URL state, UI state separation
-- **decimal.js**: Arbitrary precision arithmetic for financial calculations
+**Stack additions:**
+- `posthog-node ^5.24.7`: Server-side event capture (cannot capture server actions with client-only posthog-js)
 
-### Expected Features
+**Schema extensions needed:**
+- `HeatingType` enum: `BERGVARME | FJARRVARME | DIREKTVERKANDE | LUFT_LUFT_VP | LUFT_VATTEN_VP`
+- `PeakCalculationMethod` enum: `ELLEVIO_3_PEAKS | VATTENFALL_5_PEAKS | SIMPLE_MAX`
+- Natagare model extensions: `peakMethod`, `nightPeakMultiplier`, `peakNightStartHour/EndHour`
+- Calculation model extensions: `heatingType`, `monthlyPeaks` JSON
 
-**Must have (table stakes):**
-- Multi-tenant organization management with RBAC (Super Admin, Org Admin, Closer, Prospect)
-- Calculation builder: customer info, consumption input, battery selection, pricing/margin
-- Shareable public links with org branding, view-only mode
-- Basic admin dashboard with calculation metrics
+**Libraries explicitly NOT to add:**
+- External Swedish energy APIs (unreliable; use hardcoded research-based factors)
+- Time series libraries (overkill for simple peak sorting)
+- ML prediction libraries (liability risk, unreliable for sales tool)
 
-**Should have (competitive advantage):**
-- Swedish energy market intelligence: natagare database, effekttariff optimization
-- Interactive consumption adjustment on public view (client-side recalculation)
-- Gron Teknik deduction with date-based rates and per-person caps
-- PDF export for offline sharing
-- Margin alerts via N8N webhooks
+**Confidence:** HIGH - Official PostHog documentation confirms server-side SDK approach.
 
-**Defer (v2+):**
-- Grid services income projection (FCR-D, aFRR, mFRR)
-- Custom domain support
-- SSO/SAML integration
-- 15-year projections (10-year sufficient initially)
-- Bulk user import
+### 2. Features: Table Stakes vs Differentiators
 
-### Architecture Approach
+**Table Stakes (users expect):**
+1. Annual kWh single input + heating type dropdown
+2. Automatic seasonal consumption distribution based on heating type
+3. Monthly peak kW inputs (configurable per nataegare peak count)
+4. Nataegare-specific peak calculation methods (3-peak for Ellevio, 5-peak for Vattenfall)
+5. Night discount factor (Ellevio: 22-06 peaks count as 50%)
 
-Shared database with row-level filtering is recommended for initial scale (<1000 orgs). The architecture follows a layered defense model: Prisma Client Extensions inject orgId filters automatically, PostgreSQL RLS provides database-level enforcement, and API route validation adds a final check. Server Components handle data fetching with tenant-scoped Prisma clients, while calculations run client-side for instant feedback. Server Actions handle all mutations.
+**Differentiators (competitive advantage):**
+1. Heating-type-aware consumption curves using verified Swedish energy data
+2. Peak shaving visualization with per-peak reduction controls
+3. Before/after peak comparison showing battery impact
+4. Embedded PostHog dashboard for sales analytics
 
-**Major components:**
-1. **Presentation Layer** (Next.js App Router) - Route groups for auth, dashboard, public, admin
-2. **Data Access Layer** - TenantPrismaClient factory, CalculationEngine, PriceCache
-3. **Authentication Layer** - Auth.js with RBAC, tenant context from JWT claims
-4. **External Integrations** - N8N webhooks (authenticated), PostHog analytics (client), Nord Pool (cached)
+**Anti-Features (explicitly NOT building):**
+- Automatic peak detection from smart meter API (too complex, unreliable)
+- ML-based consumption prediction (liability risk)
+- CSV/API consumption import (too technical for sales closers)
+- Automatic nataegare detection by postal code (requires maintaining postal database)
 
-### Critical Pitfalls
+**Confidence:** HIGH - Verified against Ellevio and Swedish Energy Agency documentation.
 
-1. **Multi-tenant data leakage** - Implement RLS + Prisma Extensions + tenant-scoped client from day one. One forgotten WHERE clause is a GDPR breach.
+### 3. Architecture: Extend Existing Patterns
 
-2. **Connection pool exhaustion** - Use Prisma Accelerate or Neon's built-in pooling. Never call $disconnect() in serverless. Configure connection limits below Vercel concurrency.
+The existing architecture supports all v1.2 requirements with targeted extensions.
 
-3. **Floating-point precision errors** - Use decimal.js for ALL financial calculations. Store monetary values as integers (ore, not SEK). Test against spreadsheet verification.
+**Major integration points:**
 
-4. **Guessable share tokens** - Use UUIDv4 with cryptographic suffix. Implement rate limiting and link expiration (30 days default).
+1. **Consumption Profile Generation**
+   - Extend `SYSTEM_PRESETS` in `presets.ts` with heating-type-aware seasonal factors
+   - New function: `generateProfileForHeating(annualKwh, heatingType)` -> 12x24 matrix
+   - Reuses existing `applyPreset()` logic
 
-5. **N8N webhook vulnerabilities** - Keep N8N >= 1.121.0. Use HMAC signature verification. Never expose N8N directly to internet.
+2. **Peak Tariff Calculation**
+   - Extend Natagare model with `peakCalculationMethod` enum
+   - New function: `calcPeakFromProfile(consumptionProfile, natagareConfig)` -> monthly peaks array
+   - Update `calcEffectTariffSavings()` to use profile-based peak detection
 
-6. **RBAC bypass via middleware-only auth** - Enforce authorization at every layer. Update Next.js to patched version (CVE-2025-29927).
+3. **Centralized Nataegare Management**
+   - Remove `orgId` scoping from Natagare model (nataegare are real-world entities, same for all orgs)
+   - Super Admin-only CRUD operations
+   - Migration path: merge duplicates, update foreign keys
+
+4. **PostHog Dashboard Integration**
+   - Server-side events via posthog-node
+   - Group analytics by org (`$groups: { company: orgSlug }`)
+   - Embedded dashboards via iframe (no custom dashboard code needed)
+
+**Confidence:** HIGH - Verified against existing codebase structure.
+
+### 4. Swedish Market Data (Verified)
+
+**Consumption by Heating Type (150m2 villa):**
+
+| Heating Type | Swedish Name | Annual kWh | Winter Factor | Summer Factor |
+|--------------|--------------|------------|---------------|---------------|
+| Direct electric | Direktverkande el | 18,000-32,000 | 1.5-2.0 | 0.3-0.4 |
+| Ground source HP | Bergvarme | 10,000-18,000 | 1.2-1.4 | 0.6-0.7 |
+| Air-to-water HP | Luft-vatten VP | 12,000-20,000 | 1.3-1.5 | 0.5-0.6 |
+| Air-to-air HP | Luft-luft VP | 8,000-14,000 | 1.4-1.6 | 0.5-0.6 |
+| District heating | Fjarrvarme | 4,000-8,000 | 1.0-1.1 | 0.8-0.9 |
+
+**Grid Operator Peak Methods:**
+
+| Nataegare | Peak Count | High-Load Hours | Night Discount | Rate (SEK/kW) |
+|-----------|------------|-----------------|----------------|---------------|
+| Ellevio | 3 | 06-22 weekdays | 50% during 22-06 | 81.25 |
+| Vattenfall | 5 | 06-22 Nov-Mar | Varies by region | ~70-90 |
+| Jonkoping Energi | 2 | 07-20 Nov-Mar | None | ~60-80 |
+
+**Confidence:** HIGH for Ellevio, MEDIUM for others (Vattenfall implementing Oct 2026).
+
+---
+
+## Critical Pitfalls (Top 5)
+
+### 1. Hardcoded Peak Value Scattered Throughout Codebase (CRITICAL)
+
+**The problem:** `currentPeakKw = 8` exists in at least 6 locations. Replacing with manual input will miss some, causing discrepancies between admin and public views.
+
+**Prevention:**
+1. Run exhaustive grep for ALL `currentPeakKw` and hardcoded `8` references BEFORE starting
+2. Create centralized peak configuration in calculation inputs type
+3. Add test that verifies admin and public views show identical peak values
+
+### 2. Breaking Existing Calculations on Migration (CRITICAL)
+
+**The problem:** 113 existing calculations have `results` JSON with old schema. New fields (heatingType, seasonalDistribution) may cause null pointer errors.
+
+**Prevention:**
+1. Add `schemaVersion` field to calculation results (v1 current, v2 for v1.2)
+2. Create migration script that backfills v1 calculations with default values
+3. Test with production calculation data BEFORE deployment
+4. Never auto-recalculate old calculations - preserve original results
+
+### 3. Ellevio 3-Peak Averaging vs Simple Multiplication (CRITICAL)
+
+**The problem:** Current formula uses simple monthly multiplication. Ellevio actually averages 3 highest hourly peaks from different days, with night at 50%.
+
+**Prevention:**
+1. Create separate `calcEllevioEffektAvgift()` formula implementing 3-peak averaging
+2. Night peaks (22:00-06:00) must be halved before comparison
+3. Document exact method in code comments
+4. Validate against real Ellevio bills from beta customers
+
+### 4. Wrong Seasonal Factors by Heating Type (CRITICAL)
+
+**The problem:** Direktverkande el consumes 4-5x more in winter than summer. Fjarrvarme is flat year-round. Wrong factors produce wildly inaccurate peaks.
+
+**Prevention:**
+1. Use verified Swedish Energy Agency data for heating type distributions
+2. Create separate seasonal factor arrays per heating type in constants
+3. Validate total annual kWh equals input after applying factors
+4. Show seasonal distribution chart in UI for transparency
+
+### 5. Nataegare Migration Breaking Org Data (MODERATE)
+
+**The problem:** Moving from org-scoped to global nataegare requires careful migration. Orgs may have duplicates or custom rates.
+
+**Prevention:**
+1. Inventory all existing nataegare across orgs before migration
+2. Handle duplicates: merge if identical, create variants if different
+3. Keep old nataegare IDs working (alias to new global ones)
+4. Consider soft migration: add `isGlobal` flag, deprecate don't delete
+
+---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on dependencies discovered in research, suggested phase structure:
 
-### Phase 1: Foundation
-**Rationale:** Everything depends on auth, tenant isolation, and database patterns. "The most expensive mistake in SaaS development is treating multi-tenancy as a feature you can add later."
-**Delivers:** Working authentication, tenant-scoped data access, basic app shell
-**Addresses:** Organization CRUD, User management, RBAC
-**Avoids:** Data leakage (#1), Connection exhaustion (#2), RBAC bypass (#6)
-**Estimated:** 2 weeks
+### Phase 1: Data Model & Migration Foundation
 
-### Phase 2: Core Calculator
-**Rationale:** Requires foundation complete. Reference data (natagare, prices) needed before calculations. Engine logic before UI.
-**Delivers:** Working ROI calculator with Swedish market specifics
-**Uses:** decimal.js, Recharts, React Hook Form + Zod, nuqs
-**Implements:** Calculation engine (spotpris, effekttariff, Gron Teknik), battery catalog, consumption input
-**Avoids:** Float precision (#3), Effect tariff errors (#8), Gron Teknik errors (#9), Time zone bugs (#11)
-**Estimated:** 2-3 weeks
+**Rationale:** Data model changes are prerequisite for all other work. Migration must be bulletproof.
+**Delivers:**
+- Schema extensions (HeatingType enum, Natagare peak fields)
+- Migration strategy for existing calculations (schema versioning)
+- Hardcoded peak audit and centralization
+**Addresses:** Table stakes foundation
+**Avoids:** Pitfall #1 (hardcoded peaks), Pitfall #2 (breaking existing calcs)
+**Needs research:** NO - straightforward Prisma migration
 
-### Phase 3: Sharing
-**Rationale:** Requires calculations to exist. Core value proposition for sales enablement.
-**Delivers:** Public shareable links with org branding, view tracking
-**Implements:** Share token generation, public view route, interactive adjustment, access logging
-**Avoids:** Guessable tokens (#4), Orphaned links (#12)
-**Estimated:** 1 week
+### Phase 2: Consumption Profile Generation
 
-### Phase 4: Integrations
-**Rationale:** Enhancement layer after core product works. Can ship MVP without these.
-**Delivers:** Analytics, automation, real-time pricing
-**Implements:** PostHog analytics, N8N webhook alerts, Nord Pool price sync, PDF export
-**Avoids:** N8N vulnerabilities (#5), Nord Pool brittleness (#7)
-**Estimated:** 1 week
+**Rationale:** Core algorithm for realistic consumption. Must come before peak calculation (peaks depend on consumption profile).
+**Delivers:**
+- Heating type selection in wizard
+- Seasonal distribution generation function
+- Profile preview chart
+**Uses:** Extended schema from Phase 1
+**Implements:** `generateProfileForHeating()` function
+**Avoids:** Pitfall #4 (wrong seasonal factors)
+**Needs research:** YES - validate Swedish consumption curves against additional sources
+
+### Phase 3: Peak Tariff Calculation Engine
+
+**Rationale:** Depends on consumption profile from Phase 2. Core calculation logic.
+**Delivers:**
+- Ellevio 3-peak averaging formula
+- Night discount calculation
+- Peak method strategy pattern per nataegare
+- Manual peak input support
+**Uses:** Consumption profiles from Phase 2, Natagare config from Phase 1
+**Avoids:** Pitfall #3 (oversimplified formula)
+**Needs research:** NO - Ellevio method well-documented
+
+### Phase 4: Centralized Nataegare Management
+
+**Rationale:** Can run parallel to Phase 3. Affects permissions and Admin UI.
+**Delivers:**
+- Super Admin-only nataegare CRUD
+- Global nataegare model (remove orgId)
+- Migration of existing org-scoped nataegare
+- Pre-seeded Swedish grid operator data
+**Avoids:** Pitfall #5 (migration data loss)
+**Needs research:** NO - architectural decision, not technical complexity
+
+### Phase 5: Peak Shaving UI & Visualization
+
+**Rationale:** Depends on Phases 2-3. Pure UI work.
+**Delivers:**
+- Manual peak input form (simplified UX with smart defaults)
+- Peak shaving controls on results page
+- Before/after peak visualization
+**Addresses:** Differentiator features
+**Avoids:** Pitfall related to complex peak input UX
+**Needs research:** NO - standard React/Recharts patterns
+
+### Phase 6: PostHog Reconfiguration & Dashboard
+
+**Rationale:** Non-blocking, can run parallel with Phase 5.
+**Delivers:**
+- Server-side event capture via posthog-node
+- Enhanced events with dashboard-friendly properties
+- Embedded PostHog dashboard for Super Admin
+- Bot detection fix
+**Addresses:** Analytics differentiators
+**Avoids:** Bot detection blocking events, dashboard not populating
+**Needs research:** NO - PostHog docs are comprehensive
+
+### Phase 7: Bug Fixes & Polish
+
+**Rationale:** Final cleanup before release.
+**Delivers:**
+- Spotpris efficiency display fix (90.2% not 90000.2%)
+- Super Admin sidebar permanent menu
+- Override system compatibility with new fields
+**Needs research:** NO - bug fixes with known solutions
 
 ### Phase Ordering Rationale
 
-- **Foundation first:** Auth and tenant isolation are architectural decisions that pervade everything. Retrofitting is 5x more expensive.
-- **Calculator second:** The core value proposition. Public links are useless without calculations to share.
-- **Sharing third:** Depends on calculations existing. Relatively simple with proper token design.
-- **Integrations last:** Enhancement layer. MVP can launch without analytics or webhooks.
-- **Total MVP:** 6-7 weeks development
+1. **Data model first** - Every other phase depends on schema changes. Migration must be tested before adding complexity.
+2. **Consumption profiles before peaks** - Peak calculation requires consumption profile as input.
+3. **Engine before UI** - Calculate correct values before building controls for them.
+4. **Nataegare can parallel engine** - No dependency on consumption/peak logic, just schema.
+5. **PostHog can parallel UI** - Independent analytics work.
+6. **Polish last** - Bug fixes after main features complete.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 2:** Effekttariff rules vary significantly by natagare. Need to research specific grid operators for initial launch markets.
-- **Phase 2:** Gron Teknik rules may change. Need authoritative Skatteverket documentation.
-- **Phase 4:** Nord Pool API specifics. 15-minute MTU handling, rate limits, data format.
+**Phases needing deeper research during planning:**
+- **Phase 2 (Consumption Profiles):** Validate Swedish consumption factors against additional sources. Current data from 1komma5 and byggvarudeklarationer, should cross-reference with Swedish Energy Agency.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1:** Auth.js + Prisma + Next.js patterns well-documented
-- **Phase 3:** Standard shareable link patterns, no domain-specific complexity
+**Phases with standard patterns (skip research-phase):**
+- **Phase 1:** Standard Prisma migrations
+- **Phase 3:** Ellevio formula well-documented at ellevio.se
+- **Phase 4:** Architectural decision, straightforward implementation
+- **Phase 5:** Standard React/Recharts patterns
+- **Phase 6:** PostHog has comprehensive Next.js documentation
+- **Phase 7:** Known bugs with documented solutions
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Official docs, stable releases, widely adopted. Next.js 15.5, Prisma 6, Auth.js v5 all battle-tested. |
-| Features | MEDIUM-HIGH | CPQ and multi-tenant patterns verified. Swedish market specifics based on multiple sources but regulations change. |
-| Architecture | HIGH | Multi-tenant, RLS, App Router patterns well-documented. Defense-in-depth approach is industry standard. |
-| Pitfalls | HIGH | CVEs verified (N8N, Next.js middleware). Financial precision issues widely documented. Swedish tax rules from Skatteverket. |
+| Stack | HIGH | Only one new dependency; all others existing |
+| Features | HIGH | Verified against official Swedish grid operator docs |
+| Architecture | HIGH | Verified against existing codebase; extends proven patterns |
+| Pitfalls | HIGH | Identified through codebase grep and domain research |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Natagare tariff database:** Need to determine which grid operators to support initially and research their specific effekttariff rules. Consider starting with Stockholm/major cities.
-- **Nord Pool API access:** Need to verify API access terms and rate limits. Consider using third-party data providers if official API is restrictive.
-- **React Bits library:** User-specified but less documented than alternatives. May need to supplement with shadcn/ui patterns for form components.
-- **Gron Teknik future changes:** Tax incentives may change. Build with configurability in mind.
+1. **Vattenfall/E.ON peak methods:** These operators are still finalizing their effekttariff implementations. System should be configurable so Super Admin can update when methods are announced.
+
+2. **Exact seasonal factors:** The heating type distribution curves need validation with real customer data post-launch. Consider A/B testing different factors.
+
+3. **Peak input UX:** Need user testing to determine if salespeople can provide useful peak estimates, or if calculated defaults are sufficient.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Next.js Official Documentation](https://nextjs.org/docs) - App Router, middleware, server components
-- [Prisma Documentation](https://www.prisma.io/docs) - Client extensions, connection pooling, serverless deployment
-- [Auth.js Documentation](https://authjs.dev) - v5 setup, RBAC patterns
-- [Skatteverket Gron Teknik](https://www.skatteverket.se/privat/fastigheterochbostad/gronteknik.4.676f4884175c97df4192860.html) - Tax deduction rules
+- [Ellevio Effektavgift](https://www.ellevio.se/abonnemang/ny-prismodell-baserad-pa-effekt/) - Official peak calculation methodology
+- [PostHog Node.js SDK](https://posthog.com/docs/libraries/node) - Server-side capture documentation
+- [Swedish Energy Agency](https://www.energimyndigheten.se/en/facts-and-figures/statistics/) - Official consumption statistics
+- Existing codebase: `src/lib/calculations/`, `src/stores/`, `prisma/schema.prisma`
 
 ### Secondary (MEDIUM confidence)
-- [Energiforetagen](https://www.energiforetagen.se/energifakta/elsystemet/elnatet--distribution-av-el/effekttarifftariffer/) - Effekttariff background
-- [Sourceful Energy](https://sourceful.energy/blog/how-stockholm-homeowners-are-saving-2-925-kr-per-year-on-peak-demand-fees) - Swedish battery savings specifics
-- [WorkOS Multi-Tenant Guide](https://workos.com/blog/developers-guide-saas-multi-tenant-architecture) - RBAC and tenant isolation patterns
-- [Neon vs Supabase Comparison](https://www.devtoolsacademy.com/blog/neon-vs-supabase/) - Database provider decision
+- [Tibber - New Ellevio Tariffs](https://tibber.com/en/magazine/inside-tibber/new-ellevio-tariffs) - Ellevio 3-peak explanation
+- [1komma5 - Normal elforbrukning villa](https://1komma5.se/energi/elforbrukning-villa) - Heating type consumption
+- [Byggvarudeklarationer.se](https://www.byggvarudeklarationer.se/normal-elforbrukning-i-svenska-hem/) - Consumption by heating type
+- [effekttariff.nu](https://effekttariff.nu/) - Swedish effekttariff comparison guide
 
-### Tertiary (LOW confidence)
-- Nord Pool 15-minute MTU details - Limited public documentation, may need API exploration
-- Individual natagare tariff rules - Varies by provider, needs case-by-case research
+### Tertiary (LOW confidence - needs validation)
+- [Vattenfall Effektguiden](https://www.vattenfalleldistribution.se/abonnemang-och-avgifter/avtal-och-avgifter/effektguiden/) - Timeline only, exact method TBD
 
 ---
-*Research completed: 2026-01-19*
+
+*Research completed: 2026-02-01*
 *Ready for roadmap: yes*

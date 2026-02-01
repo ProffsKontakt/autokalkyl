@@ -1,532 +1,410 @@
-# Domain Pitfalls: Kalkyla.se Battery ROI Calculator
+# Domain Pitfalls: v1.2 Realistic Consumption & Peak Tariffs
 
-**Domain:** Multi-tenant SaaS calculation tool for Swedish battery ROI
-**Researched:** 2026-01-19
-**Overall Confidence:** HIGH (verified with multiple authoritative sources)
+**Domain:** Battery ROI calculator enhancement for Swedish market
+**Project:** Kalkyla.se v1.2
+**Researched:** 2026-02-01
+**Focus:** Adding realistic consumption profiles and peak tariff calculations to existing system
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause data breaches, rewrites, or major production incidents.
+Mistakes that cause rewrites, broken calculations, or loss of existing data.
 
 ---
 
-### Pitfall 1: Multi-Tenant Data Leakage via Missing Tenant Filters
+### Pitfall 1: Hardcoded Peak Value Scattered Throughout Codebase
 
-**What goes wrong:** Tenant A sees Tenant B's calculations, organizations, or customer data. This isn't a bug—it's a data breach requiring disclosure.
+**What goes wrong:** The current `currentPeakKw = 8` is hardcoded in at least 6 different locations across the codebase. Replacing this with manual input will miss some locations, causing inconsistent calculations between admin and public views.
 
-**Why it happens:**
-- Manual `tenantId` filtering on every query is fragile
-- One forgotten `WHERE orgId = ?` leaks data
-- Relation queries in Prisma middleware don't automatically inherit tenant filters
-- Cache keys without tenant namespacing serve wrong data
+**Why it happens:** Quick MVP decisions led to duplicated hardcoded values instead of centralized configuration. Current locations found via grep:
+- `src/components/calculations/wizard/calculation-wizard.tsx:176` - "TODO: Get from customer data"
+- `src/components/public/public-consumption-simulator.tsx:153` - "Default peak for residential"
+- `src/components/calculations/wizard/steps/results-step.tsx:109,190`
+- `src/actions/share.ts:458` - fallback estimate from annual consumption
 
 **Consequences:**
-- GDPR breach notification required within 72 hours
-- Customer trust destroyed
-- Potential legal liability
+- Salespeople enter manual peaks, but public view shows different numbers
+- ROI discrepancies between admin and customer-facing pages
+- Loss of trust when customers see different numbers than salespeople quoted
+- Existing calculations may suddenly show different values
 
 **Prevention:**
-1. Implement Row-Level Security (RLS) at PostgreSQL level as defense-in-depth
-2. Use Prisma Client Extensions to automatically inject `orgId` filter on every query
-3. Create a `TenantPrismaClient` wrapper that enforces scoping
-4. Never use raw SQL without tenant filtering
-5. Namespace all cache keys: `org:${orgId}:calculation:${calcId}`
+1. Create exhaustive grep search for ALL hardcoded peak values BEFORE starting
+2. Create centralized peak configuration in calculation inputs type
+3. Store peak input in Calculation model (new column or in JSON)
+4. Ensure share endpoint uses stored peak values, not recalculated defaults
+5. Add test case that verifies admin and public views show identical peak values
 
 **Detection (warning signs):**
-- Code review shows queries without explicit org filtering
-- Unit tests don't verify tenant isolation
-- No integration tests for cross-tenant access attempts
+- Public view shows different effekt savings than admin view
+- Peak shaving slider calculations don't match expected values
+- Customer complaints about "numbers changed when I opened the link"
 
-**Phase to address:** Phase 1 (Foundation) - Must be architected from day one. "The most expensive mistake in SaaS development is treating multi-tenancy as a feature you can add later." ([Update.dev](https://update.dev/blog/how-to-implement-multi-tenancy-in-next-js-a-complete-guide))
+**Which phase should address:** Phase 1 (Data Model) - before any UI work
 
 ---
 
-### Pitfall 2: Connection Pool Exhaustion in Vercel Serverless
+### Pitfall 2: Breaking Existing Calculation Results on Migration
 
-**What goes wrong:** Under load, database connections exhaust and requests fail with "Timed out fetching a new connection from the connection pool."
+**What goes wrong:** Existing 113+ validated calculations have `results` JSON stored with old schema. Adding new fields (heating type, seasonal distribution, peak input) may cause null pointer errors when rendering old calculations, or worse, silently recalculate them with default values.
 
-**Why it happens:**
-- Each serverless function invocation can create a new database connection
-- No connection reuse between cold starts
-- High concurrency during peak usage (e.g., sales demos) exhausts pool
-- Prisma default pool size + Vercel concurrency = connection explosion
+**Why it happens:** JSON columns don't enforce schema, so old calculations lack new fields. Code assumes new fields exist without null checks.
 
 **Consequences:**
-- Application becomes unavailable during critical moments
-- Demo failures when showing to potential customers
-- Cascading timeouts affecting all tenants
+- Existing customer links break with runtime errors
+- Old calculations show wrong values after schema change
+- Loss of audit trail - impossible to verify what customer originally saw
 
 **Prevention:**
-1. Use Prisma Accelerate or Vercel Postgres with built-in pooling
-2. Configure `connection_limit` in Prisma connection string appropriately
-3. Instantiate PrismaClient in global scope (outside handler)
-4. Never call `$disconnect()` in serverless functions
-5. Consider Vercel Fluid Compute with `attachDatabasePool` for connection lifecycle management
-6. Set Vercel function concurrency limits below database connection limits
+1. Add explicit version field to calculation results: `schemaVersion: 1` (current), `schemaVersion: 2` (v1.2)
+2. Create migration script that backfills v1 calculations with default values
+3. Keep rendering logic that handles missing fields with sensible defaults
+4. Never auto-recalculate old calculations - preserve original results
+5. Test with production calculation data BEFORE deployment
 
 **Detection (warning signs):**
-- Intermittent P1001 "Can't reach database server" errors
-- Errors correlate with traffic spikes
-- Supabase/Neon connection dashboard shows connection count near limit
+- `Cannot read property 'seasonalDistribution' of undefined` errors
+- Old calculation links return 500 errors
+- QA finds calculations with wildly different results after deployment
 
-**Phase to address:** Phase 1 (Foundation) - Database connection strategy must be established before any features. ([Prisma Vercel Guide](https://www.prisma.io/docs/orm/prisma-client/deployment/serverless/deploy-to-vercel))
+**Which phase should address:** Phase 1 (Data Model) - migration strategy FIRST
 
 ---
 
-### Pitfall 3: Floating-Point Precision Errors in Financial Calculations
+### Pitfall 3: Ellevio "3 Peaks Average" vs Simple Peak Multiplication
 
-**What goes wrong:** ROI calculations show wrong values due to JavaScript's floating-point representation. Customer sees "1989.99999998 SEK" instead of "1990 SEK", or worse, calculations compound errors over 25-year projections.
+**What goes wrong:** The current formula `calcEffectTariffSavings(maxDischargeKw, effectTariffDayRate)` in `formulas.ts` assumes simple monthly multiplication. Ellevio's actual calculation averages the 3 highest hourly peaks across different days, with night hours counting at 50%. Implementing this correctly requires per-month peak data.
 
-**Why it happens:**
-- JavaScript uses IEEE 754 floating-point: `0.1 + 0.2 !== 0.3`
-- Energy pricing involves many decimal places (oresund öre/kWh)
-- Compound calculations over months/years amplify small errors
-- Grön Teknik percentages (48.5%) combined with currency cause drift
+**Why it happens:** MVP simplification. Real Ellevio billing requires:
+- Tracking 3 highest peaks per month (must be on different days)
+- Night discount (22:00-06:00 peaks count as 50%)
+- Monthly billing based on average of these 3 peaks
+- 81.25 SEK/kW day rate for SE3 customers
+
+Source: [Tibber - New Ellevio Tariffs](https://tibber.com/en/magazine/inside-tibber/new-ellevio-tariffs)
 
 **Consequences:**
-- Incorrect ROI projections mislead customers
-- Invoices requiring retroactive correction
-- Loss of credibility with professional customers
-- Potential legal issues if calculations inform purchase decisions
+- Overestimated savings - current formula may promise 2-3x actual peak tariff reduction
+- Customer disappointment when real bills don't match projections
+- Loss of credibility with repeat customers
 
 **Prevention:**
-1. Use decimal.js or big.js for ALL financial calculations
-2. Store monetary values as integers (öre, not SEK) in database
-3. Only format for display at the final step
-4. Add validation tests comparing calculations against known spreadsheet results
-5. Round intermediate results strategically, not just final output
-
-```typescript
-// BAD
-const total = price * 0.485; // Grön Teknik deduction
-
-// GOOD
-import Decimal from 'decimal.js';
-const total = new Decimal(price).mul('0.485').toDecimalPlaces(2);
-```
+1. Document Ellevio's exact calculation method in code comments
+2. Store per-month peak data (array of kW values per month) in calculation
+3. Create separate formula `calcEllevioEffektAvgift()` that implements 3-peak averaging
+4. Night peaks should be halved before comparison/averaging
+5. Consider validation against real Ellevio bills from beta customers
 
 **Detection (warning signs):**
-- Test outputs show many decimal places
-- Calculations don't match Excel/spreadsheet verification
-- Customer complaints about "a few öre off"
+- Peak tariff savings seem unrealistically high (>2x what customer actually saves)
+- Sales team gets pushback: "my Ellevio bill doesn't match"
+- Different grid operators produce identical savings
 
-**Phase to address:** Phase 2 (Calculator Core) - Must be established before any calculation logic. ([Dev.to: Financial Precision](https://dev.to/benjamin_renoux/financial-precision-in-javascript-handle-money-without-losing-a-cent-1chc))
+**Which phase should address:** Phase 3 (Calculator Engine) - before UI sliders
 
 ---
 
-### Pitfall 4: Shareable Links with Guessable/Enumerable Tokens
+### Pitfall 4: Consumption Profile Seasonal Distribution Mismatch by Heating Type
 
-**What goes wrong:** Attackers enumerate calculation links and access other organizations' ROI analyses. "Public" links become truly public to anyone who can guess IDs.
+**What goes wrong:** Swedish consumption patterns vary dramatically by heating type. A 20,000 kWh house with direktverkande el (direct electric heating) consumes 4-5x more in winter than summer. A house with fjärrvärme (district heating) has nearly flat electricity consumption year-round. Using wrong seasonal factors produces wildly inaccurate monthly peaks.
 
-**Why it happens:**
-- Using sequential IDs or UUIDv1 (time-based, predictable)
-- No rate limiting on public link endpoints
-- No authorization check even for "public" resources
-- The "sandwich attack" on UUIDv1: knowing IDs before and after allows guessing target ID
+**Why it happens:** Current presets in `presets.ts` use generic factors. Real Swedish data shows:
+- **Direktverkande el:** Winter 4-5x summer (heating = 90% of consumption)
+- **Bergvärme (ground source heat pump):** Winter 2.5-3x summer
+- **Fjärrvärme (district heating):** Nearly flat (electricity = household only, ~5,500 kWh/year constant)
+- **Luft-vatten VP:** Winter 2-2.5x summer
 
-**Consequences:**
-- Competitor accesses customer's pricing analysis
-- Sensitive consumption data exposed
-- Org branding/pricing strategies leaked
-
-**Prevention:**
-1. Use UUIDv4 (122 random bits) or UUIDv7 for share tokens
-2. Add cryptographically random suffix: `${uuidv4()}-${crypto.randomBytes(8).toString('hex')}`
-3. Implement rate limiting on public endpoints (IP-based)
-4. Add optional password protection for sensitive calculations
-5. Track access and alert orgs on unusual access patterns
-6. Set link expiration by default (30 days configurable)
-
-**Detection (warning signs):**
-- Share URLs contain sequential-looking numbers
-- No rate limiting on `/share/:token` endpoint
-- Logs show sequential token access attempts
-
-**Phase to address:** Phase 3 (Sharing) - Design token generation before implementing sharing feature. ([Medium: Exploiting UUIDs](https://medium.com/@dimpchubb/exploiting-uuids-in-account-takeover-a-penetration-testers-guide-to-bypassing-insecure-token-96de9cc520a3))
-
----
-
-### Pitfall 5: N8N Webhook Security Vulnerabilities
-
-**What goes wrong:** Attackers exploit N8N webhook endpoints to execute arbitrary code or access sensitive data. CVE-2026-21858 (CVSS 10.0) allows unauthenticated RCE.
-
-**Why it happens:**
-- N8N webhook endpoints exposed without authentication
-- Insufficient validation of incoming webhook data
-- Running N8N with elevated privileges
-- Not keeping N8N updated (critical vulnerabilities in versions <= 1.65.0)
+Source: [1komma5 - Normal elforbrukning villa](https://1komma5.se/energi/elforbrukning-villa)
 
 **Consequences:**
-- Full server compromise
-- Access to all customer data
-- Lateral movement to other systems
+- Peak calculations wrong by 50-200% for some months
+- Effect tariff savings grossly over/under-estimated
+- Battery sizing recommendations wrong (battery can't shave peaks that don't exist)
 
 **Prevention:**
-1. Keep N8N updated to >= 1.121.0 (critical security fix)
-2. Never expose N8N directly to internet—use reverse proxy with auth
-3. Implement HMAC signature verification on all webhooks
-4. Use API key authentication for Kalkyla -> N8N communication
-5. Deploy N8N in isolated environment with minimal privileges
-6. Rate limit and validate all webhook payloads before processing
+1. Use Swedish Energy Agency data for heating type distributions
+2. Create separate seasonal factor arrays per heating type in constants.ts:
+   - Direktverkande el: `[1.5, 1.4, 1.2, 0.9, 0.6, 0.4, 0.3, 0.4, 0.6, 0.9, 1.2, 1.5]`
+   - Bergvärme: `[1.3, 1.2, 1.0, 0.8, 0.7, 0.6, 0.6, 0.7, 0.8, 1.0, 1.2, 1.4]`
+   - Fjärrvärme: `[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]` (flat)
+3. Validate total annual kWh after applying factors (should equal input)
+4. Show seasonal distribution chart in UI for transparency
 
 **Detection (warning signs):**
-- N8N accessible without authentication
-- Webhook URLs in client-side code
-- No request signature validation
-- Running outdated N8N version
+- Fjärrvärme customers show same winter peaks as direktverkande el
+- Summer peak savings claimed for houses with no summer peaks
+- Total annual kWh doesn't match when months are summed
 
-**Phase to address:** Phase 4 (Integrations) - Security architecture must precede webhook implementation. ([The Hacker News: N8N CVE](https://thehackernews.com/2026/01/critical-n8n-vulnerability-cvss-100.html))
-
----
-
-### Pitfall 6: RBAC Bypass via Middleware/API Inconsistency
-
-**What goes wrong:** User can access resources in UI (appears protected) but API allows direct access, or vice versa. Role checks enforced in one layer but not others.
-
-**Why it happens:**
-- Checking role in React component but not API route
-- Middleware runs differently in Next.js 15 (optimized, not every request)
-- Session callback order issues in Auth.js v5 (middleware runs before session populated)
-- CVE-2025-29927: `x-middleware-subrequest` header bypasses all middleware
-
-**Consequences:**
-- Users access features beyond their role (Super Admin functions)
-- Data modification by unauthorized users
-- Audit trail shows actions by "wrong" user
-
-**Prevention:**
-1. Enforce authorization at EVERY layer: middleware + API route + database (defense in depth)
-2. Update Next.js to patched version (>= 12.3.5, 13.5.9, 14.2.25, or 15.2.3)
-3. Place Auth.js callbacks in `auth.config.ts` to ensure session available in middleware
-4. Create centralized `checkPermission(user, action, resource)` function used everywhere
-5. Write integration tests that bypass UI and hit API directly
-6. Add database-level RLS as final defense
-
-**Detection (warning signs):**
-- Permission checks scattered across codebase
-- No API tests that verify role enforcement
-- Middleware only, no API route checks
-
-**Phase to address:** Phase 1 (Foundation) - Auth and RBAC architecture from the start. ([Next.js Auth Discussion](https://github.com/nextauthjs/next-auth/discussions/9609))
+**Which phase should address:** Phase 2 (Consumption Profiles) - core algorithm
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause delays, technical debt, or degraded user experience.
+Mistakes that cause delays, rework, or technical debt.
 
 ---
 
-### Pitfall 7: Nord Pool API Integration Brittleness
+### Pitfall 5: PostHog Bot Detection Blocking Real Events
 
-**What goes wrong:** Electricity price fetching fails silently, calculations use stale data, or the 15-minute MTU change (October 2025) breaks hourly assumptions.
+**What goes wrong:** PostHog's bot detection (enabled by default) silently blocks ALL events when it suspects automated traffic. This commonly happens during development (VS Code debugger launches Chrome with bot-like flags) but can also affect real users with browser extensions or corporate proxies.
 
-**Why it happens:**
-- Hard-coded assumption of hourly price data (now 15-minute MTU)
-- No caching layer—every calculation hits API
-- Day-ahead prices only available ~13:00 CET
-- API rate limits not handled
-- Currency conversion not handled (EUR only from some sources)
+**Why it happens:** PostHog checks user agent strings and browser characteristics. False positives are common. The PROJECT.md notes PostHog "isn't working well" - this is likely the root cause.
+
+Source: [PostHog Bot Detection Issue](https://medium.com/@webmaster_84652/posthog-silently-blocked-all-my-analytics-events-and-the-console-log-i-completely-missed-36c67f9dbbed)
 
 **Consequences:**
-- Calculations fail during API outages
-- Stale prices give incorrect ROI projections
-- Performance degradation from repeated API calls
+- Zero analytics data for days/weeks without anyone noticing
+- Dashboard integration shows empty charts
+- No visibility into customer behavior
+- Feature flags (if used) may not work
 
 **Prevention:**
-1. Cache Nord Pool data aggressively (prices are published once, don't change)
-2. Design data model for 15-minute granularity from start
-3. Implement fallback: cached data + "prices as of X" indicator
-4. Pre-fetch day-ahead prices at 13:15 CET daily (cron job)
-5. Handle both hourly and 15-minute data gracefully
-6. Store prices in SEK after conversion (Swedish market focus)
+1. Add `opt_out_useragent_filter: true` to PostHog init in posthog-provider.tsx
+2. Add server-side event backup for critical events (calculation_viewed, calculation_finalized)
+3. Create monitoring alert for "0 events in 24 hours"
+4. Test PostHog with actual production traffic, not just dev
+5. Look for console message: `[PostHog.js] [WebExperiments] Refusing to render... viewer is a likely bot`
 
 **Detection (warning signs):**
-- Direct API calls in calculation functions
-- No error handling for API failures
-- Data model assumes hourly resolution only
+- PostHog dashboard shows 0 events for extended periods
+- Events work in production but not development
+- Console shows bot detection messages
 
-**Phase to address:** Phase 2 (Calculator Core) - Data fetching architecture before calculation logic. ([Home Assistant Nord Pool](https://www.home-assistant.io/integrations/nordpool/))
+**Which phase should address:** Phase 5 (PostHog) - FIRST task in that phase
 
 ---
 
-### Pitfall 8: Effect Tariff (Effekttariff) Calculation Complexity Underestimated
+### Pitfall 6: Natagare Data Model Missing Peak Calculation Method
 
-**What goes wrong:** Effect tariff calculations are wrong because each nätägare has different rules, peak measurement windows vary, and the quarterly peak logic is misunderstood.
+**What goes wrong:** Current Natagare model (`prisma/schema.prisma` lines 259-284) stores only day/night rates and hours. v1.2 requires storing the peak calculation METHOD (e.g., "3 peaks average" for Ellevio, "5 peaks winter" for Vattenfall). Without this, all natagare get same calculation, which is wrong.
 
-**Why it happens:**
-- Assuming uniform tariff structure across Sweden
-- Peak measured differently: some use top 3 hours in month, others quarterly
-- Time windows for peak measurement vary by nätägare
-- Feed-in vs withdrawal have different geographic pricing
-- Regulation EIFS 2022:1 requires specific tariff components by 2027
+**Why it happens:** MVP simplified to day/night rates. Different Swedish grid operators use different methods:
+- **Ellevio:** Average of 3 highest hourly peaks per month, night at 50%
+- **Vattenfall:** Average of 5 highest peaks, winter months only (implementing Oct 2026)
+- **E.ON:** Varies by region
+
+Source: [Vattenfall Effektguiden](https://www.vattenfalleldistribution.se/abonnemang-och-avgifter/avtal-och-avgifter/effektguiden/)
 
 **Consequences:**
-- ROI calculations significantly wrong (effect fees can be 30-40% of bill)
-- Customers make bad battery purchase decisions
-- Credibility loss with technically sophisticated customers
+- Wrong calculations for non-Ellevio customers
+- Can't expand to new grid operators without code changes
+- Peak tariff logic scattered across codebase
 
 **Prevention:**
-1. Research and document tariff structures for target nätägare
-2. Make tariff rules configurable per nätägare, not hard-coded
-3. Default to conservative estimates when nätägare unknown
-4. Show "effect tariff calculation" as explicit line item users can adjust
-5. Add disclaimer about tariff variability
-6. Plan for future EU power subscription model
+1. Add `peakCalculationMethod` enum to Natagare model: `ELLEVIO_3_PEAK | VATTENFALL_5_PEAK_WINTER | SIMPLE`
+2. Add `peakCount` field (3 for Ellevio, 5 for Vattenfall)
+3. Add `seasonalRestriction` field (null or 'WINTER' for Nov-Mar)
+4. Add `nightDiscountPercent` field (50 for Ellevio, 0 for others)
+5. Create calculation method lookup/strategy pattern in engine.ts
+6. Super Admin configures these fields per natagare
 
 **Detection (warning signs):**
-- Single hard-coded effect tariff formula
-- No nätägare selection in UI
-- Calculations don't match customer's actual bills
+- All natagare produce identical peak savings
+- Vattenfall customers complain about wrong calculations
+- New grid operators require code changes, not config changes
 
-**Phase to address:** Phase 2 (Calculator Core) - Research tariff structures before building calculator. ([Energiföretagen](https://www.energiforetagen.se/energifakta/elsystemet/elnatet--distribution-av-el/effekttarifftariffer/))
+**Which phase should address:** Phase 1 (Data Model) - schema update
 
 ---
 
-### Pitfall 9: Grön Teknik Deduction Rules Miscalculated
+### Pitfall 7: Manual Peak Input UI/UX Complexity
 
-**What goes wrong:** Tax deduction calculations are wrong, leading to incorrect ROI projections and unhappy customers when they file taxes.
+**What goes wrong:** Asking closers to input "kW per peak per month" (12 months x 3 peaks = 36 fields for Ellevio) creates unusable UI. They don't have this data readily available and will enter garbage or skip the feature entirely.
 
-**Why it happens:**
-- Solar reduced from 20% to 15% after June 30, 2025 (date-dependent logic)
-- Battery storage (50%) requires solar to be installed
-- Maximum 50,000 SEK per person per year
-- Property ownership requirements
-- Can't combine with ROT for same service
-- VAT included in calculation basis
+**Why it happens:** Technical correctness (we need peak data) conflicts with UX reality (salespeople don't have it). Most closers only know "annual kWh" and maybe "highest bill month."
 
 **Consequences:**
-- Customers expect more deduction than they receive
-- ROI appears better than reality
-- Angry customers when tax filing reveals error
+- Feature goes unused
+- Bad data produces bad calculations
+- Sales team reverts to simple estimates, undermining accuracy goal
 
 **Prevention:**
-1. Make deduction rates configurable (anticipate future changes)
-2. Add installation date field to determine applicable rate
-3. Clearly show deduction breakdown in UI
-4. Add validation: battery deduction requires solar
-5. Warn about per-person cap (suggest splitting if married)
-6. Link to Skatteverket for authoritative information
-7. Add disclaimer: "Verify with your tax advisor"
+1. Provide smart defaults: estimate peaks from annual kWh + heating type + seasonal factors
+2. Allow simplified input: "typical winter peak kW" + "typical summer peak kW"
+3. Show preview: "Based on your input, we estimate monthly peaks of X, Y, Z"
+4. Make detailed 12-month input OPTIONAL, not required
+5. Consider "I don't know" option that uses model-based estimates
+6. Add helper text explaining what peak kW means (max hourly usage)
 
 **Detection (warning signs):**
-- Hard-coded percentage values
-- No date-based logic for rate changes
-- No cap calculation visible
+- Low adoption of manual peak feature (tracked in PostHog)
+- Unrealistic peak values (0.5 kW or 50 kW for residential)
+- Support tickets asking "what should I enter?"
 
-**Phase to address:** Phase 2 (Calculator Core) - Government incentive rules must be configurable. ([Skatteverket: Grön Teknik](https://www.skatteverket.se/privat/fastigheterochbostad/gronteknik.4.676f4884175c97df4192860.html))
+**Which phase should address:** Phase 4 (UI) - before launch
 
 ---
 
-### Pitfall 10: Real-Time UI Performance Degradation
+### Pitfall 8: Centralized Natagare Migration Breaking Org Data
 
-**What goes wrong:** Calculator becomes sluggish as user adjusts sliders. Every input change triggers full recalculation, causing UI jank and frustrated users.
+**What goes wrong:** Moving natagare management from Org Admin to Super Admin only requires migrating existing org-scoped natagare records. Organizations may have custom natagare with custom rates. Migration could lose or duplicate this data.
 
-**Why it happens:**
-- No debouncing on input changes
-- Recalculating 12 months × 24 hours × multiple factors on every keystroke
-- Context updates re-render entire component tree
-- No memoization of expensive calculations
-
-**Consequences:**
-- Unusable UX on mobile or slower devices
-- Users think app is broken
-- Abandonment during data entry
-
-**Prevention:**
-1. Debounce calculation inputs (200-300ms)
-2. Use `useDeferredValue` for non-urgent UI updates (React 18+)
-3. Memoize expensive calculations with `useMemo`
-4. Consider Web Workers for heavy calculation offloading
-5. Use React Compiler (stable Oct 2025) for automatic optimization
-6. Implement virtualization for 288-cell consumption grid (12×24)
-7. Show loading indicator during calculation
-
-**Detection (warning signs):**
-- React DevTools shows excessive re-renders
-- Input lag visible in profiler
-- No debounce/throttle in input handlers
-
-**Phase to address:** Phase 2 (Calculator Core) - Performance architecture alongside calculation logic. ([React Performance 2025](https://dev.to/alex_bobes/react-performance-optimization-15-best-practices-for-2025-17l9))
-
----
-
-### Pitfall 11: Time Zone and DST Handling Errors
-
-**What goes wrong:** Peak hour calculations are wrong during DST transitions. March shows 23 hours, October shows 25 hours, and effect tariff peaks calculated incorrectly.
-
-**Why it happens:**
-- Using `new Date()` without timezone awareness
-- Assuming all months have 24-hour days
-- Europe/Stockholm has DST transitions that affect hourly calculations
-- Nord Pool data in CET/CEST but calculations in local time
+**Why it happens:** Current model: natagare scoped to `orgId`. New model: natagare are global (Super Admin managed). Migration must handle:
+- Duplicate names across orgs (Ellevio in Org A vs Ellevio in Org B)
+- Custom rates that differ from "standard" Ellevio rates
+- Existing calculations referencing org-specific natagare IDs
 
 **Consequences:**
-- Effect tariff peak detection wrong near DST boundaries
-- Monthly consumption totals don't add up
-- Energy arbitrage calculations incorrect
+- Foreign key errors when org-natagare deleted
+- Wrong rates applied to old calculations
+- Loss of custom natagare configurations
+- Calculations show "unknown natagare" error
 
 **Prevention:**
-1. Use `date-fns-tz` or `luxon` for all date operations
-2. Store all timestamps in UTC
-3. Convert to Europe/Stockholm only for display and hourly bucketing
-4. Handle 23-hour and 25-hour days explicitly
-5. Test calculations around DST boundaries (March/October)
-6. Document timezone assumptions in code
+1. Create migration plan BEFORE changing model
+2. Inventory all existing natagare across all orgs (query + document)
+3. Handle duplicates: merge if identical, create variants if different rates
+4. Update `natagareId` references in existing calculations
+5. Consider soft migration: add `isGlobal` flag, deprecate org-natagare, don't delete
+6. Keep old natagare IDs working (alias to new global ones)
 
 **Detection (warning signs):**
-- Using `new Date()` throughout codebase
-- No timezone library imported
-- Tests don't cover DST edge cases
+- Foreign key constraint violations on deploy
+- Calculations showing "unknown natagare"
+- Different orgs suddenly share rates they didn't before
 
-**Phase to address:** Phase 2 (Calculator Core) - Date handling patterns before time-series calculations. ([Medium: DST Battles](https://yixiongjiang.medium.com/a-battle-of-wits-with-datetime-whats-dst-and-how-we-handle-it-within-typescript-eco-environment-146e9cda9c9b))
-
----
-
-### Pitfall 12: Orphaned Shareable Links Never Expire
-
-**What goes wrong:** Links created months ago still expose calculation data. Former employees' shared links remain active. No audit trail of who accessed what.
-
-**Why it happens:**
-- No expiration date on share tokens
-- No link revocation mechanism
-- No access logging
-- Org deletion doesn't cascade to shared links
-
-**Consequences:**
-- Data exposure long after relevance
-- GDPR "right to erasure" violations
-- No visibility into data access patterns
-
-**Prevention:**
-1. Add `expiresAt` timestamp to share links (default 30 days)
-2. Implement link revocation UI for org admins
-3. Log all share link accesses with IP, timestamp
-4. Cascade org/calculation deletion to share links
-5. Send periodic "active share links" report to admins
-6. Allow configurable expiration per org
-
-**Detection (warning signs):**
-- Share links table has no `expiresAt` column
-- No admin UI to manage shared links
-- No access logging
-
-**Phase to address:** Phase 3 (Sharing) - Expiration and audit from initial design. ([SaaS Alerts Report](https://saasalerts.com/wp-content/uploads/2025/04/SASI-Report-2025-updated.pdf))
+**Which phase should address:** Phase 1 (Data Model) - migration first
 
 ---
 
 ## Minor Pitfalls
 
-Mistakes that cause annoyance but are quickly fixable.
+Mistakes that cause annoyance but are easily fixable.
 
 ---
 
-### Pitfall 13: Bundle Size Bloat from Prisma Engine
+### Pitfall 9: Spotpris Efficiency Display Bug Recurrence
 
-**What goes wrong:** Vercel deployments are slow due to large Prisma Rust engine binaries. Cold starts take 2-3 seconds.
+**What goes wrong:** PROJECT.md mentions "90.2% displays correctly (not 90000.2%)" as a v1.2 bug fix. This formatting issue (percentage vs raw decimal) can reappear in new breakdowns or displays if multiplied incorrectly.
+
+**Why it happens:** Inconsistent handling of percentage values - sometimes stored as 0.902, sometimes as 90.2. Display code must know which format.
 
 **Prevention:**
-1. Use Prisma v6.16.0+ with `engineType = "client"` (no Rust binaries)
-2. Or use Prisma Accelerate to eliminate cold start penalty
-3. Monitor bundle size in CI
+1. Establish convention: store percentages as decimals (0.902) in types.ts, display with x100
+2. Create utility function `formatPercent(decimal: number): string` used everywhere
+3. Add unit tests for percentage display in all breakdown components
+4. Document convention in CONTRIBUTING.md
 
-**Phase to address:** Phase 1 (Foundation) - Configuration choice at project setup.
+**Detection (warning signs):**
+- Any percentage > 100 or < 0.001 in display
+- "90000.2%" anywhere in UI
+- Inconsistent percentage formatting across pages
+
+**Which phase should address:** Phase 3 (Calculator Engine) - format consistency
 
 ---
 
-### Pitfall 14: Missing Index on tenantId Columns
+### Pitfall 10: Override System Interaction with New Fields
 
-**What goes wrong:** Queries slow down as data grows because tenant filtering requires full table scans.
+**What goes wrong:** v1.1 added `overrides` JSON for manual value adjustments. v1.2 adds new calculated fields (seasonal savings, peak method, etc.). If override system doesn't account for new fields, closers can't override them, or worse, old overrides corrupt new calculations.
+
+**Why it happens:** Override schema must evolve with calculation results. New fields need:
+- Nullable override slots in CalculationOverrides type
+- Merge logic with calculated values
+- UI controls for new overrides
 
 **Prevention:**
-1. Add index to every `orgId` foreign key column
-2. Add composite indexes for common query patterns: `(orgId, createdAt)`
-3. Use Prisma's `@@index` directive
+1. Document override schema version alongside results schema
+2. New fields start with `override: null` (use calculated)
+3. Test that old overrides don't break new calculations
+4. Add new override controls for new ROI components if needed
+5. Consider deprecating old override fields if semantics change
 
-**Phase to address:** Phase 1 (Foundation) - Database schema design.
+**Detection (warning signs):**
+- "Cannot override seasonal distribution" complaints
+- Old calculations show unexpected values after override
+- Override UI missing new fields
+
+**Which phase should address:** Phase 3 (Calculator Engine) - parallel with new fields
 
 ---
 
-### Pitfall 15: No Rate Limiting on Public Endpoints
+### Pitfall 11: PostHog Dashboard Data Not Auto-Populating
 
-**What goes wrong:** Bots or attackers hammer public share link endpoints, causing performance degradation or cost overruns.
+**What goes wrong:** PostHog dashboards require explicit configuration to show new events and properties. Adding new tracking events without dashboard updates leaves analytics invisible.
+
+**Why it happens:** PostHog auto-discovers events but doesn't auto-add them to dashboards. New properties need manual insight creation.
+
+Source: [PostHog Migration Planning](https://posthog.com/docs/new-to-posthog/switch-guide/migration-planning)
 
 **Prevention:**
-1. Implement rate limiting at Vercel Edge or middleware level
-2. Use `@upstash/ratelimit` for serverless-friendly rate limiting
-3. Different limits for authenticated vs public endpoints
+1. Create PostHog dashboard template for v1.2 metrics
+2. Document all new events and their properties
+3. Set up insights for: heating type distribution, peak input usage, seasonal view interactions
+4. Test dashboard population in staging before prod deploy
 
-**Phase to address:** Phase 3 (Sharing) - Before exposing public endpoints.
+**Detection (warning signs):**
+- New events tracked but not visible in dashboards
+- "0 results" for new event insights
+- Missing conversion funnels
 
----
-
-### Pitfall 16: Hardcoded Swedish Text Without i18n Structure
-
-**What goes wrong:** Swedish-only text scattered throughout code makes future internationalization expensive.
-
-**Prevention:**
-1. Use `next-intl` or similar from the start
-2. Extract all user-facing strings to locale files
-3. Swedish as default, structure ready for English/Norwegian
-
-**Phase to address:** Phase 2 (Calculator Core) - Text extraction pattern from start.
+**Which phase should address:** Phase 5 (PostHog) - after event implementation
 
 ---
 
-## Phase-Specific Warnings Summary
+## Phase-Specific Warnings
 
-| Phase | Topic | Likely Pitfall | Mitigation |
-|-------|-------|---------------|------------|
-| Phase 1: Foundation | Multi-tenancy | Data leakage (#1) | RLS + Prisma Extensions + tenant-scoped client |
-| Phase 1: Foundation | Database | Connection exhaustion (#2) | Prisma Accelerate + proper pooling config |
-| Phase 1: Foundation | Auth | RBAC bypass (#6) | Defense in depth, patched Next.js |
-| Phase 2: Calculator | Calculations | Float precision (#3) | decimal.js for all math |
-| Phase 2: Calculator | Calculations | Effect tariff errors (#8) | Configurable per nätägare |
-| Phase 2: Calculator | Calculations | Grön Teknik errors (#9) | Date-based rates, configurable |
-| Phase 2: Calculator | UI | Performance (#10) | Debounce + memoization + virtualization |
-| Phase 2: Calculator | Data | Time zones (#11) | Luxon/date-fns-tz + UTC storage |
-| Phase 2: Calculator | API | Nord Pool brittleness (#7) | Caching + 15-min MTU support |
-| Phase 3: Sharing | Security | Guessable tokens (#4) | UUIDv4 + rate limiting |
-| Phase 3: Sharing | Data | Orphaned links (#12) | Expiration + audit logging |
-| Phase 4: Integrations | Security | N8N vulnerabilities (#5) | Updated N8N + HMAC + isolation |
+| Phase | Likely Pitfall | Mitigation | Severity |
+|-------|---------------|------------|----------|
+| Data Model | Breaking existing calculations (#2) | Schema versioning, backfill migration | CRITICAL |
+| Data Model | Natagare migration data loss (#8) | Inventory + soft migration | MODERATE |
+| Data Model | Missing peak calculation method (#6) | Add enum and fields to Natagare | MODERATE |
+| Consumption Profiles | Wrong seasonal factors by heating type (#4) | Use Swedish Energy Agency data | CRITICAL |
+| Calculator Engine | Ellevio method oversimplification (#3) | 3-peak averaging formula | CRITICAL |
+| Calculator Engine | Hardcoded peak scattered (#1) | Grep audit, centralize | CRITICAL |
+| Calculator Engine | Override compatibility (#10) | Schema versioning | MINOR |
+| UI/Wizard | Manual peak input UX (#7) | Smart defaults, optional detail | MODERATE |
+| PostHog | Bot detection blocking events (#5) | Config flag + monitoring | MODERATE |
+| PostHog | Dashboard not auto-populating (#11) | Manual dashboard setup | MINOR |
+
+---
+
+## Integration Risk Summary
+
+The highest risk in v1.2 comes from **integration with existing data**, not new features:
+
+1. **113 existing calculations** must continue to work and display correctly
+2. **Org-scoped natagare** must migrate without breaking foreign keys
+3. **Hardcoded peaks** must be found and centralized everywhere
+4. **Override system** must handle schema evolution
+
+**Recommendation:** Phase 1 should be purely data model + migration, with no UI changes. Validate existing calculations still render before proceeding.
+
+---
+
+## Pre-Implementation Checklist
+
+Before starting v1.2 development:
+
+- [ ] Grep for ALL `currentPeakKw` and `8` (peak) references
+- [ ] Query production for all unique natagare across orgs
+- [ ] Query production for calculation count and sample results schema
+- [ ] Verify PostHog is actually receiving events (check dashboard)
+- [ ] Document current presets.ts seasonal factors
+- [ ] Review constraints.ts for peak shaving formula assumptions
 
 ---
 
 ## Sources
 
-### Multi-Tenant Architecture
-- [Update.dev: Multi-Tenancy in Next.js](https://update.dev/blog/how-to-implement-multi-tenancy-in-next-js-a-complete-guide)
-- [Medium: Multi-Tenant Leakage](https://instatunnel.my/blog/multi-tenant-leakage-when-row-level-security-fails-in-saas)
-- [Prisma: Multi-Tenant Approaches](https://zenstack.dev/blog/multi-tenant)
+**Swedish Consumption by Heating Type:**
+- [1komma5 - Normal elforbrukning villa](https://1komma5.se/energi/elforbrukning-villa) - heating type consumption figures
+- [hemsol.se - Elforbrukning villa](https://hemsol.se/solceller/elforbrukning-villa/) - seasonal variation data
+- [Swedish Energy Agency Statistics](https://www.energimyndigheten.se/en/facts-and-figures/statistics/) - official data source
 
-### Database and Prisma
-- [Prisma: Deploy to Vercel](https://www.prisma.io/docs/orm/prisma-client/deployment/serverless/deploy-to-vercel)
-- [Vercel: Connection Pooling](https://vercel.com/kb/guide/connection-pooling-with-functions)
-- [Medium: RLS with Prisma](https://medium.com/@francolabuschagne90/securing-multi-tenant-applications-using-row-level-security-in-postgresql-with-prisma-orm-4237f4d4bd35)
+**Swedish Grid Operator Peak Tariffs:**
+- [Tibber - New Ellevio Tariffs](https://tibber.com/en/magazine/inside-tibber/new-ellevio-tariffs) - Ellevio 3-peak method
+- [Sourceful Energy - Stockholm Peak Fees](https://sourceful.energy/blog/how-stockholm-homeowners-are-saving-2-925-kr-per-year-on-peak-demand-fees) - 81.25 kr/kW rates
+- [Ellevio - Effektavgiften](https://www.ellevio.se/abonnemang/ny-prismodell-baserad-pa-effekt/) - official Ellevio documentation
+- [Vattenfall Effektguiden](https://www.vattenfalleldistribution.se/abonnemang-och-avgifter/avtal-och-avgifter/effektguiden/) - Vattenfall pending implementation
 
-### Security
-- [The Hacker News: N8N CVE-2026-21858](https://thehackernews.com/2026/01/critical-n8n-vulnerability-cvss-100.html)
-- [Medium: UUID Exploitation](https://medium.com/@dimpchubb/exploiting-uuids-in-account-takeover-a-penetration-testers-guide-to-bypassing-insecure-token-96de9cc520a3)
-- [Auth.js: RBAC](https://authjs.dev/guides/role-based-access-control)
+**PostHog Integration:**
+- [PostHog Troubleshooting Docs](https://posthog.com/docs/product-analytics/troubleshooting) - debugging guide
+- [PostHog Bot Detection Issue](https://medium.com/@webmaster_84652/posthog-silently-blocked-all-my-analytics-events-and-the-console-log-i-completely-missed-36c67f9dbbed) - common bot filter problem
+- [PostHog Migration Planning](https://posthog.com/docs/new-to-posthog/switch-guide/migration-planning) - dashboard rebuild guidance
 
-### Financial Calculations
-- [Dev.to: Financial Precision in JavaScript](https://dev.to/benjamin_renoux/financial-precision-in-javascript-handle-money-without-losing-a-cent-1chc)
-- [Robin Wieruch: JavaScript Rounding Errors](https://www.robinwieruch.de/javascript-rounding-errors/)
-
-### Swedish Market Specifics
-- [Skatteverket: Grön Teknik](https://www.skatteverket.se/privat/fastigheterochbostad/gronteknik.4.676f4884175c97df4192860.html)
-- [Energiföretagen: Effekttariffer](https://www.energiforetagen.se/energifakta/elsystemet/elnatet--distribution-av-el/effekttarifftariffer/)
-- [EI: Effekttariffer](https://ei.se/bransch/reglering-av-natverksamhet/reglering---elnatsverksamhet/effekttariffer)
-
-### Performance and React
-- [Dev.to: React Performance 2025](https://dev.to/alex_bobes/react-performance-optimization-15-best-practices-for-2025-17l9)
-- [Dev.to: Real-Time Charts](https://dev.to/ibtekar/building-a-high-performance-real-time-chart-in-react-lessons-learned-ij7)
-
-### APIs and Integration
-- [Home Assistant: Nord Pool Integration](https://www.home-assistant.io/integrations/nordpool/)
-- [Nord Pool API](https://data-api.nordpoolgroup.com/index.html)
-
-### Time Handling
-- [Medium: DST Handling in TypeScript](https://yixiongjiang.medium.com/a-battle-of-wits-with-datetime-whats-dst-and-how-we-handle-it-within-typescript-eco-environment-146e9cda9c9b)
+**Peak Shaving ROI:**
+- [gridX Peak Shaving Guide](https://www.gridx.ai/knowledge/peak-shaving) - calculation methodology
+- [EticaAG BESS ROI Guide](https://eticaag.com/roi-for-battery-energy-storage-systems/) - common pitfalls

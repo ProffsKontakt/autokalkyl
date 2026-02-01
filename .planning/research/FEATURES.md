@@ -1,280 +1,281 @@
-# Feature Landscape: Kalkyla.se
+# Feature Landscape: v1.2 Realistic Consumption & Peak Tariffs
 
-**Domain:** Multi-tenant SaaS for battery ROI calculations (sales enablement)
-**Researched:** 2026-01-19
-**Confidence:** MEDIUM-HIGH (verified against multiple SaaS patterns and Swedish energy market data)
+**Domain:** Swedish household consumption profiling + grid operator peak calculations
+**Researched:** 2026-02-01
+**Confidence:** MEDIUM-HIGH (verified against Swedish grid operator documentation and energy statistics)
+
+---
+
+## Executive Summary
+
+v1.2 adds realistic consumption modeling and nätägare-specific peak tariff calculations. The Swedish market has clear patterns:
+
+1. **Consumption varies dramatically by heating type** - A house with direktverkande el uses 3-4x the electricity of the same house with fjärrvärme
+2. **Peak tariffs vary by grid operator** - Ellevio uses 3 peaks, Vattenfall uses 5 peaks, Tekniska Verken offers two calculation options
+3. **Seasonal distribution is pronounced** - Winter consumption can be 2-3x summer consumption for electrically heated homes
+4. **PostHog dashboards are embeddable** - iframe integration enables sales analytics without custom dashboard development
 
 ---
 
 ## Table Stakes
 
-Features users expect. Missing = product feels incomplete or unprofessional.
+Features users expect for v1.2. Missing = new features feel incomplete.
 
-### Multi-Tenant Organization Management
+### Annual Consumption + Heating Type Input
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Organization CRUD | Basic business unit management | Low | Create, read, update, delete organizations |
-| User invitation system | Standard onboarding pattern | Medium | Email invites with role assignment |
-| Role-based access control (RBAC) | Security baseline for B2B | Medium | Super Admin > Org Admin > Closer > Prospect hierarchy |
-| Organization-scoped data isolation | Multi-tenant requirement | High | Every record must belong to exactly one tenant |
-| Basic branding (logo, primary color) | Competitive expectation | Low | White-label is standard in B2B SaaS |
-| User profile management | Basic UX expectation | Low | Name, email, password change |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Annual kWh single input | Standard in Swedish energy tools | Low | Existing calculation wizard | Replace complex 12x24 matrix with simple total |
+| Heating type dropdown | Determines consumption curve | Low | New field in Calculation model | 5 options: Bergvärme, Fjärrvärme, Direktverkande el, Luft-luft VP, Luft-vatten VP |
+| Automatic seasonal distribution | Core value - realistic profiles | Medium | Heating type + annual kWh | Winter/summer curve based on heating type |
+| Consumption preview chart | Visual confirmation | Low | Existing Recharts infrastructure | Show monthly distribution before saving |
 
-**Source:** Multi-tenant architecture patterns are well-documented. Role-based access with tenant-scoped permissions is the "obvious access control mechanism" per [WorkOS guide](https://workos.com/blog/developers-guide-saas-multi-tenant-architecture). Data isolation where "every piece of data belongs to exactly one tenant" is a first-class requirement per [Frontegg](https://frontegg.com/blog/saas-multitenancy).
+**Swedish Consumption by Heating Type (verified):**
 
-### Calculation Builder
+| Heating Type | Annual kWh (150m² villa) | Winter Factor | Summer Factor |
+|--------------|--------------------------|---------------|---------------|
+| Direktverkande el | 18,000-32,000 | 1.5-2.0 | 0.3-0.4 |
+| Bergvärme | 10,000-18,000 | 1.2-1.4 | 0.6-0.7 |
+| Luft-vatten VP | 12,000-20,000 | 1.3-1.5 | 0.5-0.6 |
+| Luft-luft VP | 8,000-14,000 | 1.4-1.6 | 0.5-0.6 |
+| Fjärrvärme | 4,000-8,000 | 1.0-1.1 | 0.8-0.9 |
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Customer information capture | Basic data entry | Low | Name, address, contact info |
-| Consumption data input | Core functionality | Medium | 12 months x 24 hours = 288 data points default |
-| Battery selection from catalog | Product configuration | Medium | Pre-defined battery options per org |
-| Pricing/margin configuration | CPQ baseline | Medium | Base price + margin calculation |
-| Save and retrieve calculations | Persistence expectation | Low | CRUD for calculations |
-| Calculation summary view | Results presentation | Medium | ROI metrics, payback period, savings breakdown |
+**Source:** [Byggvarudeklarationer.se](https://www.byggvarudeklarationer.se/normal-elforbrukning-i-svenska-hem/) - "Direktverkande elvärme typically means 130 kWh/m²/year, heat pumps 100-120 kWh/m², fjärrvärme 40-60 kWh/m²"
 
-**Source:** CPQ (Configure, Price, Quote) software "allows users to select products and configure them based on customer requirements" per [Salesforce CPQ guide](https://www.salesforce.com/sales/cpq/what-is-cpq/). Product configuration with pricing that "adjusts as user choices change" is standard.
+### Manual Peak Input
 
-### Customer-Facing Shareable Links
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Monthly peak kW inputs | Different nätägare require different counts | Medium | Nätägare peak_count field | 1-5 peaks per month depending on grid operator |
+| Peak input validation | Prevents unrealistic values | Low | Max discharge kW constraint | Warn if peak > typical for house size |
+| Peak preview in results | Transparency before calculation | Low | Existing breakdown UI | Show how peaks affect effektavgift |
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Unique shareable URL per calculation | Core value proposition | Low | UUID-based public links |
-| View-only mode for prospects | Security requirement | Low | No edit access for external viewers |
-| Mobile-responsive display | 2025 baseline | Medium | Must work on phones |
-| Org branding on shared view | Professional appearance | Low | Logo, colors from org settings |
-| Results summary display | Core output | Medium | Clear presentation of ROI/savings |
+**Why Manual Input Over Automatic Detection:**
+- Real-world peaks come from historical smart meter data
+- Customers don't have access to this data easily
+- Sales closers can estimate from customer conversation ("Do you charge EV while cooking?")
+- Automatic detection would require utility API integration (out of scope)
 
-**Source:** Calculator builders universally offer "shareable URL, iFrame, QR code options" per [Cowculator](https://www.cowculator.app/en/) and similar tools. [Shout.com](https://shout.com/development/interactive-calculator-builder/) confirms "URL link for simple sharing" is standard.
+### Nätägare Peak Calculation Methods
 
-### Admin Dashboard
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Peak count per nätägare | Different operators use 1-5 peaks | Low | New Natagare field | Ellevio: 3, Vattenfall: 5, etc. |
+| High/low load period times | Some nätägare only count daytime peaks | Medium | Natagare time fields | Ellevio: 22-06 = 50% rate |
+| Peak averaging formula | Standard: sum of peaks / count | Low | Calculation engine | Already have day/night rates |
+| Night discount factor | Some nätägare discount night peaks | Low | Natagare field (0-1 multiplier) | Ellevio: 0.5 during 22-06 |
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Calculation count/status overview | Basic metrics | Low | How many calculations created, viewed |
-| User list management | Admin necessity | Low | See and manage org users |
-| Basic activity log | Audit trail | Medium | Who did what, when |
-| Organization settings page | Config management | Low | Branding, defaults |
+**Swedish Grid Operator Peak Methods (verified):**
 
-**Source:** "An effective SaaS Dashboard focuses on actionable metrics, boasts real-time data updates, and offers customization options" per [NetSuite](https://www.netsuite.com/portal/resource/articles/erp/saas-dashboards.shtml).
+| Nätägare | Peak Count | High-Load Hours | Night Discount | Rate (SEK/kW) |
+|----------|------------|-----------------|----------------|---------------|
+| Ellevio | 3 | 06-22 weekdays | 50% during 22-06 | 81.25 |
+| Vattenfall | 5 | 06-22 weekdays Nov-Mar | Varies by region | ~70-90 |
+| Jönköping Energi | 2 | 07-20 weekdays Nov-Mar | None | ~60-80 |
+| Tekniska Verken | 2 or 5 | 06-23 | Different night rate | ~65-85 |
+
+**Source:** [Ellevio](https://www.ellevio.se/abonnemang/ny-prismodell-baserad-pa-effekt/) - "Average of three highest hourly peaks, only one per day, 22-06 counts as 50%"
+
+**Source:** [effekttariff.nu](https://effekttariff.nu/) - "Implementation varies between companies, common models include monthly peak or average of 3-5 highest hours"
 
 ---
 
 ## Differentiators
 
-Features that set product apart. Not expected, but valued. Competitive advantage.
+Features that set Kalkyla apart. Not expected, but provide competitive advantage.
 
-### Swedish Energy Market Intelligence
+### Intelligent Consumption Curve Generation
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Natagarare (grid operator) database | Swedish-specific value | Medium | Pre-loaded effekttariff rates by grid operator |
-| Effekttariff (power tariff) optimization | Key Swedish savings mechanism | High | Calculate peak demand fee savings (81.25 SEK/kW typical) |
-| Grid services income projection | Additional revenue stream | High | FCR-D, aFRR, mFRR market participation estimates |
-| Spotpris (spot price) integration | Real-time price data | Medium | Nord Pool integration for accurate savings |
-| Swedish tax incentive calculation | Accurate ROI | Medium | 50% "Gron teknik" deduction on storage, 20% on installation |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Heating-type-aware curves | More accurate than generic presets | Medium | Heating type selection | Use verified Swedish consumption patterns |
+| Multiple house sizes | Right-size the curve | Low | Optional input field | Curves scale with house size |
+| Monthly factor customization | Advanced users can tweak | Low | Accordion UI in wizard | Optional - defaults work for 90% |
 
-**Source:** Swedish effekttariff model charges based on "average of your three highest hourly peaks each month" per [Sourceful Energy](https://sourceful.energy/blog/how-stockholm-homeowners-are-saving-2-925-kr-per-year-on-peak-demand-fees). Stockholm homeowners save 267 EUR/year on peak demand fees alone. Swedish "Gron teknik" tax credit offers 50% deduction per [Vnice Power analysis](https://vnicepower.store/blogs/news/is-home-battery-storage-worth-it-in-sweden).
+**Competitive Advantage:** Current presets in codebase are generic. New system uses verified Swedish energy data to create curves that match real heating types. This makes ROI calculations more credible to prospects.
 
-### Interactive Consumption Simulator
+### Peak Shaving Simulation
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Interactive consumption adjustment | Prospect engagement | High | Let prospects modify their consumption estimates |
-| Visual consumption profile | Understanding | Medium | 24-hour profile visualization |
-| Before/after comparison | Value demonstration | Medium | Show impact of battery on consumption pattern |
-| Scenario comparison | Decision support | High | Compare different battery sizes/configs |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Per-peak reduction slider | Shows battery impact on each peak | Medium | Peak input data | Let closer show "battery reduces Peak 1 from 8kW to 5kW" |
+| Before/after visualization | Value demonstration | Medium | Results page enhancement | Side-by-side peak comparison |
+| Annual effektavgift savings | Bottom-line impact | Low | Existing calculation engine | Already calculates, just need better display |
 
-**Source:** Interactive elements that "empower prospects to click and choose what they want" drive higher engagement per [FastSpring IQ](https://fastspring.com/interactive-quotes/). "Dynamic pricing that prospects can adjust to fit their needs" is a key CPQ differentiator.
+**Why This Matters:** Ellevio customers save ~267 EUR/year on peak demand fees alone with behavioral changes. A battery that actively shaves peaks can save more. Visualizing this is a powerful sales tool.
 
-### Advanced Sales Enablement
+### PostHog Dashboard Integration
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| PDF export of calculations | Professional delivery | Medium | Branded PDF for offline sharing |
-| Margin alerts via webhook | Protect profitability | Medium | N8N integration for low-margin warnings |
-| Calculation templates | Faster quoting | Low | Pre-configured starting points |
-| Duplicate calculation | Iteration support | Low | Quick variations for comparison |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Embedded analytics dashboard | Real-time sales metrics | Low | PostHog sharing feature | iframe embed, no auth required |
+| Custom event tracking | Detailed behavior data | Low | Existing PostHog setup | Add events for new features |
+| Calculation funnel visualization | Conversion tracking | Medium | PostHog configuration | How many calculations → shares → views |
 
-**Source:** "Built-in proposal generation enables users to easily publish and send error-free quotes with consistent, preapproved branding" per [NetSuite CPQ](https://www.netsuite.com/portal/resource/articles/erp/configure-price-quote-cpq.shtml). Webhook-based alerting follows best practice of "authenticate quickly, persist safely, acknowledge immediately" per [Beeceptor](https://beeceptor.com/docs/webhook-feature-design/).
+**PostHog Embedding (verified):**
+- Toggle "Share dashboard publicly" in PostHog
+- Embed via `<iframe src="https://app.posthog.com/shared/..." />`
+- Dynamic height via postMessage API
+- No authentication required for viewers
+- Refresh on each load with `?refresh=true` parameter
 
-### Analytics and Insights
+**Source:** [PostHog Sharing Docs](https://posthog.com/docs/product-analytics/sharing) - "Share a public link and/or embed using iframe"
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Calculation conversion tracking | Sales performance | Medium | Which calculations lead to views/engagement |
-| Closer performance metrics | Team management | Medium | Calculations per closer, view rates |
-| Time-based trends | Business intelligence | Medium | Calculations over time, seasonal patterns |
-| Custom event tracking (PostHog) | Deep analytics | Medium | User behavior, feature usage |
+### Centralized Nätägare Management
 
-**Source:** "Analytics and reporting are the fastest-expanding sub-segment" in sales enablement per [Mordor Intelligence](https://www.mordorintelligence.com/industry-reports/sales-enablement-platform-market). Role-specific dashboards for "sales, marketing, finance" are best practice per [NetSuite](https://www.netsuite.com/portal/resource/articles/erp/saas-dashboards.shtml).
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Super Admin-only nätägare CRUD | Consistent data across orgs | Low | Remove org-level management | Grid operators are the same for everyone |
+| Pre-loaded Swedish nätägare | Zero setup for new orgs | Low | Seed script enhancement | Ellevio, Vattenfall, E.ON, Fortum, etc. |
+| System-wide rate updates | One update affects all | Low | Remove orgId requirement | When Ellevio changes rates, update once |
 
-### Advanced Organization Features
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Custom domain support | Enterprise branding | High | calculations.customerdomain.com |
-| SSO integration (SAML/OIDC) | Enterprise sales | High | Defer unless targeting large orgs |
-| API access for integrations | Platform extensibility | High | REST API for CRM integration |
-| Bulk user import | Enterprise onboarding | Medium | CSV import for larger orgs |
-
-**Source:** "Enterprise customers will also need features such as Single Sign-On (SSO) integration" per [WorkOS](https://workos.com/blog/developers-guide-saas-multi-tenant-architecture). Custom domains and SSO are "enterprise" tier features in most SaaS.
+**Rationale:** Currently nätägare are org-scoped, meaning each organization manages their own grid operator list. But grid operators are external entities with fixed tariffs - it makes no sense for each org to maintain their own copy. Centralizing to Super Admin level ensures accuracy and reduces duplicated effort.
 
 ---
 
 ## Anti-Features
 
-Features to explicitly NOT build. Common mistakes in this domain.
+Features to explicitly NOT build. Would add complexity without value.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Real-time spot price display on public links | Prices change; creates confusion/liability | Show calculation date, note prices are estimates |
-| Actual grid services contract integration | Complex, regulatory, outside scope | Project estimated income based on market averages |
-| Customer self-registration | Creates spam, support burden | Invitation-only via org admins |
-| Public calculation directory | Privacy violation, competitive exposure | Private links only |
-| Complex consumption import (CSV, API) | Too technical for sales closers | Simple manual input with smart defaults |
-| AI-generated consumption estimates | Unreliable, liability risk | User-provided data with validation |
-| Multi-currency support | Swedish market only | SEK hardcoded |
-| Prospect editing of calculations | Breaks closer control, audit trail | View-only with "request adjustment" |
-| In-app chat/messaging | Scope creep, support burden | Email link in interface instead |
-| Automatic contract generation | Legal complexity, outside scope | Export to PDF, external signing |
-| Battery comparison shopping | Becomes price comparison site | Org-specific battery catalog only |
-| Historical spot price charts | Feature creep, data licensing | Link to external resources |
-| Complex approval workflows | Over-engineering for initial market | Simple margin alerts instead |
+| Automatic peak detection from smart meter API | Utility APIs require customer login, complex OAuth, unreliable | Manual peak input - closers estimate from conversation |
+| Real-time nätägare rate scraping | Rates change annually, web scraping is fragile | Manual Super Admin updates when rates change (Jan 1 typically) |
+| Machine learning consumption prediction | Unreliable, liability risk, overkill for sales tool | Verified Swedish consumption curves by heating type |
+| Multiple-building support | Scope creep - single household focus for v1 | Document as v2+ feature if customer demand emerges |
+| Historical consumption import (CSV/API) | Too technical for sales closers, many edge cases | Simple annual kWh + heating type selection |
+| Automatic nätägare detection by postal code | Requires maintaining postal code → nätägare database | Dropdown selection - closers know the customer's grid operator |
+| Complex peak time scheduling | Over-engineering - 90% of value comes from simple model | Day/night differentiation is sufficient |
+| Prospect-editable peaks | Breaks calculation integrity, confusion | View-only public links, closers control inputs |
 
 **Rationale:**
-- Complexity avoidance: Each anti-feature adds maintenance burden disproportionate to value
-- Liability reduction: Avoid features that could create legal/financial exposure
-- Focus preservation: Stay in the "sales enablement calculator" lane, not "energy management platform"
+- Every anti-feature represents a "wouldn't it be nice if..." that would add weeks of development
+- The 80/20 principle applies strongly here - simple inputs with smart defaults cover most use cases
+- Focus on sales enablement, not becoming an energy management platform
 
 ---
 
 ## Feature Dependencies
 
 ```
-FOUNDATION (Must exist first):
-  Organization Management
-    |
-    +-- User Management (requires org context)
-    |
-    +-- Battery Catalog (org-scoped)
-    |
-    +-- Natagarare Database (org-scoped or global)
+v1.2 DEPENDENCIES ON EXISTING v1.1:
 
-CORE PRODUCT (Requires foundation):
-  Calculation Builder
-    |
-    +-- Consumption Input (core data)
-    |
-    +-- Battery Selection (from catalog)
-    |
-    +-- Pricing/ROI Engine (calculation logic)
-    |
-    +-- Results Display (output)
+Existing Infrastructure (already built):
+  ├── Calculation wizard UI
+  ├── Consumption presets (needs enhancement)
+  ├── Natagare model (needs new fields)
+  ├── Calculation engine (needs peak method support)
+  ├── Results page with breakdowns
+  └── PostHog analytics integration
 
-DISTRIBUTION (Requires core):
-  Shareable Links
-    |
-    +-- Public View (requires calculation)
-    |
-    +-- Org Branding (requires org settings)
+NEW v1.2 FEATURES:
 
-ENHANCEMENT (Can layer on):
-  Analytics (requires calculations + views)
-  Margin Alerts (requires pricing engine)
-  PDF Export (requires results)
-  Interactive Adjustment (requires consumption + recalculation)
+Heating Type + Annual kWh
+    ├── New HeatingType enum
+    ├── New consumption curve generation function
+    └── Wizard step simplification (replace 12x24 matrix)
+
+Manual Peak Input
+    ├── Peak count from Natagare config
+    ├── Array of peak values per month
+    └── Validation against house size / battery capacity
+
+Nätägare Enhancement
+    ├── New fields: peakCount, nightDiscountFactor, highLoadStart/End
+    ├── Remove orgId scoping (make system-wide)
+    └── Seed with Swedish grid operator data
+
+Peak Shaving Display
+    ├── Per-peak reduction controls on results page
+    ├── Before/after visualization
+    └── Updated effektavgift calculation
+
+PostHog Dashboard
+    ├── Configure shared dashboard in PostHog
+    ├── Embed iframe in Super Admin analytics page
+    └── Add new custom events for v1.2 features
 ```
 
 ---
 
-## MVP Recommendation
+## Implementation Complexity
 
-For MVP, prioritize in this order:
+| Feature | Effort | Risk | Notes |
+|---------|--------|------|-------|
+| Annual kWh + heating type input | 1-2 days | Low | Simple form field changes |
+| Consumption curve generation | 2-3 days | Medium | Need verified Swedish data |
+| Natagare schema enhancement | 1 day | Low | Add fields, update seed |
+| Centralize nätägare to Super Admin | 2-3 days | Medium | UI changes, permission updates |
+| Manual peak input UI | 2-3 days | Medium | Dynamic form based on peak count |
+| Peak calculation by nätägare method | 2-3 days | Medium | Engine enhancement, formula variants |
+| Peak shaving visualization | 2-3 days | Medium | Results page UI work |
+| PostHog dashboard embed | 1 day | Low | iframe is straightforward |
+| Spotpris efficiency bug fix | 0.5 days | Low | Display issue only |
+| Super Admin sidebar fix | 0.5 days | Low | CSS/component fix |
 
-### Phase 1: Foundation
-1. Organization CRUD with basic branding
-2. User management with RBAC (4 roles)
-3. Battery catalog per org
-4. Natagarare database (can be global/seeded)
-
-### Phase 2: Core Calculator
-5. Calculation builder: customer info, consumption, battery selection
-6. ROI calculation engine: spotpris savings, effekttariff savings, payback period
-7. Calculation save/retrieve
-8. Basic results display
-
-### Phase 3: Distribution
-9. Shareable public links
-10. Mobile-responsive public view
-11. Org branding on public view
-
-### Defer to Post-MVP
-
-| Feature | Reason to Defer |
-|---------|-----------------|
-| Grid services income projection | Requires market data integration, complex |
-| Interactive consumption adjustment | UX complexity, recalculation engine |
-| PDF export | Nice-to-have, not blocking sales |
-| Margin alerts (N8N webhook) | Enhancement layer |
-| Analytics dashboard | Need data first |
-| SSO/custom domain | Enterprise features |
-| 15-year projection | 10-year sufficient initially |
+**Total v1.2 Estimate:** 12-18 days development
 
 ---
 
-## Complexity Estimates
+## Swedish Market Specifics
 
-| Feature Category | Estimated Effort | Risk Level |
-|------------------|------------------|------------|
-| Org management (basic) | 2-3 days | Low |
-| User management + RBAC | 3-5 days | Medium |
-| Battery catalog | 1-2 days | Low |
-| Natagarare database | 2-3 days | Low |
-| Consumption input UI | 3-5 days | Medium |
-| ROI calculation engine | 5-8 days | High |
-| Shareable links | 2-3 days | Low |
-| Public view + branding | 2-3 days | Low |
-| Interactive adjustment | 5-7 days | High |
-| PDF export | 2-3 days | Medium |
-| Webhook alerts | 1-2 days | Low |
-| Analytics integration | 2-3 days | Low |
+### Heating Types in Swedish Homes
 
-**Total MVP estimate:** 20-30 days development
+Swedish households have distinct heating system distributions that dramatically affect electricity consumption:
+
+| Heating System | Swedish Name | Market Share | Electricity Impact |
+|----------------|--------------|--------------|-------------------|
+| Ground source heat pump | Bergvärme | ~25% single-family | Medium - COP ~4 reduces consumption |
+| District heating | Fjärrvärme | ~50% apartments, ~10% houses | Low - electricity only for hot water, appliances |
+| Direct electric heating | Direktverkande el | ~15% (declining) | Very High - 100% electric heating |
+| Air-to-air heat pump | Luft-luft värmepump | Growing | Medium-Low - supplements other heating |
+| Air-to-water heat pump | Luft-vatten värmepump | Growing | Medium - full heating replacement |
+
+**Source:** [Swedish Energy Agency](https://www.energimyndigheten.se/en/facts-and-figures/statistics/) and [Heat pumps in Sweden historical review](https://www.sciencedirect.com/science/article/abs/pii/S0360544221009324)
+
+### Effekttariff Regulatory Context
+
+- **Mandate:** All Swedish grid operators must implement effekttariff by January 1, 2027
+- **Current State:** Ellevio implemented January 1, 2025; Vattenfall implementing October 2025/Autumn 2026; E.ON investigating, earliest Spring 2026
+- **Purpose:** Incentivize customers to reduce peak demand, delay grid infrastructure investments
+- **Result:** Ellevio saw 3% reduction in power consumption in first year - equivalent to capacity for 15,000-20,000 new houses
+
+**Source:** [Effekttariff.nu](https://effekttariff.nu/) - comprehensive Swedish effekttariff guide
 
 ---
 
 ## Sources
 
-### Multi-Tenant SaaS Patterns
-- [WorkOS Multi-Tenant Architecture Guide](https://workos.com/blog/developers-guide-saas-multi-tenant-architecture) - RBAC, SSO, tenant context
-- [Frontegg SaaS Multitenancy](https://frontegg.com/blog/saas-multitenancy) - Data isolation, security patterns
-- [Wildnet White-Label Guide](https://www.wildnetedge.com/blogs/how-to-build-a-white-label-saas-product-for-multi-branding-success) - Branding customization
+### Swedish Consumption Data
+- [Byggvarudeklarationer.se - Normal elförbrukning](https://www.byggvarudeklarationer.se/normal-elforbrukning-i-svenska-hem/) - Consumption by heating type
+- [Swedish Energy Agency Statistics](https://www.energimyndigheten.se/en/facts-and-figures/statistics/) - National energy data
+- [Statista - Sweden peak hourly load](https://www.statista.com/statistics/1342523/peak-hourly-electricity-load-sweden-by-month/) - Seasonal peak patterns
 
-### ROI Calculator & CPQ Tools
-- [Salesforce CPQ Guide](https://www.salesforce.com/sales/cpq/what-is-cpq/) - Configure, Price, Quote patterns
-- [NetSuite CPQ](https://www.netsuite.com/portal/resource/articles/erp/configure-price-quote-cpq.shtml) - Product configuration, quote generation
-- [FastSpring Interactive Quotes](https://fastspring.com/interactive-quotes/) - Prospect interaction patterns
-- [Dock Revenue Archives](https://www.dock.us/revenue-archives/roi-calculators) - B2B ROI calculator examples
+### Grid Operator Tariffs
+- [Ellevio Effektavgift](https://www.ellevio.se/abonnemang/ny-prismodell-baserad-pa-effekt/) - Official Ellevio peak calculation method
+- [Effekttariff.nu](https://effekttariff.nu/) - Swedish effekttariff comparison and guide
+- [Vattenfall Effektguiden](https://www.vattenfalleldistribution.se/abonnemang-och-avgifter/avtal-och-avgifter/effektguiden/) - Vattenfall implementation timeline
+- [Sourceful Energy - Peak Demand Fees](https://sourceful.energy/blog/how-stockholm-homeowners-are-saving-2-925-kr-per-year-on-peak-demand-fees) - Stockholm savings analysis
 
-### Interactive Calculator Builders
-- [Cowculator](https://www.cowculator.app/en/) - Shareable links, embedding
-- [Outgrow](https://outgrow.co/blog/interactive-calculator-builders) - Lead generation calculators
-- [Shout.com](https://shout.com/development/interactive-calculator-builder/) - Sharing options
-- [ConvertCalculator](https://www.convertcalculator.com/) - Excel-like formulas
+### PostHog Integration
+- [PostHog Sharing & Embedding](https://posthog.com/docs/product-analytics/sharing) - Official embedding docs
+- [PostHog Embedded Dashboard Tutorial](https://posthog.com/tutorials/how-to-embed-shared-dashboard) - iframe implementation guide
+- [PostHog Dashboards API](https://posthog.com/docs/api/dashboards) - Programmatic access
 
-### Swedish Energy Market
-- [Sourceful Energy - Stockholm Peak Demand](https://sourceful.energy/blog/how-stockholm-homeowners-are-saving-2-925-kr-per-year-on-peak-demand-fees) - Effekttariff specifics
-- [Vnice Power - Sweden Battery Guide](https://vnicepower.store/blogs/news/is-home-battery-storage-worth-it-in-sweden) - Swedish ROI analysis
-- [Strategic Energy Europe](https://strategicenergy.eu/sweden-610-mw-batteries-2024/) - Swedish battery market
-- [Svenska kraftnat Tariffs](https://www.svk.se/en/stakeholders-portal/electricity-market/connecting-to-the-grid/tariffcharges/) - Grid tariff structure
+### Heat Pump Patterns
+- [Residensportalen - Heating Systems in Sweden](https://www.residensportalen.com/blog/tenants/heatingsystemssweden/) - Overview of Swedish heating
+- [ScienceDirect - Heat pumps in Sweden historical review](https://www.sciencedirect.com/science/article/abs/pii/S0360544221009324) - Market evolution
+- [Chalmers DSM Research](https://publications.lib.chalmers.se/records/fulltext/195330/195330.pdf) - Household consumption patterns
 
-### SaaS Dashboards & Analytics
-- [NetSuite SaaS Dashboards](https://www.netsuite.com/portal/resource/articles/erp/saas-dashboards.shtml) - Dashboard best practices
-- [Userpilot Dashboard Tools](https://userpilot.com/blog/dashboard-reporting-tools/) - Reporting features
-- [Mordor Intelligence](https://www.mordorintelligence.com/industry-reports/sales-enablement-platform-market) - Sales enablement market
+---
 
-### Webhook & Integration Patterns
-- [Beeceptor Webhook Design](https://beeceptor.com/docs/webhook-feature-design/) - Architecture patterns
-- [AWS Webhooks](https://aws.amazon.com/blogs/compute/sending-and-receiving-webhooks-on-aws-innovate-with-event-notifications/) - Reliability patterns
+## Confidence Assessment
+
+| Feature Area | Confidence | Reasoning |
+|--------------|------------|-----------|
+| Heating type consumption ranges | HIGH | Verified against multiple Swedish energy sources |
+| Ellevio peak calculation method | HIGH | Official Ellevio documentation, WebFetch verified |
+| Vattenfall/E.ON methods | MEDIUM | Timeline info available, exact methods still being finalized |
+| Seasonal distribution factors | MEDIUM | General patterns clear, exact factors need validation |
+| PostHog embedding | HIGH | Official documentation verified |
+| Centralized nätägare approach | HIGH | Logical architecture decision, no external validation needed |

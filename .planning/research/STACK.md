@@ -1,18 +1,148 @@
 # Technology Stack
 
 **Project:** Kalkyla.se - Multi-tenant Battery ROI Calculator SaaS
-**Researched:** 2026-01-19
+**Researched:** 2026-01-19 (v1.0), Updated 2026-02-01 (v1.2)
 **Overall Confidence:** HIGH
 
 ---
 
-## Executive Summary
+## v1.2 Stack Additions
 
-This stack leverages the user's predefined technologies (Next.js, Prisma, PostgreSQL, NextAuth, Tailwind, Vercel) while adding specific library recommendations for interactive charting, form handling, state management, and real-time calculations. The stack is production-ready and aligns with 2025/2026 best practices for multi-tenant SaaS.
+**Milestone:** Consumption Profiles & Peak Tariffs
+**Scope:** Additions to existing validated stack for v1.2 features
+
+### Executive Summary
+
+v1.2 requires **one new library** (posthog-node for server-side event capture). All other features use existing stack components. The work is primarily domain modeling and calculation logic extensions.
+
+### Required Addition: posthog-node
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| posthog-node | ^5.24.7 | Server-side event capture | Cannot capture events from server actions with posthog-js (client-only). Needed to track calculation completions, share link generations, and ROI metrics for automatic dashboard population. |
+
+**Installation:**
+```bash
+pnpm add posthog-node
+```
+
+**Integration point:** Create `/src/lib/analytics/posthog-server.ts` with singleton PostHog client.
+
+### Features Using Existing Stack
+
+| v1.2 Feature | Existing Stack | Why Sufficient |
+|--------------|----------------|----------------|
+| Swedish consumption profiles by heating type | TypeScript + decimal.js | Pure calculation logic with predefined seasonal distribution curves. No external APIs needed. |
+| Annual kWh to monthly distribution | TypeScript + existing presets.ts | Extend `SYSTEM_PRESETS` with heating-type-aware distribution factors. |
+| Peak tariff calculations | TypeScript + decimal.js | Ellevio's "3 highest peaks" algorithm is straightforward sorting/averaging. |
+| Grid operator method storage | Prisma + Natagare model | Extend existing model with calculation method enum. |
+| Peak input UI (12 months x peaks) | Zustand + React | Same pattern as consumption profile editor. |
+| PostHog dashboard data | posthog-js (existing) + posthog-node (new) | Client SDK for pageviews, server SDK for calculation events. |
+
+### Database Schema Extensions
+
+```prisma
+// New enums
+enum HeatingType {
+  BERGVARME         // Ground source heat pump - ~9,000 kWh/year heating
+  FJARRVARME        // District heating - ~5,000 kWh/year electric
+  DIREKTVERKANDE    // Direct electric - ~20,000-25,000 kWh/year
+  LUFT_LUFT_VP      // Air-to-air heat pump - ~7,000 kWh/year
+  LUFT_VATTEN_VP    // Air-to-water heat pump - ~8,000 kWh/year
+}
+
+enum PeakCalculationMethod {
+  ELLEVIO_3_PEAKS    // Average of 3 highest hourly peaks from different days
+  VATTENFALL_5_PEAKS // Average of 5 highest peaks during winter
+  SIMPLE_MAX         // Single highest peak (legacy/fallback)
+}
+
+// Natagare extensions
+model Natagare {
+  // ... existing fields ...
+  peakMethod          PeakCalculationMethod @default(ELLEVIO_3_PEAKS)
+  nightPeakMultiplier Decimal @default(0.5) @db.Decimal(3, 2)
+  peakNightStartHour  Int @default(22)
+  peakNightEndHour    Int @default(6)
+}
+
+// Calculation extensions
+model Calculation {
+  // ... existing fields ...
+  heatingType  HeatingType?
+  monthlyPeaks Json?  // Manual peak input per month
+}
+```
+
+### Swedish Consumption Profile Data
+
+Based on Energimyndigheten research, heating-type-specific seasonal factors:
+
+| Heating Type | Annual kWh Range | Winter Factor | Summer Factor |
+|--------------|------------------|---------------|---------------|
+| Bergvarme (ground source HP) | 7,000-9,000 | 1.4 | 0.5 |
+| Fjarrvarme (district heating) | 4,000-6,000 | 1.0 | 1.0 (flat) |
+| Direktverkande (direct electric) | 20,000-25,000 | 1.6 | 0.3 |
+| Luft-luft VP (air-to-air HP) | 6,000-8,000 | 1.3 | 0.6 |
+| Luft-vatten VP (air-to-water HP) | 7,000-9,000 | 1.35 | 0.55 |
+
+**Implementation:** Extend existing `SYSTEM_PRESETS` in `presets.ts` with these factors.
+
+### Grid Operator Peak Methods
+
+**Ellevio AB (default for SE3/Stockholm):**
+- Uses 3 highest hourly peaks from different days
+- Night (22:00-06:00): only half the peak counts
+- Rate: 81.25 SEK/kW (2026)
+
+**Vattenfall (alternative):**
+- Uses 5 highest peaks during winter season
+- Different night discount rules
+
+**Implementation:** Enum-based method selection on Natagare model.
+
+### Environment Variables
+
+```bash
+# Existing (already configured)
+NEXT_PUBLIC_POSTHOG_KEY=phc_xxx
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+
+# New for server-side capture
+POSTHOG_API_KEY=phc_xxx  # Same key, server-side pattern
+POSTHOG_HOST=https://eu.i.posthog.com
+```
+
+### Avoid Adding for v1.2
+
+| Library | Why NOT |
+|---------|---------|
+| External Swedish energy APIs | No reliable free API; use hardcoded research-based factors |
+| Time series libraries | Overkill for simple peak sorting/averaging |
+| Additional chart libraries | Recharts handles peak visualization |
+| PostHog dashboard creation tools | Dashboards created via UI, not programmatically |
+
+### Confidence Assessment (v1.2 Additions)
+
+| Decision | Confidence | Rationale |
+|----------|------------|-----------|
+| posthog-node for server capture | HIGH | Official PostHog recommendation; v5.24.7 stable |
+| Hardcoded heating factors | HIGH | No Swedish API; industry standard approach |
+| Extend Natagare vs new model | HIGH | Peak methods are per-operator; natural extension |
+| JSON for monthly peaks | HIGH | Same pattern as consumptionProfile |
+
+### v1.2 Sources
+
+- [Ellevio Effektavgift](https://www.ellevio.se/abonnemang/ny-prismodell-baserad-pa-effekt/) - Official calculation methodology
+- [PostHog Node.js SDK](https://posthog.com/docs/libraries/node) - Server-side capture
+- [Swedish Energy Agency](https://www.energimyndigheten.se/en/facts-and-figures/statistics/) - Consumption by heating type
+- [Residensportalen Heating Systems](https://www.residensportalen.com/blog/tenants/heatingsystemssweden/) - kWh ranges by heating type
 
 ---
 
-## Recommended Stack
+## Original v1.0 Stack (Reference)
+
+The following sections document the original v1.0 technology stack for reference.
 
 ### Core Framework
 

@@ -1,798 +1,474 @@
-# Architecture Patterns: Kalkyla.se Battery ROI Calculator
+# Architecture Integration: v1.2 Realistic Consumption Profiles & Peak Tariffs
 
-**Domain:** Multi-tenant SaaS calculation platform (Swedish battery ROI)
-**Researched:** 2026-01-19
-**Confidence:** HIGH (verified against Next.js official docs, Supabase patterns, and established multi-tenant SaaS architectures)
-
----
-
-## Recommended Architecture
-
-```
-+-----------------------------------------------------------------------------------+
-|                                    CLIENTS                                        |
-+-----------------------------------------------------------------------------------+
-|  Closer (Auth)              Prospect (No Auth)           Admin (Auth)            |
-|  kalkyla.se/dashboard       kalkyla.se/{org}/{code}      kalkyla.se/admin        |
-+-----------------------------------------------------------------------------------+
-                                       |
-                                       v
-+-----------------------------------------------------------------------------------+
-|                              NEXT.JS APP ROUTER                                   |
-+-----------------------------------------------------------------------------------+
-|  Middleware Layer                                                                 |
-|  - Session refresh (Supabase SSR)                                                 |
-|  - Tenant resolution (org-slug from URL)                                          |
-|  - Public route bypass (/{org}/{shareCode} patterns)                              |
-|  - RBAC enforcement (role checks for protected routes)                            |
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|  Route Groups                                                                     |
-|  +----------------+  +------------------+  +------------------+                   |
-|  | (auth)         |  | (public)         |  | (admin)          |                   |
-|  | /login         |  | /[org]/[code]    |  | /admin/*         |                   |
-|  | /register      |  | (no auth req)    |  | Super Admin only |                   |
-|  | /forgot-pass   |  |                  |  |                  |                   |
-|  +----------------+  +------------------+  +------------------+                   |
-|                                                                                   |
-|  +---------------------------------------------------------------------+          |
-|  | (dashboard) - Protected, org-scoped                                 |          |
-|  | /dashboard                 /calculations            /settings       |          |
-|  | /calculations/new          /calculations/[id]       /users          |          |
-|  | /batteries                 /natägare                                |          |
-|  +---------------------------------------------------------------------+          |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
-|                              SERVER COMPONENTS                                    |
-|  - Data fetching with tenant-scoped Prisma client                                 |
-|  - Server Actions for mutations                                                   |
-|  - Streaming with Suspense for loading states                                     |
-+-----------------------------------------------------------------------------------+
-                                       |
-                                       v
-+-----------------------------------------------------------------------------------+
-|                              DATA ACCESS LAYER                                    |
-+-----------------------------------------------------------------------------------+
-|  Tenant-Scoped Prisma Client                                                      |
-|  - Extension injects orgId filter on ALL queries                                  |
-|  - Prevents cross-tenant data access at ORM level                                 |
-|  - createTenantClient(orgId) factory function                                     |
-+-----------------------------------------------------------------------------------+
-                                       |
-                                       v
-+-----------------------------------------------------------------------------------+
-|                              DATABASE LAYER                                       |
-+-----------------------------------------------------------------------------------+
-|  PostgreSQL (Supabase)                                                            |
-|  - Row Level Security (RLS) as defense-in-depth                                   |
-|  - Connection pooling via Supabase/PgBouncer                                      |
-|  - Indexes on all orgId columns                                                   |
-+-----------------------------------------------------------------------------------+
-                                       |
-                                       v
-+-----------------------------------------------------------------------------------+
-|                              EXTERNAL SERVICES                                    |
-+-----------------------------------------------------------------------------------+
-|  +-------------+  +-------------+  +-------------+  +-------------+               |
-|  | Supabase    |  | PostHog     |  | N8N         |  | Nord Pool   |               |
-|  | Auth        |  | Analytics   |  | Webhooks    |  | Spot Prices |               |
-|  | (SSR flow)  |  | (client)    |  | (server)    |  | (cached)    |               |
-|  +-------------+  +-------------+  +-------------+  +-------------+               |
-+-----------------------------------------------------------------------------------+
-```
+**Project:** Kalkyla.se v1.2
+**Focus:** Integrating consumption profiles, peak tariff calculations, and PostHog dashboards with existing architecture
+**Researched:** 2026-02-01
+**Confidence:** HIGH (verified against existing codebase)
 
 ---
 
-## Component Boundaries
+## Executive Summary
 
-### 1. Presentation Layer (Next.js App Router)
+v1.2 adds four capabilities to the existing battery ROI calculator:
 
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| Middleware | Session refresh, tenant resolution, route guards | Supabase Auth, Route handlers |
-| Route Groups | URL organization, layout composition | Layout components, Server Components |
-| Server Components | Data fetching, initial render | Data Access Layer, Suspense boundaries |
-| Client Components | Interactivity, live calculations | Local state, Server Actions |
-| Server Actions | Mutations, form handling | Data Access Layer, External Services |
+1. **Consumption Profile Generation** - Annual kWh + heating type produces realistic monthly distribution
+2. **Peak Tariff Configuration** - Natagare-specific peak calculation methods (Super Admin configurable)
+3. **PostHog Dashboard Integration** - Reconfigure analytics to populate dashboards with actionable data
+4. **Centralized Natagare Management** - Super Admin manages natagare across all orgs
 
-**Boundaries:**
-- Server Components NEVER import client-side libraries
-- Client Components marked with `"use client"` directive
-- Data fetching happens in Server Components, passed as props to Client Components
-- Server Actions handle all mutations (no direct API routes for CRUD)
-
-### 2. Data Access Layer
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| TenantPrismaClient | Org-scoped database operations | PostgreSQL |
-| CalculationEngine | ROI computation logic | TenantPrismaClient, PriceCache |
-| PriceCache | Nord Pool price storage/retrieval | Redis/KV, Nord Pool API |
-| ShareTokenService | Generate/validate share tokens | TenantPrismaClient |
-
-**Boundaries:**
-- ALL database access goes through TenantPrismaClient
-- Business logic (calculation engine) is pure functions, testable in isolation
-- External API calls are wrapped in service classes with retry logic
-- Cache layer sits between application and external APIs
-
-### 3. Authentication Layer
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| Supabase Auth | Session management, JWT tokens | Supabase, Middleware |
-| RBAC Service | Permission checks | Session, Route handlers |
-| Tenant Context | Current org resolution | URL params, Session |
-
-**Boundaries:**
-- Auth state flows: Cookie -> Middleware -> Server Components
-- Role checks happen at multiple layers (defense in depth)
-- Tenant ID stored in JWT claims for efficient access
-
-### 4. External Integrations
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| N8N Webhook Handler | Receive/send automation triggers | API Routes, N8N |
-| PostHog Provider | Analytics tracking | Client Components |
-| Nord Pool Fetcher | Price data synchronization | Cron job, PriceCache |
-
-**Boundaries:**
-- Webhooks authenticated via HMAC signatures
-- External API calls wrapped with circuit breakers
-- Analytics runs client-side only (no SSR)
+These features integrate with **existing architecture** without major structural changes. The existing calculation engine, Zustand store, and Server Action patterns accommodate all v1.2 requirements.
 
 ---
 
-## Data Flow
+## Integration Points with Existing Architecture
 
-### Flow 1: Closer Creates Calculation
+### 1. Consumption Profile Generation
 
-```
-1. Closer navigates to /calculations/new
-   |
-2. Middleware: Verify session, extract orgId from JWT
-   |
-3. Server Component: Fetch org's battery catalog, natägare list
-   |-- TenantPrismaClient.battery.findMany() [auto-filtered by orgId]
-   |-- TenantPrismaClient.natägare.findMany()
-   |
-4. Client Component: Render calculation form
-   |
-5. User fills form, clicks "Calculate"
-   |
-6. Client: Compute ROI locally (immediate feedback)
-   |-- CalculationEngine.computeROI(inputs)
-   |
-7. User clicks "Save"
-   |
-8. Server Action: createCalculation(formData)
-   |-- Validate inputs
-   |-- TenantPrismaClient.calculation.create({ orgId, ...data })
-   |-- Generate shareCode: crypto.randomUUID()
-   |
-9. Server Action returns: { id, shareCode, shareUrl }
-   |
-10. Redirect to /calculations/[id]
-```
+**Current State:**
+- `ConsumptionProfile` type: `{ data: number[][] }` - 12 months x 24 hours matrix
+- `SYSTEM_PRESETS` in `src/lib/calculations/presets.ts`: 4 hardcoded presets (electric-heating, heat-pump, ev-charging, solar-prosumer)
+- `applyPreset()` function: Takes preset + annualKwh, generates 12x24 matrix
+- Wizard store has `consumptionProfile` and `annualConsumptionKwh` fields
 
-### Flow 2: Prospect Views Shared Calculation
+**Integration Approach:**
 
 ```
-1. Prospect opens kalkyla.se/acme-solar/abc123def
-   |
-2. Middleware: Detect public route pattern, SKIP auth check
-   |
-3. Server Component: Fetch calculation by orgSlug + shareCode
-   |-- prisma.calculation.findFirst({
-   |     where: { org: { slug: 'acme-solar' }, shareCode: 'abc123def' }
-   |   })
-   |
-4. Validate: Check expiresAt, check isPublic flag
-   |
-5. Server Component: Fetch related data
-   |-- Org branding (logo, colors)
-   |-- Battery config
-   |-- Cached electricity prices for calculation date range
-   |
-6. Log access: Insert into calculation_views table
-   |
-7. Render public view with org branding
-   |
-8. Client Component: Interactive consumption adjustment (optional)
-   |-- Local recalculation, no server round-trip
-   |-- "Request updated quote" button -> mailto: link
+User Flow:
+Step 1 (Customer Info) → annualKwh + heatingType selection
+                              ↓
+                    generateConsumptionProfile(annualKwh, heatingType)
+                              ↓
+Step 2 (Consumption) → Pre-populated 12x24 matrix
+                              ↓
+                    User can fine-tune or accept
 ```
 
-### Flow 3: Real-Time Calculation Updates
+**Location:** Extend existing `src/lib/calculations/presets.ts`
 
+**New Components:**
+- `HeatingType` enum: `DIRECT_ELECTRIC | HEAT_PUMP | DISTRICT | GAS | OIL | PELLETS | NONE`
+- `getProfileForHeatingType(heatingType)` - Maps heating type to appropriate preset
+- `generateRealisticProfile(annualKwh, heatingType)` - Wrapper that applies seasonal weighting
+
+**Modification to Existing:**
+- Add `heatingType` field to `CalculationWizardStore` (optional, nullable)
+- Add `heatingType` field to `Calculation` model in schema (optional)
+- Update `CustomerInfoStep` to include heating type dropdown
+- On annualKwh or heatingType change, auto-generate profile suggestion
+
+**Data Flow:**
 ```
-1. User adjusts consumption slider
-   |
-2. Client Component: Debounce input (200ms)
-   |
-3. Local state update triggers recalculation
-   |
-4. useDeferredValue for non-urgent UI updates
-   |
-5. CalculationEngine.computeROI(newInputs)
-   |-- Pure function, runs in main thread
-   |-- Uses Decimal.js for precision
-   |
-6. Update results display
-   |
-7. No server round-trip (all client-side)
+CustomerInfoStep component
+    ↓ onChange
+Zustand store: updateCustomerInfo({ heatingType, annualConsumptionKwh })
+    ↓ useEffect
+Auto-generate: applyPreset(getProfileForHeatingType(heatingType), annualKwh)
+    ↓
+Zustand store: setConsumptionProfile(generatedProfile)
+    ↓
+ConsumptionStep: Shows pre-populated grid, user can edit
 ```
 
-### Flow 4: Margin Alert Webhook (N8N)
-
-```
-1. Closer saves calculation with low margin
-   |
-2. Server Action: createCalculation()
-   |
-3. After save: Check margin threshold
-   |-- if (calculation.marginPercent < org.marginAlertThreshold)
-   |
-4. Call N8N webhook (background)
-   |-- POST https://n8n.example.com/webhook/margin-alert
-   |-- Headers: { 'X-Signature': hmacSignature }
-   |-- Body: { orgId, calculationId, margin, closerEmail }
-   |
-5. N8N workflow:
-   |-- Verify HMAC signature
-   |-- Send Slack notification to org admin
-   |-- Email alert to closer's manager
-```
+**Why This Approach:**
+- Reuses existing `applyPreset()` logic (tested, works)
+- Preserves manual editing capability
+- No breaking changes to calculation engine
+- Profile generation is pure function, testable
 
 ---
 
-## Multi-Tenancy Strategy
+### 2. Peak Tariff Configuration
 
-### Approach: Shared Database with Row-Level Filtering
+**Current State:**
+- `Natagare` model: `dayRateSekKw`, `nightRateSekKw`, `dayStartHour`, `dayEndHour`
+- Natagare are tenant-scoped (each org manages their own)
+- Peak shaving uses slider: `peakShavingPercent` in store
+- `calcEffectTariffSavings()` in engine: `maxDischargeKw × tariffRate × 12`
 
-**Why this approach:**
-- Cost-effective for initial scale (< 1000 orgs)
-- Simpler operations than schema-per-tenant
-- Supabase RLS provides database-level enforcement
-- Prisma Client Extensions provide ORM-level enforcement
+**v1.2 Requirement:**
+- Different natagare have different peak calculation methods
+- Some use "highest 3 hours" averaging
+- Some use "single peak hour"
+- Super Admin configures per-natagare
 
-### Implementation Layers
+**Integration Approach:**
 
-```
-Layer 1: Prisma Client Extension (Primary)
-+-----------------------------------------------+
-| const tenantClient = prisma.$extends({        |
-|   query: {                                    |
-|     $allModels: {                             |
-|       async $allOperations({ args, query }) { |
-|         args.where = { ...args.where, orgId };|
-|         return query(args);                   |
-|       }                                       |
-|     }                                         |
-|   }                                           |
-| });                                           |
-+-----------------------------------------------+
-
-Layer 2: Row-Level Security (Defense-in-Depth)
-+-----------------------------------------------+
-| CREATE POLICY tenant_isolation ON calculations|
-|   USING (org_id = current_setting('app.org')::uuid);
-+-----------------------------------------------+
-
-Layer 3: API Route Validation (Belt-and-Suspenders)
-+-----------------------------------------------+
-| // In every API route/Server Action           |
-| const session = await auth();                 |
-| if (resource.orgId !== session.user.orgId) { |
-|   throw new ForbiddenError();                 |
-| }                                             |
-+-----------------------------------------------+
-```
-
-### Tenant Resolution Flow
-
-```
-Request arrives
-    |
-    v
-Middleware extracts tenant context:
-    |
-    +-- Authenticated routes: orgId from JWT claims
-    |
-    +-- Public routes: orgSlug from URL, lookup orgId
-    |
-    v
-Create tenant-scoped Prisma client
-    |
-    v
-All queries automatically filtered
-```
-
-### Data Model Tenant Scoping
-
+**Schema Extension:**
 ```prisma
-// ALWAYS scoped to org
-model Calculation {
-  id        String   @id @default(cuid())
-  orgId     String   // Foreign key to Organization
-  org       Organization @relation(fields: [orgId], references: [id])
-  // ... other fields
+model Natagare {
+  // Existing fields...
 
-  @@index([orgId])  // Critical for performance
-  @@index([orgId, createdAt])
+  // New: Peak calculation method (Super Admin configurable)
+  peakCalculationMethod  PeakMethod @default(SINGLE_PEAK)
+  peakAveragingHours     Int?       // For AVERAGED_PEAK: how many hours to average
+  peakTimePeriod         String?    // e.g., "monthly", "quarterly" for when peak is measured
 }
 
-// Org-scoped reference data
-model BatteryConfig {
-  id        String   @id @default(cuid())
-  orgId     String
-  org       Organization @relation(fields: [orgId], references: [id])
-  // ...
-
-  @@index([orgId])
+enum PeakMethod {
+  SINGLE_PEAK      // Highest single hour
+  AVERAGED_PEAK    // Average of N highest hours
+  ROLLING_PEAK     // Rolling average over time period
 }
+```
 
-// Global reference data (not scoped)
-model Natägare {
-  id        String   @id @default(cuid())
-  name      String
-  // Shared across all orgs
-}
+**Location:** Extend `src/lib/calculations/formulas.ts`
 
-model ElectricityPrice {
-  id        String   @id @default(cuid())
-  elområde  String   // SE1, SE2, SE3, SE4
-  timestamp DateTime
-  priceOre  Int      // Store as integer öre
-  // Shared across all orgs
+**New Functions:**
+```typescript
+// Calculate peak based on natagare method
+function calcPeakForTariff(
+  consumptionProfile: number[][],
+  natagareConfig: {
+    method: PeakMethod,
+    averagingHours?: number,
+    timePeriod?: string
+  }
+): number {
+  // Returns the peak value to use for tariff calculation
 }
+```
+
+**Modification to Existing:**
+- Extend `Natagare` model with peak calculation fields
+- Update `calcEffectTariffSavings()` to accept peak method
+- Add Super Admin UI for natagare peak config (new page in admin)
+- Update calculation engine to use consumption profile for peak detection
+
+**Data Flow:**
+```
+Calculation Engine
+    ↓
+Get natagare config (includes peakMethod)
+    ↓
+calcPeakForTariff(consumptionProfile, natagareConfig)
+    ↓
+Returns: estimated monthly peaks (array of 12 values)
+    ↓
+calcEffectTariffSavings(peaks, tariffRate)
+    ↓
+Annual effekttariff savings
+```
+
+**Why This Approach:**
+- Schema change is additive (existing natagare keep working with default)
+- Calculation logic isolated in pure function
+- Super Admin config separate from org-level natagare management
+
+---
+
+### 3. PostHog Dashboard Integration
+
+**Current State:**
+- PostHog client in `src/lib/analytics/posthog.ts`
+- Events tracked in `src/lib/analytics/events.ts`:
+  - `calculation_viewed`
+  - `simulator_adjusted`
+  - `scroll_depth`
+  - `time_on_page`
+- No dashboard-specific data population
+
+**v1.2 Requirement:**
+- Populate PostHog dashboards with structured data
+- Track conversion funnel (view → adjust → request quote)
+- Group analytics by org for reporting
+
+**Integration Approach:**
+
+**Event Enhancement:**
+```typescript
+// Extend existing events with dashboard-friendly properties
+export function trackCalculationViewed(
+  calculationId: string,
+  orgSlug: string,
+  // NEW: Dashboard properties
+  properties: {
+    batteryBrand: string,
+    batteryCapacityKwh: number,
+    annualConsumptionKwh: number,
+    elomrade: string,
+    estimatedRoi: number,
+    paybackYears: number,
+    // Group by org for dashboard filtering
+    $groups: { company: orgSlug }
+  }
+) {
+  posthog.capture('calculation_viewed', { calculationId, orgSlug, ...properties })
+  posthog.group('company', orgSlug, { name: orgSlug }) // Group identification
+}
+```
+
+**New Events for Funnel:**
+```typescript
+// Conversion funnel events
+trackShareLinkGenerated(calcId, orgSlug, { method: 'copy' | 'email' })
+trackQuoteRequested(calcId, orgSlug, { via: 'email_button' | 'phone_button' })
+trackCalculationFinalized(calcId, orgSlug, { totalSavings, paybackYears })
+```
+
+**Location:** Extend `src/lib/analytics/events.ts`
+
+**Dashboard Configuration (PostHog UI):**
+1. Create "Conversion Funnel" insight
+2. Create "Org Comparison" dashboard (grouped by company)
+3. Create "Battery Performance" dashboard (by brand)
+
+**No New Components Needed** - This is event instrumentation and PostHog UI configuration.
+
+**Data Flow:**
+```
+User action (view, adjust, finalize)
+    ↓
+trackEvent() with structured properties
+    ↓
+PostHog ingestion
+    ↓
+Dashboard queries (configured in PostHog UI)
 ```
 
 ---
 
-## Role-Based Access Control
+### 4. Centralized Natagare Management
 
-### Role Hierarchy
+**Current State:**
+- Natagare are tenant-scoped: each org has their own
+- `createNatagare()`, `updateNatagare()` in `src/actions/natagare.ts`
+- `seedDefaultNatagare()` creates defaults on org creation
+- Permissions: ORG_ADMIN can manage natagare for their org
 
-```
-Super Admin (Platform Level)
-    |-- Can access ALL organizations
-    |-- Can create/delete organizations
-    |-- Can manage platform settings
-    |
-    v
-Org Admin (Organization Level)
-    |-- Scoped to ONE organization
-    |-- Can manage users within org
-    |-- Can configure org settings, branding
-    |-- Can view all calculations in org
-    |
-    v
-Closer (Team Member Level)
-    |-- Scoped to ONE organization
-    |-- Can create/view/edit own calculations
-    |-- Cannot see other closers' calculations (optional)
-    |-- Cannot manage users or settings
-    |
-    v
-Prospect (Unauthenticated)
-    |-- View-only access via share links
-    |-- No login required
-    |-- Access scoped to single calculation
-```
+**v1.2 Requirement:**
+- Super Admin manages a "master list" of natagare
+- Orgs inherit from master list
+- Super Admin can update natagare details (rates, peak methods)
+- Changes propagate to all orgs using that natagare
 
-### Permission Matrix
+**Integration Approach - Option A: Global Natagare (Recommended)**
 
-| Action | Super Admin | Org Admin | Closer | Prospect |
-|--------|-------------|-----------|--------|----------|
-| View any org | Yes | No | No | No |
-| Create org | Yes | No | No | No |
-| Delete org | Yes | No | No | No |
-| Manage org users | Yes | Yes | No | No |
-| View org settings | Yes | Yes | No | No |
-| Edit org branding | Yes | Yes | No | No |
-| Create calculation | Yes | Yes | Yes | No |
-| View own calculations | Yes | Yes | Yes | N/A |
-| View all org calculations | Yes | Yes | Config | No |
-| Share calculation link | Yes | Yes | Yes | No |
-| View shared calculation | Yes | Yes | Yes | Yes |
-| Edit calculation | Yes | Yes | Owner | No |
-| Delete calculation | Yes | Yes | Owner | No |
-| Manage battery catalog | Yes | Yes | No | No |
+**Schema Change:**
+```prisma
+model Natagare {
+  id        String   @id @default(cuid())
+  name      String   @unique  // Globally unique (Ellevio, Vattenfall, etc.)
 
-### Implementation Pattern
+  // Rates (Super Admin managed)
+  dayRateSekKw        Decimal @db.Decimal(10, 4)
+  nightRateSekKw      Decimal @db.Decimal(10, 4)
+  dayStartHour        Int @default(6)
+  dayEndHour          Int @default(22)
 
-```typescript
-// lib/permissions.ts
-export const PERMISSIONS = {
-  ORG_CREATE: 'org:create',
-  ORG_DELETE: 'org:delete',
-  ORG_MANAGE_USERS: 'org:manage_users',
-  ORG_VIEW_SETTINGS: 'org:view_settings',
-  ORG_EDIT_BRANDING: 'org:edit_branding',
-  CALC_CREATE: 'calc:create',
-  CALC_VIEW_ALL: 'calc:view_all',
-  CALC_EDIT_ANY: 'calc:edit_any',
-  BATTERY_MANAGE: 'battery:manage',
-} as const;
+  // Peak calculation (v1.2)
+  peakCalculationMethod PeakMethod @default(SINGLE_PEAK)
+  peakAveragingHours    Int?
 
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  SUPER_ADMIN: Object.values(PERMISSIONS),
-  ORG_ADMIN: [
-    PERMISSIONS.ORG_MANAGE_USERS,
-    PERMISSIONS.ORG_VIEW_SETTINGS,
-    PERMISSIONS.ORG_EDIT_BRANDING,
-    PERMISSIONS.CALC_CREATE,
-    PERMISSIONS.CALC_VIEW_ALL,
-    PERMISSIONS.CALC_EDIT_ANY,
-    PERMISSIONS.BATTERY_MANAGE,
-  ],
-  CLOSER: [
-    PERMISSIONS.CALC_CREATE,
-  ],
-};
+  // Soft delete
+  isActive  Boolean @default(true)
 
-export function hasPermission(role: Role, permission: Permission): boolean {
-  return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
+  // NO orgId - natagare are global
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  calculations Calculation[]
 }
+```
+
+**Migration Path:**
+1. Create new `GlobalNatagare` table (or modify existing)
+2. Migrate existing org-scoped natagare to global
+3. Update calculations to reference global natagare
+4. Remove orgId from natagare model
+5. Update permissions: Only SUPER_ADMIN can manage natagare
+
+**New Components:**
+- Admin page: `/admin/natagare` - Super Admin CRUD
+- Remove natagare management from org dashboard (or make read-only)
+
+**Why This Approach:**
+- Natagare are real-world entities (Ellevio is Ellevio everywhere)
+- Rates should be consistent across orgs
+- Super Admin is authoritative source
+- Simpler than org-level overrides
+
+**Alternative - Option B: Master + Override**
+
+If orgs need rate customization:
+```prisma
+model GlobalNatagare {
+  id    String @id
+  name  String @unique
+  // ... base rates
+}
+
+model OrgNatagareOverride {
+  id              String @id
+  orgId           String
+  globalNatagareId String
+  dayRateOverride Decimal?  // Null = use global
+  // ... other overrideable fields
+}
+```
+
+**Recommendation:** Start with Option A (global natagare). Add override capability later if orgs actually need different rates.
+
+---
+
+## New Components Needed
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `HeatingTypeSelect` | `src/components/calculations/wizard/heating-type-select.tsx` | Dropdown for heating type in Step 1 |
+| `generateProfileForHeating()` | `src/lib/calculations/consumption-profiles.ts` | Maps heating type + kWh to profile |
+| `PeakMethodConfig` | `src/components/admin/natagare/peak-method-config.tsx` | Super Admin UI for peak config |
+| `calcPeakFromProfile()` | `src/lib/calculations/peak-detection.ts` | Calculate peak from consumption profile |
+| `AdminNatagarePage` | `src/app/(admin)/admin/natagare/page.tsx` | Super Admin natagare management |
+
+---
+
+## Modified Components
+
+| Component | Modification |
+|-----------|-------------|
+| `prisma/schema.prisma` | Add `heatingType` to Calculation, extend Natagare with peak fields, optionally remove orgId |
+| `src/stores/calculation-wizard-store.ts` | Add `heatingType` field and setter |
+| `src/components/calculations/wizard/steps/customer-info-step.tsx` | Add heating type dropdown |
+| `src/lib/calculations/engine.ts` | Use consumption profile for peak detection |
+| `src/lib/calculations/formulas.ts` | Add `calcPeakFromProfile()` function |
+| `src/actions/natagare.ts` | Update permissions (Super Admin only for create/update) |
+| `src/lib/analytics/events.ts` | Enhance events with dashboard properties |
+| `src/lib/auth/permissions.ts` | Add `NATAGARE_MANAGE_GLOBAL` permission |
+
+---
+
+## Data Flow Changes
+
+### Current: Peak Shaving
+
+```
+User selects peakShavingPercent slider
+    ↓
+Engine uses hardcoded currentPeakKw (8 kW default)
+    ↓
+calcEffectTariffSavings(maxDischargeKw × slider%, tariffRate)
+```
+
+### v1.2: Peak Shaving with Profile
+
+```
+User enters annualKwh + heatingType
+    ↓
+generateProfileForHeating() → 12x24 matrix
+    ↓
+calcPeakFromProfile(profile, natagare.peakMethod)
+    ↓
+Returns monthly peak estimates (array[12])
+    ↓
+User can adjust peakShavingPercent slider
+    ↓
+calcEffectTariffSavings(peaks, slider%, natagare)
+    ↓
+More accurate effekttariff savings
 ```
 
 ---
 
 ## Suggested Build Order
 
-Based on dependencies between components, build in this order:
+Based on dependencies:
 
-### Phase 1: Foundation (Weeks 1-2)
+### Phase 1: Consumption Profile Generation (3-4 plans)
 
-**Must build first - everything depends on this:**
+**Why first:** Foundation for peak detection. Standalone feature, no blocking dependencies.
 
-```
-1. Database Schema + Prisma Setup
-   |-- Organization, User, Role tables
-   |-- RLS policies enabled
-   |-- Connection pooling configured
-   |
-2. Supabase Auth Integration
-   |-- Cookie-based SSR auth
-   |-- Middleware for session refresh
-   |-- JWT claims with orgId, role
-   |
-3. Tenant-Scoped Prisma Client
-   |-- Extension for automatic filtering
-   |-- createTenantClient factory
-   |
-4. RBAC Foundation
-   |-- Permission definitions
-   |-- Role checking utilities
-   |-- Middleware integration
-   |
-5. Basic App Shell
-   |-- Route groups structure
-   |-- Layout components
-   |-- Protected route wrapper
-```
+1. **01-01: Schema + Types**
+   - Add `heatingType` to Calculation model
+   - Add `HeatingType` enum
+   - Add `heatingType` to wizard store
 
-**Why this order:**
-- Auth required before any protected routes
-- Tenant scoping required before any data operations
-- RBAC required before any authorization logic
-- Shell provides structure for all subsequent features
+2. **01-02: Profile Generation Logic**
+   - Create `src/lib/calculations/consumption-profiles.ts`
+   - `generateProfileForHeating(annualKwh, heatingType)`
+   - Seasonal weighting by heating type
 
-### Phase 2: Core Calculator (Weeks 3-4)
+3. **01-03: UI Integration**
+   - `HeatingTypeSelect` component
+   - Update CustomerInfoStep
+   - Auto-generate profile on heating type change
 
-**Depends on: Phase 1 complete**
+4. **01-04: Testing + Polish**
+   - Verify profile generation accuracy
+   - Test manual editing still works
+   - Test persistence to database
 
-```
-1. Reference Data Setup
-   |-- Natägare seeding
-   |-- Electricity price caching infrastructure
-   |
-2. Battery Catalog CRUD
-   |-- Server Actions for management
-   |-- Admin UI
-   |
-3. Calculation Engine
-   |-- ROI computation (Decimal.js)
-   |-- Spotpris savings
-   |-- Effekttariff savings
-   |-- Grön Teknik deductions
-   |
-4. Calculation Builder UI
-   |-- Form components
-   |-- Real-time updates (debounced)
-   |-- Results display
-   |
-5. Calculation CRUD
-   |-- Create, Read, Update, Delete
-   |-- List view with filtering
-```
+### Phase 2: Peak Tariff Configuration (3 plans)
 
-**Why this order:**
-- Reference data needed before calculations
-- Engine logic needed before UI
-- CRUD needed for persistence
+**Why second:** Depends on consumption profile for peak detection. Requires schema migration.
 
-### Phase 3: Sharing (Week 5)
+1. **02-01: Schema Extension**
+   - Add peak calculation fields to Natagare
+   - Create `PeakMethod` enum
+   - Migration script
 
-**Depends on: Phase 2 complete (calculations exist)**
+2. **02-02: Peak Detection Logic**
+   - `calcPeakFromProfile()` function
+   - Support for SINGLE_PEAK, AVERAGED_PEAK, ROLLING_PEAK
+   - Update engine to use new peak detection
 
-```
-1. Share Token Generation
-   |-- Cryptographically secure tokens
-   |-- Expiration handling
-   |
-2. Public View Route
-   |-- No-auth access pattern
-   |-- Org branding application
-   |
-3. Interactive Consumption Adjustment
-   |-- Client-side recalculation
-   |-- No server round-trips
-   |
-4. Access Logging
-   |-- View tracking
-   |-- Analytics hooks
-```
+3. **02-03: Super Admin UI**
+   - Peak method configuration form
+   - Integration with existing natagare management
 
-### Phase 4: Integrations (Week 6)
+### Phase 3: Centralized Natagare Management (2 plans)
 
-**Depends on: Phase 3 complete**
+**Why third:** Affects existing natagare. Should be done carefully.
 
-```
-1. PostHog Analytics
-   |-- Provider setup
-   |-- Event tracking
-   |-- Feature flags (optional)
-   |
-2. N8N Webhook Integration
-   |-- Margin alerts
-   |-- HMAC authentication
-   |
-3. Nord Pool Price Sync
-   |-- Cron job setup
-   |-- Price caching
-   |
-4. PDF Export (Optional)
-   |-- Template design
-   |-- Generation service
-```
+1. **03-01: Schema Migration**
+   - Remove orgId from Natagare (or create GlobalNatagare)
+   - Update permissions
+   - Data migration script
+
+2. **03-02: Admin UI**
+   - `/admin/natagare` page
+   - CRUD for global natagare
+   - Remove/disable org-level natagare editing
+
+### Phase 4: PostHog Dashboard Integration (2 plans)
+
+**Why last:** Non-blocking, can be done in parallel with testing.
+
+1. **04-01: Event Enhancement**
+   - Extend events with dashboard properties
+   - Add group identification
+   - Add conversion funnel events
+
+2. **04-02: Dashboard Configuration**
+   - Configure PostHog dashboards (UI work)
+   - Document dashboard access for stakeholders
 
 ---
 
-## Technology Decisions
+## Risk Assessment
 
-### Why Supabase over NextAuth
-
-| Criterion | Supabase Auth | NextAuth |
-|-----------|--------------|----------|
-| SSR support | Native, cookie-based | Requires configuration |
-| RLS integration | Built-in with `auth.uid()` | Separate setup |
-| Serverless pooling | Included | N/A |
-| Credentials provider | Built-in | Supported but discouraged |
-| Realtime (future) | Built-in | N/A |
-| Swedish market | No restrictions | No restrictions |
-
-**Decision:** Use Supabase Auth for tight RLS integration and simpler serverless setup.
-
-### Why Server Actions over API Routes
-
-| Criterion | Server Actions | API Routes |
-|-----------|---------------|------------|
-| Type safety | End-to-end with TypeScript | Manual typing |
-| Progressive enhancement | Works without JS | Requires JS |
-| Caching integration | Built-in revalidation | Manual |
-| Colocation | With components | Separate files |
-| Form handling | Native | Manual |
-
-**Decision:** Use Server Actions for all mutations; API Routes only for webhooks and external integrations.
-
-### Why Client-Side Calculation
-
-| Criterion | Client-Side | Server-Side |
-|-----------|-------------|-------------|
-| Latency | Instant | 100-500ms per request |
-| Server cost | None | Scales with usage |
-| Offline capable | Yes | No |
-| Complexity | Pure functions | API plumbing |
-
-**Decision:** Perform ROI calculations client-side for instant feedback. Server only validates and persists.
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Peak calculation accuracy | Medium | High | Validate against real natagare contracts |
+| Migration breaks existing natagare | Medium | High | Thorough migration testing, rollback plan |
+| Profile generation not useful | Low | Medium | Test with real user feedback |
+| PostHog rate limits | Low | Low | Use sampling if needed |
 
 ---
 
-## Anti-Patterns to Avoid
+## Decisions Deferred
 
-### Anti-Pattern 1: Middleware-Only Authorization
-
-**What:** Relying solely on Next.js middleware for auth/authz.
-**Why bad:** CVE-2025-29927 showed middleware can be bypassed with headers.
-**Instead:** Defense in depth - middleware + API route + database RLS.
-
-### Anti-Pattern 2: Client-Side Tenant Switching
-
-**What:** Allowing client to specify orgId in requests.
-**Why bad:** Trivial to manipulate, leads to data leakage.
-**Instead:** Always derive orgId from server-side session.
-
-### Anti-Pattern 3: Raw SQL Without Tenant Filter
-
-**What:** Using `prisma.$queryRaw` without orgId in WHERE clause.
-**Why bad:** Bypasses Prisma extension, exposes all tenants' data.
-**Instead:** Use typed Prisma queries, or wrap raw SQL in tenant-aware helper.
-
-### Anti-Pattern 4: Synchronous External API Calls
-
-**What:** Calling Nord Pool API during calculation request.
-**Why bad:** Adds latency, fails when API is down, rate limiting.
-**Instead:** Pre-fetch and cache prices; use cached data in calculations.
-
-### Anti-Pattern 5: Storing Calculations in Client State
-
-**What:** Keeping all calculation data in React state, persisting on explicit save.
-**Why bad:** Data loss on navigation, browser close, or crash.
-**Instead:** Auto-save drafts to database with debouncing.
-
-### Anti-Pattern 6: Monolithic Calculation Function
-
-**What:** Single 500-line function that does all ROI calculations.
-**Why bad:** Untestable, hard to modify, can't be parallelized.
-**Instead:** Pure functions per calculation type, composed together.
-
----
-
-## Scalability Considerations
-
-| Concern | At 100 users | At 10K users | At 1M users |
-|---------|--------------|--------------|-------------|
-| Database connections | Supabase default pool | Monitor, tune pool size | Consider read replicas |
-| Cold starts | Acceptable (< 2s) | Optimize bundle, Prisma engine | Edge functions where possible |
-| Price data storage | Single table | Partition by date | Time-series DB (TimescaleDB) |
-| Calculation throughput | N/A (client-side) | N/A | N/A |
-| Shareable link access | Rate limit | CDN caching | Edge caching, regional |
-| Analytics volume | PostHog free tier | PostHog paid | Sample or aggregate |
-
----
-
-## Folder Structure
-
-```
-src/
-├── app/
-│   ├── (auth)/
-│   │   ├── login/
-│   │   │   └── page.tsx
-│   │   ├── register/
-│   │   └── forgot-password/
-│   │
-│   ├── (dashboard)/
-│   │   ├── layout.tsx              # Auth guard, org context
-│   │   ├── dashboard/
-│   │   │   └── page.tsx
-│   │   ├── calculations/
-│   │   │   ├── page.tsx            # List
-│   │   │   ├── new/
-│   │   │   │   └── page.tsx        # Create
-│   │   │   └── [id]/
-│   │   │       ├── page.tsx        # View/Edit
-│   │   │       └── share/
-│   │   │           └── page.tsx    # Share settings
-│   │   ├── batteries/
-│   │   ├── natägare/
-│   │   ├── users/
-│   │   └── settings/
-│   │
-│   ├── (public)/
-│   │   └── [org]/
-│   │       └── [shareCode]/
-│   │           └── page.tsx        # Public calculation view
-│   │
-│   ├── (admin)/
-│   │   ├── layout.tsx              # Super Admin guard
-│   │   ├── admin/
-│   │   │   ├── organizations/
-│   │   │   └── platform/
-│   │
-│   ├── api/
-│   │   └── webhooks/
-│   │       └── n8n/
-│   │           └── route.ts        # N8N webhook handler
-│   │
-│   ├── layout.tsx                  # Root layout, providers
-│   └── globals.css
-│
-├── components/
-│   ├── ui/                         # shadcn/ui components
-│   ├── forms/
-│   │   ├── calculation-form.tsx
-│   │   └── battery-form.tsx
-│   ├── calculation/
-│   │   ├── consumption-grid.tsx
-│   │   ├── results-display.tsx
-│   │   └── roi-chart.tsx
-│   └── layout/
-│       ├── nav.tsx
-│       └── org-switcher.tsx
-│
-├── lib/
-│   ├── db/
-│   │   ├── client.ts               # Prisma client
-│   │   ├── tenant-client.ts        # Tenant-scoped extension
-│   │   └── queries/
-│   │       ├── calculations.ts
-│   │       └── organizations.ts
-│   ├── auth/
-│   │   ├── supabase-client.ts
-│   │   ├── supabase-server.ts
-│   │   └── permissions.ts
-│   ├── calculation/
-│   │   ├── engine.ts               # Core ROI computation
-│   │   ├── spotpris.ts
-│   │   ├── effekttariff.ts
-│   │   └── gron-teknik.ts
-│   ├── integrations/
-│   │   ├── nordpool.ts
-│   │   ├── n8n.ts
-│   │   └── posthog.ts
-│   └── utils/
-│       ├── decimal.ts              # Decimal.js helpers
-│       └── dates.ts                # Timezone utilities
-│
-├── actions/
-│   ├── calculations.ts
-│   ├── organizations.ts
-│   ├── users.ts
-│   └── batteries.ts
-│
-├── providers/
-│   ├── posthog-provider.tsx
-│   └── tenant-provider.tsx
-│
-├── hooks/
-│   ├── use-calculation.ts
-│   └── use-debounce.ts
-│
-└── types/
-    ├── calculation.ts
-    ├── organization.ts
-    └── database.ts
-```
+| Decision | Reason | When to Decide |
+|----------|--------|----------------|
+| Org-level natagare overrides | May not be needed | After initial release, based on feedback |
+| Manual peak input option | Complexity vs accuracy tradeoff | Phase 2 implementation |
+| Real-time price spread in profile | Requires price API integration | Future milestone |
 
 ---
 
 ## Sources
 
-### Multi-Tenant Architecture
-- [Next.js Official Multi-Tenant Guide](https://nextjs.org/docs/app/guides/multi-tenant) - Official routing patterns
-- [Update.dev Multi-Tenancy Guide](https://update.dev/blog/how-to-implement-multi-tenancy-in-next-js-a-complete-guide) - Comprehensive implementation patterns
-- [Medium: Multi-Tenant Architecture in Next.js](https://medium.com/@itsamanyadav/multi-tenant-architecture-in-next-js-a-complete-guide-25590c052de0) - Practical examples
-- [ZenStack Multi-Tenant Approaches](https://zenstack.dev/blog/multi-tenant) - Prisma-specific patterns
-
-### Row Level Security
-- [Supabase RLS Documentation](https://supabase.com/docs/guides/database/postgres/row-level-security) - Official RLS guide
-- [AntStack Multi-Tenant RLS](https://www.antstack.com/blog/multi-tenant-applications-with-rls-on-supabase-postgress/) - Practical implementation
-- [Medium: RLS with Prisma ORM](https://medium.com/@francolabuschagne90/securing-multi-tenant-applications-using-row-level-security-in-postgresql-with-prisma-orm-4237f4d4bd35) - Prisma + PostgreSQL RLS
-
-### Next.js Patterns
-- [Next.js Project Structure](https://nextjs.org/docs/app/getting-started/project-structure) - Official folder conventions
-- [Next.js Data Fetching Patterns](https://nextjs.org/docs/14/app/building-your-application/data-fetching/patterns) - Server/client patterns
-- [Next.js Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components) - Component boundaries
-- [Medium: App Router Best Practices 2025](https://medium.com/better-dev-nextjs-react/inside-the-app-router-best-practices-for-next-js-file-and-directory-structure-2025-edition-ed6bc14a8da3) - Structure recommendations
-
-### Authentication and RBAC
-- [Supabase Auth for Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs) - SSR auth setup
-- [Auth.js RBAC Guide](https://authjs.dev/guides/role-based-access-control) - Role-based access patterns
-- [Medium: RBAC in Next.js](https://medium.com/@mkilincaslan/rbac-in-next-js-with-nextauth-b438fe59eeeb) - Implementation patterns
-- [Medium: Next.js Authentication Guards](https://imhardikdesai.medium.com/next-js-authentication-guards-securing-routes-for-authorized-guest-and-public-users-718af8a051d5) - Guest/public route patterns
-
-### Real-Time Updates
-- [SSE in Next.js](https://www.pedroalonso.net/blog/sse-nextjs-real-time-notifications/) - Server-Sent Events pattern
-- [Supabase Realtime with Next.js](https://supabase.com/docs/guides/realtime/realtime-with-nextjs) - Real-time subscriptions
-
-### Integrations
-- [PostHog Next.js Docs](https://posthog.com/docs/libraries/next-js) - Analytics integration
-- [N8N Webhook Documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) - Webhook patterns
-
-### API Design
-- [MakerKit: Next.js API Best Practices](https://makerkit.dev/blog/tutorials/nextjs-api-best-practices) - Route organization
-- [Medium: Managing API Routes at Scale](https://medium.com/@farihatulmaria/how-to-efficiently-manage-api-routes-in-large-scale-next-js-applications-7271801d20f3) - Large-scale patterns
+- Existing codebase: `src/lib/calculations/`, `src/stores/`, `src/actions/`
+- Existing architecture docs: `.planning/codebase/ARCHITECTURE.md`
+- v1.1 milestone: `.planning/milestones/v1.1-ROADMAP.md`
+- PostHog groups documentation: https://posthog.com/docs/product-analytics/group-analytics
