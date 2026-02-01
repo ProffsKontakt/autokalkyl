@@ -613,3 +613,100 @@ export async function rejectNatagare(id: string) {
     return { error: 'Kunde inte avvisa nätägare' };
   }
 }
+
+// =============================================================================
+// SUPER ADMIN CONFIGURATION (Phase 9)
+// =============================================================================
+
+const natagareConfigSchema = z.object({
+  dayRateSekKw: z.number().min(0, 'Dagtariff får inte vara negativ').optional(),
+  nightRateSekKw: z.number().min(0, 'Natttariff får inte vara negativ').optional(),
+  dayStartHour: z.number().int().min(0).max(23, 'Ogiltig starttid').optional(),
+  dayEndHour: z.number().int().min(0).max(23, 'Ogiltig sluttid').optional(),
+  peakCalculationMethod: z.string().optional(),
+  nightDiscountPercent: z.number().min(0).max(100).optional(),
+  peakNightStartHour: z.number().int().min(0).max(23).optional(),
+  peakNightEndHour: z.number().int().min(0).max(23).optional(),
+});
+
+/**
+ * Update natagare configuration (rates, peak method, night discount).
+ * Super Admin only - requires NATAGARE_CONFIG permission.
+ */
+export async function updateNatagareConfig(
+  id: string,
+  data: {
+    dayRateSekKw?: number;
+    nightRateSekKw?: number;
+    dayStartHour?: number;
+    dayEndHour?: number;
+    peakCalculationMethod?: string;
+    nightDiscountPercent?: number;
+    peakNightStartHour?: number;
+    peakNightEndHour?: number;
+  }
+) {
+  const session = await auth();
+  if (!session?.user) {
+    return { error: 'Ej inloggad' };
+  }
+
+  const currentRole = session.user.role as Role;
+
+  if (!hasPermission(currentRole, PERMISSIONS.NATAGARE_CONFIG)) {
+    return { error: 'Du har inte behörighet att konfigurera nätägare' };
+  }
+
+  // Validate input
+  const parsed = natagareConfigSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  try {
+    // Verify natagare exists
+    const existing = await prisma.natagare.findUnique({
+      where: { id },
+    });
+    if (!existing) {
+      return { error: 'Nätägare hittades inte' };
+    }
+
+    // Build update data
+    const updateData: Record<string, unknown> = {};
+    if (data.dayRateSekKw !== undefined) updateData.dayRateSekKw = data.dayRateSekKw;
+    if (data.nightRateSekKw !== undefined) updateData.nightRateSekKw = data.nightRateSekKw;
+    if (data.dayStartHour !== undefined) updateData.dayStartHour = data.dayStartHour;
+    if (data.dayEndHour !== undefined) updateData.dayEndHour = data.dayEndHour;
+    if (data.peakCalculationMethod !== undefined) {
+      // Validate JSON format
+      try {
+        JSON.parse(data.peakCalculationMethod);
+        updateData.peakCalculationMethod = data.peakCalculationMethod;
+      } catch {
+        return { error: 'Ogiltig effektberäkningsmetod format' };
+      }
+    }
+    if (data.nightDiscountPercent !== undefined) {
+      updateData.nightDiscountPercent = data.nightDiscountPercent;
+    }
+    if (data.peakNightStartHour !== undefined) {
+      updateData.peakNightStartHour = data.peakNightStartHour;
+    }
+    if (data.peakNightEndHour !== undefined) {
+      updateData.peakNightEndHour = data.peakNightEndHour;
+    }
+
+    await prisma.natagare.update({
+      where: { id },
+      data: updateData,
+    });
+
+    revalidatePath('/dashboard/natagare');
+    revalidatePath('/dashboard/admin/natagare');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update natagare config:', error);
+    return { error: 'Kunde inte uppdatera nätägare konfiguration' };
+  }
+}
