@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANLY-12 | Phase 12 | Pending |
 | FIX-01 | Phase 13 | Pending |
 | FIX-02 | Phase 13 | Pending |
-| FIX-03 | Phase 8 | Pending |
+| FIX-03 | Phase 8 | Complete |
 | FIX-04 | Phase 13 | Pending |
 
 **Coverage:**

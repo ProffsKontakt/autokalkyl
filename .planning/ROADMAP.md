@@ -44,7 +44,7 @@ All 21 requirements shipped.
 
 **Milestone Goal:** Replace simplified consumption model with realistic Swedish consumption profiles and accurate peak tariff calculations based on grid operator-specific rules.
 
-- [ ] **Phase 8: Schema & Migration Foundation** — Data model extensions, hardcoded peak centralization
+- [x] **Phase 8: Schema & Migration Foundation** — Data model extensions, hardcoded peak centralization
 - [ ] **Phase 9: Natagare Centralization** — Global scope migration, Super Admin peak method configuration
 - [ ] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
 - [ ] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
@@ -65,8 +65,8 @@ All 21 requirements shipped.
 **Plans:** 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Schema extensions (HeatingType enum, Natagare peak fields, migration)
-- [ ] 08-02-PLAN.md — Peak value centralization (DEFAULT_CURRENT_PEAK_KW constant)
+- [x] 08-01-PLAN.md — Schema extensions (HeatingType enum, Natagare peak fields, migration)
+- [x] 08-02-PLAN.md — Peak value centralization (DEFAULT_CURRENT_PEAK_KW constant)
 
 ### Phase 9: Natagare Centralization
 **Goal:** Super Admin manages global natagare with peak calculation settings
@@ -153,7 +153,7 @@ Plans:
 | 1-5 | v1.0 | 26/26 | Complete | 2026-01-20 |
 | 6. Calculation Engine | v1.1 | 3/3 | Complete | 2026-01-31 |
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
-| 8. Schema & Migration | v1.2 | 0/2 | Planned | - |
+| 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
 | 9. Natagare Centralization | v1.2 | 0/2 | Not started | - |
 | 10. Consumption Profiles | v1.2 | 0/2 | Not started | - |
 | 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
@@ -162,4 +162,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (Phase 8 planned)*
+*Last updated: 2026-02-01 (Phase 8 complete)*
