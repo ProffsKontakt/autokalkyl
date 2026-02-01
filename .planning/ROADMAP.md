@@ -45,7 +45,7 @@ All 21 requirements shipped.
 **Milestone Goal:** Replace simplified consumption model with realistic Swedish consumption profiles and accurate peak tariff calculations based on grid operator-specific rules.
 
 - [x] **Phase 8: Schema & Migration Foundation** — Data model extensions, hardcoded peak centralization
-- [ ] **Phase 9: Natagare Centralization** — Global scope migration, Super Admin peak method configuration
+- [x] **Phase 9: Natagare Centralization** — Global scope migration, Super Admin peak method configuration
 - [ ] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
 - [ ] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
 - [ ] **Phase 12: Analytics & Dashboard** — PostHog fix, server-side events, embedded role-based dashboards
@@ -81,9 +81,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Schema & migration (globalScope, approvalStatus, permissions, data migration with duplicate detection)
-- [ ] 09-02-PLAN.md — Super Admin configuration UI (list-with-side-panel, peak method config, duplicate banner)
-- [ ] 09-03-PLAN.md — Org/Closer access & approval flow (request form, view-only list, dashboard widget)
+- [x] 09-01-PLAN.md — Schema & migration (globalScope, approvalStatus, permissions, data migration with duplicate detection)
+- [x] 09-02-PLAN.md — Super Admin configuration UI (list-with-side-panel, peak method config, duplicate banner)
+- [x] 09-03-PLAN.md — Org/Closer access & approval flow (request form, view-only list, dashboard widget)
 
 ### Phase 10: Consumption Profiles
 **Goal:** Users input annual consumption with heating type and see realistic seasonal distribution
@@ -155,7 +155,7 @@ Plans:
 | 6. Calculation Engine | v1.1 | 3/3 | Complete | 2026-01-31 |
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
-| 9. Natagare Centralization | v1.2 | 0/3 | Not started | - |
+| 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
 | 10. Consumption Profiles | v1.2 | 0/2 | Not started | - |
 | 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
@@ -163,4 +163,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (Phase 9 planned)*
+*Last updated: 2026-02-01 (Phase 9 complete)*

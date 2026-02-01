@@ -26,12 +26,12 @@ Requirements for v1.2 Realistic Consumption & Peak Tariffs. Each maps to roadmap
 
 ### Nätägare Management
 
-- [ ] **NATA-06**: All existing nätägare are migrated to global scope (Super Admin managed)
-- [ ] **NATA-07**: Super Admin can configure peak calculation method per nätägare
-- [ ] **NATA-08**: Super Admin can configure night discount percentage and hours per nätägare
-- [ ] **NATA-09**: Org Admin can create new nätägare if missing from global list
-- [ ] **NATA-10**: Closer and Org Admin can only select nätägare, not edit configurations
-- [ ] **NATA-11**: Nätägare selection in calculation uses global list
+- [x] **NATA-06**: All existing nätägare are migrated to global scope (Super Admin managed)
+- [x] **NATA-07**: Super Admin can configure peak calculation method per nätägare
+- [x] **NATA-08**: Super Admin can configure night discount percentage and hours per nätägare
+- [x] **NATA-09**: Org Admin can create new nätägare if missing from global list
+- [x] **NATA-10**: Closer and Org Admin can only select nätägare, not edit configurations
+- [x] **NATA-11**: Nätägare selection in calculation uses global list
 
 ### Analytics & Tracking
 
@@ -94,12 +94,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PEAK-08 | Phase 11 | Pending |
 | PEAK-09 | Phase 11 | Pending |
 | PEAK-10 | Phase 11 | Pending |
-| NATA-06 | Phase 9 | Pending |
-| NATA-07 | Phase 9 | Pending |
-| NATA-08 | Phase 9 | Pending |
-| NATA-09 | Phase 9 | Pending |
-| NATA-10 | Phase 9 | Pending |
-| NATA-11 | Phase 9 | Pending |
+| NATA-06 | Phase 9 | Complete |
+| NATA-07 | Phase 9 | Complete |
+| NATA-08 | Phase 9 | Complete |
+| NATA-09 | Phase 9 | Complete |
+| NATA-10 | Phase 9 | Complete |
+| NATA-11 | Phase 9 | Complete |
 | ANLY-07 | Phase 12 | Pending |
 | ANLY-08 | Phase 12 | Pending |
 | ANLY-09 | Phase 12 | Pending |
@@ -118,4 +118,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 (traceability complete)*
+*Last updated: 2026-02-01 (Phase 9 complete)*
