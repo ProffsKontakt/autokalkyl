@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 8
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 9
 
 ## Current Position
 
-Phase: 8 of 13 (Schema & Migration Foundation)
-Plan: 2 of 2 in phase (both complete)
-Status: Phase complete
-Last activity: 2026-02-01 — Completed 08-01-PLAN.md (schema extensions)
+Phase: 9 of 13 (Natagare Centralization)
+Plan: 1 of 3 in phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 09-01-PLAN.md (natagare global scope foundation)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##________] 20%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###_______] 30%
 
 ## Performance Metrics
 
@@ -44,6 +44,9 @@ Recent from v1.2:
 - Old estimation formula (annual/8760) replaced with constant fallback
 - HeatingType enum added with 5 Swedish heating types (08-01)
 - Natagare peak calculation fields added with sensible defaults (08-01)
+- Natagare globalScope pattern: nullable orgId + globalScope boolean (09-01)
+- ORG_ADMIN loses NATAGARE_EDIT/DELETE, can only request new natagare (09-01)
+- ApprovalStatus enum for workflow tracking (09-01)
 
 Recent from v1.1:
 - Apply overrides server-side for invisible sync
@@ -67,7 +70,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed Phase 8 (both plans)
+Stopped at: Completed 09-01-PLAN.md (natagare global scope foundation)
 Resume file: None
 
-Next action: `/gsd:plan-phase 9` (Natagare Centralization)
+Next action: `/gsd:execute-plan 09-02` (Super Admin Configuration UI)
