@@ -62,11 +62,11 @@ All 21 requirements shipped.
   2. Natagare model has peak calculation method, night discount fields
   3. All hardcoded currentPeakKw references (6+ locations) use centralized config
   4. Existing 113 calculations continue to work with unchanged results
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 08-01: Schema extensions and migration preparation
-- [ ] 08-02: Hardcoded peak audit and centralization
+- [ ] 08-01-PLAN.md — Schema extensions (HeatingType enum, Natagare peak fields, migration)
+- [ ] 08-02-PLAN.md — Peak value centralization (DEFAULT_CURRENT_PEAK_KW constant)
 
 ### Phase 9: Natagare Centralization
 **Goal:** Super Admin manages global natagare with peak calculation settings
@@ -153,7 +153,7 @@ Plans:
 | 1-5 | v1.0 | 26/26 | Complete | 2026-01-20 |
 | 6. Calculation Engine | v1.1 | 3/3 | Complete | 2026-01-31 |
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
-| 8. Schema & Migration | v1.2 | 0/2 | Not started | - |
+| 8. Schema & Migration | v1.2 | 0/2 | Planned | - |
 | 9. Natagare Centralization | v1.2 | 0/2 | Not started | - |
 | 10. Consumption Profiles | v1.2 | 0/2 | Not started | - |
 | 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
@@ -162,4 +162,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (v1.2 roadmap added)*
+*Last updated: 2026-02-01 (Phase 8 planned)*
