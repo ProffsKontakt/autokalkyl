@@ -284,6 +284,15 @@ model Natagare {
   isDefault Boolean @default(false) // Default natagare for new calculations
   isActive  Boolean @default(true) // Soft delete / hide from UI
 
+  // Peak calculation settings (Phase 8 - v1.2 foundation)
+  // How to calculate billing peak from consumption data
+  peakCalculationMethod String?  @default("SIMPLE_MAX")
+  // Discount for night peaks (e.g., 50 = 50% discount for 22:00-06:00 peaks)
+  nightDiscountPercent  Decimal? @db.Decimal(5, 2) @default(50.00)
+  // Night hours for peak discount (may differ from day/night tariff hours)
+  peakNightStartHour    Int?     @default(22)
+  peakNightEndHour      Int?     @default(6)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
