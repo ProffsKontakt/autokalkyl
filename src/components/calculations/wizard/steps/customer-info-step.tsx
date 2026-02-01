@@ -19,6 +19,8 @@ import type { Elomrade } from '@/lib/calculations/types'
 
 interface CustomerInfoStepProps {
   natagareList: Array<{ id: string; name: string; dayRateSekKw: number; nightRateSekKw: number }>
+  /** User role - controls whether "add natagare" link is shown (hidden for CLOSER) */
+  userRole?: string
 }
 
 const ELOMRADE_OPTIONS: { value: Elomrade; label: string }[] = [
@@ -28,7 +30,9 @@ const ELOMRADE_OPTIONS: { value: Elomrade; label: string }[] = [
   { value: 'SE4', label: 'SE4 - Södra Sverige (Malmö)' },
 ]
 
-export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
+export function CustomerInfoStep({ natagareList, userRole }: CustomerInfoStepProps) {
+  // Closer cannot add natagare - only view
+  const canAddNatagare = userRole !== 'CLOSER'
   const {
     customerName,
     postalCode,
@@ -116,16 +120,18 @@ export function CustomerInfoStep({ natagareList }: CustomerInfoStepProps) {
         <div>
           <div className="flex items-center justify-between mb-1">
             <label htmlFor="natagare" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nätägare *
+              Natagare *
             </label>
-            <Link
-              href="/dashboard/natagare/new"
-              target="_blank"
-              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Lägg till nätägare
-            </Link>
+            {canAddNatagare && (
+              <Link
+                href="/dashboard/natagare/new"
+                target="_blank"
+                className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Laegg till natagare
+              </Link>
+            )}
           </div>
           <select
             id="natagare"

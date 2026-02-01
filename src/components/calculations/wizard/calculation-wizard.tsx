@@ -69,6 +69,8 @@ interface CalculationWizardProps {
   initialData?: InitialData
   /** Organization ID for Super Admin creating calculations for a specific org */
   orgId?: string
+  /** User role - controls whether "add natagare" link is shown */
+  userRole?: string
 }
 
 const TOTAL_STEPS = 4
@@ -80,6 +82,7 @@ export function CalculationWizard({
   orgSettings,
   initialData,
   orgId,
+  userRole,
 }: CalculationWizardProps) {
   const router = useRouter()
   const [isHydrated, setIsHydrated] = useState(false)
@@ -225,7 +228,7 @@ export function CalculationWizard({
       {/* Step content */}
       <div className="flex-1 overflow-auto p-6">
         {store.currentStep === 0 && (
-          <CustomerInfoStep natagareList={natagareList} />
+          <CustomerInfoStep natagareList={natagareList} userRole={userRole} />
         )}
         {store.currentStep === 1 && (
           <ConsumptionStep />

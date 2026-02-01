@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth/auth'
 import { getDashboardStats, getOrganizationsWithStats, getCalculationsForDashboard } from '@/actions/dashboard'
+import { getPendingNatagare } from '@/actions/natagare'
 import { DashboardStatsView } from '@/components/dashboard/dashboard-stats'
 import { OrgList } from '@/components/dashboard/org-list'
 import { CalculationsTable } from '@/components/dashboard/calculations-table'
+import { PendingApprovalsWidget } from '@/components/dashboard/pending-approvals-widget'
 import type { Role } from '@/lib/auth/permissions'
 import Link from 'next/link'
 
@@ -20,10 +22,11 @@ export default async function AdminPage() {
     redirect('/dashboard')
   }
 
-  const [statsResult, orgsResult, calcsResult] = await Promise.all([
+  const [statsResult, orgsResult, calcsResult, pendingResult] = await Promise.all([
     getDashboardStats(),
     getOrganizationsWithStats(),
     getCalculationsForDashboard(),
+    getPendingNatagare(),
   ])
 
   if (statsResult.error || orgsResult.error || calcsResult.error) {
@@ -48,6 +51,13 @@ export default async function AdminPage() {
         stats={statsResult.data!}
         showOrg={true}
       />
+
+      {/* Pending natagare approvals widget */}
+      {pendingResult.natagare && pendingResult.natagare.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <PendingApprovalsWidget pendingNatagare={pendingResult.natagare} />
+        </div>
+      )}
 
       {/* Organizations */}
       <div>

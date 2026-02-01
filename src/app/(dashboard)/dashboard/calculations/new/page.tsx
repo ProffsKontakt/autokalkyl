@@ -5,6 +5,7 @@ import { createTenantClient } from '@/lib/db/tenant-client'
 import { prisma } from '@/lib/db/client'
 import { CalculationWizard } from '@/components/calculations/wizard/calculation-wizard'
 import { OrgSelector } from '@/components/calculations/org-selector'
+import { getNatagare } from '@/actions/natagare'
 
 export const metadata = {
   title: 'Ny kalkyl - Kalkyla.se',
@@ -63,12 +64,12 @@ export default async function NewCalculationPage({ searchParams }: PageProps) {
     orgId = session.user.orgId
   }
 
-  // Fetch natagare list for the org (including effect tariff rates for calculations)
+  // Fetch natagare list: global approved + org's pending (Phase 9 scope)
+  // This uses getNatagare() which returns the appropriate natagare based on user role
+  const { natagare } = await getNatagare()
+
+  // Also need tenant client for batteries
   const tenantClient = createTenantClient(orgId)
-  const natagare = await tenantClient.natagare.findMany({
-    where: { isActive: true },
-    orderBy: { name: 'asc' },
-  })
 
   // Fetch battery configs for the org (including all fields needed for calculation engine)
   const batteries = await tenantClient.batteryConfig.findMany({
@@ -105,7 +106,7 @@ export default async function NewCalculationPage({ searchParams }: PageProps) {
   return (
     <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg h-[calc(100vh-8rem)]">
       <CalculationWizard
-        natagareList={natagare.map(n => ({
+        natagareList={(natagare || []).map(n => ({
           id: n.id,
           name: n.name,
           dayRateSekKw: Number(n.dayRateSekKw),
@@ -128,6 +129,7 @@ export default async function NewCalculationPage({ searchParams }: PageProps) {
           installerFixedCut: org.installerFixedCut ? Number(org.installerFixedCut) : null,
         } : undefined}
         orgId={isSuperAdmin ? orgId : undefined}
+        userRole={role}
       />
     </div>
   )
