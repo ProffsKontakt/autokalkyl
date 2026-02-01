@@ -17,6 +17,13 @@ export const DEFAULT_ANNUAL_CONSUMPTION_KWH = 20000
 export const DEFAULT_ROUND_TRIP_EFFICIENCY = 0.8 // 80% round-trip efficiency
 export const DEFAULT_POST_CAMPAIGN_RATE = 500 // SEK/kW/year after campaign
 
+// Default peak power for Swedish residential customers (kW)
+// Used as fallback when customer hasn't provided actual peak value.
+// For NEW calculations: user must input explicitly (no pre-fill)
+// For EXISTING calculations: preserves backward compatibility with v1.1 behavior
+// @see FIX-03 in REQUIREMENTS.md
+export const DEFAULT_CURRENT_PEAK_KW = 8
+
 // Emaldo stodtjanster rates by zone (GRID-01, GRID-02)
 export const EMALDO_STODTJANSTER_RATES = {
   SE1: 1110, // SEK/month
