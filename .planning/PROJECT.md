@@ -10,7 +10,8 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 
 ## Current State
 
-**Version:** v1.1 Fixed ROI Calculations (shipped 2026-02-01)
+**Version:** v1.2 Realistic Consumption & Peak Tariffs (in progress)
+**Previous:** v1.1 Fixed ROI Calculations (shipped 2026-02-01)
 **Codebase:** ~22,200 lines TypeScript, Next.js 16, Prisma 7.2, Neon PostgreSQL
 
 **Tech stack:**
@@ -59,9 +60,21 @@ All v1.0 and v1.1 requirements shipped:
 
 ### Active
 
-**Next Milestone: v1.2 — TBD**
+**Current Milestone: v1.2 — Realistic Consumption & Peak Tariffs**
 
-No active requirements. Run `/gsd:new-milestone` to define the next milestone.
+**Goal:** Replace simplified consumption model with realistic Swedish consumption profiles and accurate peak tariff calculations based on grid operator-specific rules.
+
+**Target features:**
+- Realistic consumption profile: Annual kWh input + heating type → seasonal distribution
+- Heating types: Bergvärme, Fjärrvärme, Direktverkande el, Luft-luft VP, Luft-vatten VP
+- Manual peak input: X highest peaks per month (kW per peak)
+- Nätägare peak calculation methods: Super Admin configures per grid operator
+- Ellevio AB: 3 highest hourly peaks (initial implementation)
+- Peak shaving controls: % reduction per peak on results page
+- Centralized nätägare management: Super Admin only (remove from Org Admin/Closer)
+- Spotpris efficiency bug fix: 90.2% displays correctly (not 90000.2%)
+- PostHog reconfiguration + automatic dashboard data population
+- Super Admin sidebar: permanent menu (not hover-triggered)
 
 ### Out of Scope
 
@@ -104,7 +117,7 @@ No active requirements. Run `/gsd:new-milestone` to define the next milestone.
 |----------|-----------|---------|
 | Battery-only v1 | Ship fast, validate with real users before expanding | ✓ Good — shipped in 2 days |
 | Hardcode Gron Teknik at 48.5% | Simplify MVP, assume all customers qualify | ✓ Good — no complaints |
-| One average day per month consumption | Balance simplicity and accuracy | ✓ Good — intuitive UX |
+| One average day per month consumption | Balance simplicity and accuracy | ⚠️ Revisit — v1.2 adds realistic profiles |
 | 500 SEK/kW/year grid services default | Conservative estimate, org-configurable | ✓ Good — configurable per org |
 | Credentials auth only | Admin creates users, no self-registration needed | ✓ Good — appropriate for B2B |
 | mgrey.se API with fallback | May not have immediate access | ✓ Good — manual entry available |
@@ -127,4 +140,4 @@ No active requirements. Run `/gsd:new-milestone` to define the next milestone.
 | Apply overrides server-side | OVRD-04 compliance — invisible to prospects | ✓ Good — satisfies requirement |
 
 ---
-*Last updated: 2026-02-01 after v1.1 milestone complete*
+*Last updated: 2026-02-01 after v1.2 milestone started*

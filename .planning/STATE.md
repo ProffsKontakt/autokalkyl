@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.1 complete — Ready to plan v1.2
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs
 
 ## Current Position
 
-Phase: 7 of 7 (v1.1 complete)
-Plan: All plans complete
-Status: Milestone v1.1 shipped
-Last activity: 2026-02-01 — Milestone v1.1 archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-01 — Milestone v1.2 started
 
-Progress: [==========================] v1.0 complete | v1.1 [██████████████████████████] 100%
+Progress: v1.0 ✓ | v1.1 ✓ | v1.2 [░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -58,7 +58,7 @@ Tech debt from v1.1 (info-level, not blocking):
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: v1.1 milestone complete
+Stopped at: v1.2 milestone started, defining requirements
 Resume file: None
 
-Next action: `/gsd:new-milestone` to define v1.2 requirements
+Next action: Complete requirements definition → roadmap creation
