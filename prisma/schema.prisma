@@ -73,6 +73,18 @@ enum LeadStatus {
 }
 
 // =============================================================================
+// HEATING TYPE (Phase 8 - v1.2 Consumption Profiles)
+// =============================================================================
+
+enum HeatingType {
+  BERGVARME       // Ground source heat pump (bergvarme)
+  FJARRVARME      // District heating (fjarrvarme)
+  DIREKTVERKANDE  // Direct electric heating
+  LUFT_LUFT_VP    // Air-to-air heat pump
+  LUFT_VATTEN_VP  // Air-to-water heat pump
+}
+
+// =============================================================================
 // ORGANIZATION (Tenant)
 // =============================================================================
 
@@ -339,6 +351,10 @@ model Calculation {
   // Consumption Profile (Step 2)
   // Stored as JSON: { data: number[][] } where [month][hour]
   consumptionProfile Json
+
+  // Heating type for consumption profile (Phase 10)
+  // Nullable for backward compatibility with existing calculations
+  heatingType HeatingType?
 
   // Results (calculated server-side)
   results Json?
