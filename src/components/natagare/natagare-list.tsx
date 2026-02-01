@@ -19,19 +19,23 @@ interface NatagareListProps {
     dayEndHour: number;
     isDefault: boolean;
     isActive: boolean;
+    approvalStatus?: string;
+    globalScope?: boolean;
   }>;
   userRole: string;
+  showActions?: boolean;
 }
 
-export function NatagareList({ natagare, userRole }: NatagareListProps) {
+export function NatagareList({ natagare, userRole, showActions = true }: NatagareListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const role = userRole as Role;
-  const canEdit = hasPermission(role, PERMISSIONS.NATAGARE_EDIT);
-  const canDelete = hasPermission(role, PERMISSIONS.NATAGARE_DELETE);
+  // Only show edit/delete if showActions is true AND user has permission
+  const canEdit = showActions && hasPermission(role, PERMISSIONS.NATAGARE_EDIT);
+  const canDelete = showActions && hasPermission(role, PERMISSIONS.NATAGARE_DELETE);
 
   const formatHour = (hour: number) => hour.toString().padStart(2, '0') + ':00';
 
@@ -101,25 +105,41 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {natagare.map((n) => (
-              <tr key={n.id} className="hover:bg-gray-50">
+            {natagare.map((n) => {
+              const isPending = n.approvalStatus === 'PENDING';
+              const isOrgOnly = !n.globalScope && n.approvalStatus !== 'APPROVED';
+
+              return (
+              <tr key={n.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{n.name}</span>
-                    {n.isDefault && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        Förinstallerad
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900 dark:text-white">{n.name}</span>
+                      {n.isDefault && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          Forinstallerad
+                        </span>
+                      )}
+                      {isPending && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                          Vaentande godkaennande
+                        </span>
+                      )}
+                    </div>
+                    {isOrgOnly && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Synlig endast foer din organisation
                       </span>
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {Number(n.dayRateSekKw).toFixed(2)} SEK/kW
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {Number(n.nightRateSekKw).toFixed(2)} SEK/kW
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {formatHour(n.dayStartHour)}-{formatHour(n.dayEndHour)}
                 </td>
                 {(canEdit || canDelete) && (
@@ -146,7 +166,8 @@ export function NatagareList({ natagare, userRole }: NatagareListProps) {
                   </td>
                 )}
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
