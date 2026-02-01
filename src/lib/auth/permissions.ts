@@ -37,11 +37,14 @@ export const PERMISSIONS = {
   BATTERY_DELETE: 'battery:delete',
   BATTERY_VIEW: 'battery:view',
 
-  // Natagare permissions
+  // Natagare permissions (updated for global scope - Phase 9)
   NATAGARE_CREATE: 'natagare:create',
   NATAGARE_EDIT: 'natagare:edit',
   NATAGARE_DELETE: 'natagare:delete',
   NATAGARE_VIEW: 'natagare:view',
+  NATAGARE_APPROVE: 'natagare:approve', // Super Admin only - approve pending natagare
+  NATAGARE_REQUEST: 'natagare:request', // Org Admin - request new natagare
+  NATAGARE_CONFIG: 'natagare:config', // Super Admin only - edit peak method, rates
 
   // Electricity pricing permissions
   ELPRICES_VIEW: 'elprices:view',
@@ -81,10 +84,9 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.BATTERY_EDIT,
     PERMISSIONS.BATTERY_DELETE,
     PERMISSIONS.BATTERY_VIEW,
-    // Natagare (full CRUD for org-scoped data)
-    PERMISSIONS.NATAGARE_CREATE,
-    PERMISSIONS.NATAGARE_EDIT,
-    PERMISSIONS.NATAGARE_DELETE,
+    // Natagare (Phase 9: request-only, no edit/delete - Super Admin manages global)
+    PERMISSIONS.NATAGARE_CREATE, // Create org-specific pending request
+    PERMISSIONS.NATAGARE_REQUEST, // Request new natagare
     PERMISSIONS.NATAGARE_VIEW,
     // Electricity prices (view only - global data)
     PERMISSIONS.ELPRICES_VIEW,
