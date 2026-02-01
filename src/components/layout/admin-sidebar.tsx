@@ -20,6 +20,7 @@ import {
   Building2,
   Menu,
   X,
+  Wrench,
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -42,6 +43,8 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     router.refresh()
   }
 
+  const isSuperAdmin = user.role === 'SUPER_ADMIN'
+
   const menuItems = [
     { href: '/dashboard/calculations', label: 'Kalkyler', icon: Calculator },
     { href: '/dashboard/natagare', label: 'Nätägare', icon: Network },
@@ -49,6 +52,11 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     { href: '/dashboard/electricity', label: 'Elpriser', icon: Bolt },
     { href: '/dashboard/users', label: 'Användare', icon: Users },
     { href: '/admin/organizations', label: 'Organisationer', icon: Building2 },
+  ]
+
+  // Super Admin only menu items
+  const superAdminItems = [
+    { href: '/dashboard/admin/natagare', label: 'Nätägare (Admin)', icon: Wrench },
   ]
 
   const isActive = (href: string) => {
@@ -174,6 +182,34 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                   </Link>
                 )
               })}
+
+              {/* Super Admin only items */}
+              {isSuperAdmin && (
+                <>
+                  <div className="border-t border-slate-200 dark:border-slate-700 my-2" />
+                  {superAdminItems.map((item) => {
+                    const Icon = item.icon
+                    const active = isActive(item.href)
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        className={`
+                          flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all
+                          ${active
+                            ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-700 dark:hover:text-slate-300'
+                          }
+                        `}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </Link>
+                    )
+                  })}
+                </>
+              )}
             </div>
           </div>
         </nav>
