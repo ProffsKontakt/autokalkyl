@@ -10,8 +10,8 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 
 ## Current State
 
-**Version:** v1.0 MVP (shipped 2026-01-20)
-**Codebase:** 9,104 lines TypeScript, Next.js 16, Prisma 7.2, Neon PostgreSQL
+**Version:** v1.1 Fixed ROI Calculations (shipped 2026-02-01)
+**Codebase:** ~22,200 lines TypeScript, Next.js 16, Prisma 7.2, Neon PostgreSQL
 
 **Tech stack:**
 - Next.js 16 with App Router
@@ -31,8 +31,9 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 
 ### Validated
 
-All v1 requirements shipped in v1.0:
+All v1.0 and v1.1 requirements shipped:
 
+**v1.0 (92 requirements):**
 - ✓ AUTH-01 to AUTH-06 — Authentication with role hierarchy — v1.0
 - ✓ ORG-01 to ORG-07 — Organization management with branding — v1.0
 - ✓ USER-01 to USER-05 — User management with tenant scoping — v1.0
@@ -47,20 +48,20 @@ All v1 requirements shipped in v1.0:
 - ✓ ANLY-01 to ANLY-06 — PostHog analytics & Sentry monitoring — v1.0
 - ✓ DASH-01 to DASH-05 — Admin dashboards with role-based views — v1.0
 
-**Total: 92 requirements validated**
+**v1.1 (21 requirements):**
+- ✓ SPOT-01 to SPOT-04 — Spotprisoptimering with correct formula and transparency — v1.1
+- ✓ GRID-01 to GRID-05 — Stödtjänster with Emaldo zone-based rates and breakdown — v1.1
+- ✓ PEAK-01 to PEAK-04 — Effektavgifter with capacity constraints and breakdown — v1.1
+- ✓ TRANS-01 to TRANS-04 — Calculation transparency for prospects — v1.1
+- ✓ OVRD-01 to OVRD-04 — Manual override system with invisible sync — v1.1
+
+**Total: 113 requirements validated**
 
 ### Active
 
-**Current Milestone: v1.1 — Fixed ROI Calculations**
+**Next Milestone: v1.2 — TBD**
 
-**Goal:** Fix calculation accuracy issues — spotprisoptimering formula, stödtjänster income with Emaldo campaign rates, effektavgifter control, and transparent breakdowns showing how each savings number is derived.
-
-**Target features:**
-- Spotprisoptimering fix with cycles/day slider and correct formula
-- Stödtjänster (grid services) with Emaldo zone-based guaranteed income
-- Effektavgifter slider for peak shaving control (% or max kW)
-- Calculation transparency showing breakdown of each savings category
-- Prospect-safe visibility (no margins/cuts visible)
+No active requirements. Run `/gsd:new-milestone` to define the next milestone.
 
 ### Out of Scope
 
@@ -114,5 +115,16 @@ All v1 requirements shipped in v1.0:
 | On-demand recalculation (not live) | Explicit user intent, clearer UX | ✓ Good — users understand flow |
 | Fire-and-forget webhooks | Never block UX for alerts | ✓ Good — errors logged, UX preserved |
 
+## Key Decisions (v1.1)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Keep calcSpotprisSavings and add V2 | Backwards compatibility with v1.0 code | ✓ Good — no breaking changes |
+| Emaldo detection via brand name | Simple heuristic for battery catalog | ✓ Good — works for current catalog |
+| currentPeakKw hardcoded to 8 kW | Placeholder until customer data available | ⚠️ Revisit — needs customer input |
+| Build breakdowns server-side | Security — prevents client manipulation | ✓ Good — secure by design |
+| Null-based override semantics | Clearer intent, JSON-friendly | ✓ Good — clean implementation |
+| Apply overrides server-side | OVRD-04 compliance — invisible to prospects | ✓ Good — satisfies requirement |
+
 ---
-*Last updated: 2026-01-29 after v1.1 milestone start*
+*Last updated: 2026-02-01 after v1.1 milestone complete*

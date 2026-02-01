@@ -1,5 +1,33 @@
 # Project Milestones: Kalkyla.se
 
+## v1.1 Fixed ROI Calculations (Shipped: 2026-02-01)
+
+**Delivered:** Fixed calculation accuracy for spotprisoptimering, stödtjänster, and effektavgifter with transparent breakdowns and manual override capability.
+
+**Phases completed:** 6-7 (7 plans total)
+
+**Key accomplishments:**
+
+- Fixed spotpris calculation using correct formula (spread × efficiency × cycles × capacity × days) with adjustable cycles/day slider
+- Emaldo grid services with zone-based guaranteed income (SE1-SE3: 1,110 SEK/mo, SE4: 1,370 SEK/mo for 36-month campaign)
+- Peak shaving controls with battery capacity constraints and tariff calculations
+- Expandable calculation breakdowns showing how each savings number is derived
+- Manual override system allowing salespeople to adjust any value with instant sync to shared links
+- Critical bug fix: handleFinalize now uses actual slider values instead of hardcoded defaults
+
+**Stats:**
+
+- 34 files created/modified
+- +4,557 lines of TypeScript
+- 2 phases, 7 plans, 21 requirements
+- 3 days from start to ship (2026-01-29 → 2026-02-01)
+
+**Git range:** `docs(7): research phase domain` → `docs: update v1.1 audit with post-audit bug fix`
+
+**What's next:** v1.2 planning — potential features: customer peak data input, expanded battery manufacturer support
+
+---
+
 ## v1.0 MVP (Shipped: 2026-01-20)
 
 **Delivered:** Multi-tenant battery ROI calculator SaaS with interactive shareable links for prospects to customize consumption and see real savings.
