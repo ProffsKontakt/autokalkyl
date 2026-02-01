@@ -78,11 +78,12 @@ Plans:
   3. Super Admin can configure night discount percentage and hours
   4. Org Admin can add new natagare to global list if missing
   5. Closer sees only natagare dropdown (no edit access)
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 09-01: Global natagare migration
-- [ ] 09-02: Peak method and night discount configuration UI
+- [ ] 09-01-PLAN.md — Schema & migration (globalScope, approvalStatus, permissions, data migration with duplicate detection)
+- [ ] 09-02-PLAN.md — Super Admin configuration UI (list-with-side-panel, peak method config, duplicate banner)
+- [ ] 09-03-PLAN.md — Org/Closer access & approval flow (request form, view-only list, dashboard widget)
 
 ### Phase 10: Consumption Profiles
 **Goal:** Users input annual consumption with heating type and see realistic seasonal distribution
@@ -154,7 +155,7 @@ Plans:
 | 6. Calculation Engine | v1.1 | 3/3 | Complete | 2026-01-31 |
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
-| 9. Natagare Centralization | v1.2 | 0/2 | Not started | - |
+| 9. Natagare Centralization | v1.2 | 0/3 | Not started | - |
 | 10. Consumption Profiles | v1.2 | 0/2 | Not started | - |
 | 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
@@ -162,4 +163,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (Phase 8 complete)*
+*Last updated: 2026-02-01 (Phase 9 planned)*
