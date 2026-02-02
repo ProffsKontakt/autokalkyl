@@ -10,6 +10,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Elomrade, ConsumptionProfile } from '@/lib/calculations/types'
+import type { HeatingType } from '@prisma/client'
 import {
   createEmptyProfile,
   applyPreset,
@@ -50,6 +51,7 @@ interface WizardState {
   elomrade: Elomrade | null
   natagareId: string | null
   annualConsumptionKwh: number
+  heatingType: HeatingType | null
 
   // Step 2: Consumption Profile
   consumptionProfile: ConsumptionProfile
@@ -82,7 +84,9 @@ interface WizardState {
     elomrade: Elomrade | null
     natagareId: string | null
     annualConsumptionKwh: number
+    heatingType: HeatingType | null
   }>) => void
+  updateHeatingType: (type: HeatingType | null) => void
   updateConsumptionHour: (month: number, hour: number, value: number) => void
   applyPresetToProfile: (presetId: string) => void
   copyMonthPattern: (fromMonth: number, toMonths: number[]) => void
@@ -105,6 +109,7 @@ interface WizardState {
     elomrade: Elomrade
     natagareId: string
     annualConsumptionKwh: number
+    heatingType?: HeatingType | null
     consumptionProfile: ConsumptionProfile
     batteries: BatterySelection[]
   }) => void
@@ -125,6 +130,7 @@ const initialState = {
   elomrade: null as Elomrade | null,
   natagareId: null as string | null,
   annualConsumptionKwh: DEFAULT_ANNUAL_CONSUMPTION_KWH,
+  heatingType: null as HeatingType | null,
   consumptionProfile: { data: createEmptyProfile() } as ConsumptionProfile,
   batteries: [] as BatterySelection[],
   cyclesPerDay: DEFAULT_CYCLES_PER_DAY,
@@ -205,6 +211,7 @@ export const useCalculationWizardStore = create<WizardState>()(
       updateCyclesPerDay: (cycles) => set({ cyclesPerDay: cycles }),
       updatePeakShavingPercent: (percent) => set({ peakShavingPercent: percent }),
       updatePostCampaignRate: (rate) => set({ postCampaignRate: rate }),
+      updateHeatingType: (type) => set({ heatingType: type }),
 
       setOverride: (key, value) => set((state) => ({
         overrides: { ...state.overrides, [key]: value }
@@ -243,6 +250,7 @@ export const useCalculationWizardStore = create<WizardState>()(
         elomrade: data.elomrade,
         natagareId: data.natagareId,
         annualConsumptionKwh: data.annualConsumptionKwh,
+        heatingType: data.heatingType ?? null,
         consumptionProfile: data.consumptionProfile,
         batteries: data.batteries,
         isDraft: true,
@@ -252,6 +260,7 @@ export const useCalculationWizardStore = create<WizardState>()(
       reset: () => set({
         ...initialState,
         consumptionProfile: { data: createEmptyProfile() },
+        heatingType: null,
         cyclesPerDay: 1.5, // Standard daily cycling
         peakShavingPercent: 50,
         postCampaignRate: DEFAULT_POST_CAMPAIGN_RATE,
@@ -278,6 +287,7 @@ export const useCalculationWizardStore = create<WizardState>()(
         elomrade: state.elomrade,
         natagareId: state.natagareId,
         annualConsumptionKwh: state.annualConsumptionKwh,
+        heatingType: state.heatingType,
         consumptionProfile: state.consumptionProfile,
         batteries: state.batteries,
         currentStep: state.currentStep,
