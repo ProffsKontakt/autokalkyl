@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 9
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 10
 
 ## Current Position
 
-Phase: 9 of 13 (Natagare Centralization)
-Plan: 3 of 3 in phase
-Status: Phase complete
-Last activity: 2026-02-01 — Completed 09-03-PLAN.md (Org Admin/Closer View & Request Workflow)
+Phase: 10 of 13 (Consumption Profiles)
+Plan: 1 of 3 in phase
+Status: In progress
+Last activity: 2026-02-02 — Completed 10-01-PLAN.md (Consumption Profile Distribution)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#####_____] 50%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [######____] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12 (v1.1 + Phase 8 + Phase 9)
+- Total plans completed: 13 (v1.1 + Phase 8 + Phase 9 + Phase 10)
 - Average duration: ~4min
-- Total execution time: ~52min
+- Total execution time: ~55min
 
 **By Phase:**
 
@@ -31,6 +31,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#####_____] 50%
 | 7 | 4/4 | 17min | 4.25min |
 | 8 | 2/2 | ~6min | ~3min |
 | 9 | 3/3 | ~17min | ~5.6min |
+| 10 | 1/3 | ~3min | ~3min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -53,6 +54,8 @@ Recent from v1.2:
 - Super Admin redirects from /natagare to /admin/natagare for config (09-03)
 - showActions prop pattern for role-based UI rendering (09-03)
 - userRole prop propagation through wizard for conditional features (09-03)
+- [CP-01] Normalize monthly factors at runtime to ensure exact sum of 12 (10-01)
+- [CP-02] Store raw factors separately and normalize in HEATING_TYPE_PROFILES (10-01)
 
 Recent from v1.1:
 - Apply overrides server-side for invisible sync
@@ -75,8 +78,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-01
-Stopped at: Completed 09-03-PLAN.md (Org Admin/Closer View & Request Workflow)
+Last session: 2026-02-02
+Stopped at: Completed 10-01-PLAN.md (Consumption Profile Distribution)
 Resume file: None
 
-Next action: `/gsd:execute-plan 10-01` (Consumption Patterns phase)
+Next action: `/gsd:execute-plan 10-02` (Wizard Step UI)
