@@ -5,9 +5,10 @@
  *
  * Orchestrates the multi-step wizard flow:
  * 1. Customer Info - name, postal code, elomrade, natagare
- * 2. Consumption - 12x24 consumption profile editor
- * 3. Battery - select and configure batteries
- * 4. Results - calculated ROI and savings
+ * 2. Consumption Profile - heating type, annual kWh, distribution preview
+ * 3. Consumption - 12x24 consumption profile editor
+ * 4. Battery - select and configure batteries
+ * 5. Results - calculated ROI and savings
  */
 
 import { useEffect, useState } from 'react'
@@ -16,6 +17,7 @@ import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { useAutoSave } from '@/hooks/use-auto-save'
 import { WizardNavigation } from './wizard-navigation'
 import { CustomerInfoStep } from './steps/customer-info-step'
+import { ConsumptionProfileStep } from './steps/consumption-profile-step'
 import { ConsumptionStep } from './steps/consumption-step'
 import { BatteryStep } from './steps/battery-step'
 import { ResultsStep } from './steps/results-step'
@@ -73,7 +75,7 @@ interface CalculationWizardProps {
   userRole?: string
 }
 
-const TOTAL_STEPS = 4
+const TOTAL_STEPS = 5
 
 export function CalculationWizard({
   natagareList,
@@ -193,21 +195,26 @@ export function CalculationWizard({
   // Validation per step
   const canGoNext = (): boolean => {
     switch (store.currentStep) {
-      case 0: // Customer Info
+      case 0: // Customer Info - name, elomrade, natagare (no longer requires annualConsumptionKwh)
         return !!(
           store.customerName &&
           store.elomrade &&
-          store.natagareId &&
-          store.annualConsumptionKwh > 0
+          store.natagareId
         )
-      case 1: // Consumption
+      case 1: // Consumption Profile - heating type and annual kWh
+        return !!(
+          store.annualConsumptionKwh >= 5000 &&
+          store.annualConsumptionKwh <= 75000 &&
+          store.heatingType !== null
+        )
+      case 2: // Consumption (12x24 editor)
         // At least one non-zero value
         return store.consumptionProfile.data.some(month =>
           month.some(hour => hour > 0)
         )
-      case 2: // Battery
+      case 3: // Battery
         return store.batteries.length > 0
-      case 3: // Results
+      case 4: // Results
         return true
       default:
         return false
@@ -231,15 +238,18 @@ export function CalculationWizard({
           <CustomerInfoStep natagareList={natagareList} userRole={userRole} />
         )}
         {store.currentStep === 1 && (
-          <ConsumptionStep />
+          <ConsumptionProfileStep />
         )}
         {store.currentStep === 2 && (
+          <ConsumptionStep />
+        )}
+        {store.currentStep === 3 && (
           <BatteryStep
             batteryList={batteryList}
             orgSettings={orgSettings}
           />
         )}
-        {store.currentStep === 3 && (
+        {store.currentStep === 4 && (
           <ResultsStep
             quarterlyPrices={quarterlyPrices}
             orgSettings={orgSettings}

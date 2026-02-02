@@ -11,6 +11,7 @@ import { ComparisonView } from '@/components/calculations/results/comparison-vie
 import { CyclesSlider } from '@/components/calculations/controls/cycles-slider'
 import { PeakShavingSlider } from '@/components/calculations/controls/peak-shaving-slider'
 import { StodtjansterInput } from '@/components/calculations/controls/stodtjanster-input'
+import { ConsumptionDistributionSection } from '@/components/calculations/results/consumption-distribution-section'
 import type { BatterySpec, CalculationResults } from '@/lib/calculations/types'
 
 interface NatagareInfo {
@@ -60,6 +61,9 @@ export function ResultsStep({
     // Phase 7: Calculation ID and overrides
     calculationId,
     overrides,
+    // Phase 10: Consumption profile
+    annualConsumptionKwh,
+    heatingType,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -222,6 +226,13 @@ export function ResultsStep({
         />
         <ROITimelineChart results={primaryResult.results} batteryName={primaryResult.batteryName} />
       </div>
+
+      {/* Consumption distribution section - Phase 10 */}
+      <ConsumptionDistributionSection
+        annualKwh={annualConsumptionKwh}
+        heatingType={heatingType}
+        defaultExpanded={false}
+      />
 
       {/* Margin display for ProffsKontakt affiliates */}
       {orgSettings?.isProffsKontaktAffiliated && primaryResult.results.marginSek !== undefined && (

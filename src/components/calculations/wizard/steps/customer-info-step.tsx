@@ -8,7 +8,8 @@
  * - Postal code (optional, used for elomrade auto-detection)
  * - Elomrade (SE1-SE4)
  * - Natagare (grid operator)
- * - Annual consumption in kWh
+ *
+ * Note: Annual consumption moved to Consumption Profile step (Phase 10).
  */
 
 import Link from 'next/link'
@@ -38,7 +39,6 @@ export function CustomerInfoStep({ natagareList, userRole }: CustomerInfoStepPro
     postalCode,
     elomrade,
     natagareId,
-    annualConsumptionKwh,
     updateCustomerInfo,
   } = useCalculationWizardStore()
 
@@ -151,25 +151,6 @@ export function CustomerInfoStep({ natagareList, userRole }: CustomerInfoStepPro
           </p>
         </div>
 
-        {/* Annual consumption */}
-        <div>
-          <label htmlFor="annualConsumption" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Årlig förbrukning (kWh) *
-          </label>
-          <input
-            id="annualConsumption"
-            type="number"
-            value={annualConsumptionKwh}
-            onChange={(e) => updateCustomerInfo({ annualConsumptionKwh: Number(e.target.value) })}
-            min={1}
-            step={100}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-          />
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Typiskt villahushåll: 15 000-25 000 kWh/år
-          </p>
-        </div>
-
         {/* Summary card */}
         {customerName && elomrade && (
           <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
@@ -182,10 +163,6 @@ export function CustomerInfoStep({ natagareList, userRole }: CustomerInfoStepPro
               <div className="flex justify-between">
                 <dt>Elområde:</dt>
                 <dd className="font-medium">{elomrade}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>Årlig förbrukning:</dt>
-                <dd className="font-medium">{annualConsumptionKwh.toLocaleString('sv-SE')} kWh</dd>
               </div>
             </dl>
           </div>
