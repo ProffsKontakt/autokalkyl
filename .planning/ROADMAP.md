@@ -98,9 +98,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Core logic with TDD (distribution algorithm, estimation formula)
-- [ ] 10-02-PLAN.md — Store extension and UI components (slider, radio buttons, chart)
-- [ ] 10-03-PLAN.md — Wizard integration and results page chart
+- [x] 10-01-PLAN.md — Core logic with TDD (distribution algorithm, estimation formula)
+- [x] 10-02-PLAN.md — Store extension and UI components (slider, radio buttons, chart)
+- [x] 10-03-PLAN.md — Wizard integration and results page chart
 
 ### Phase 11: Peak Calculation Engine
 **Goal:** Accurate peak tariff calculations using natagare-specific methods
@@ -112,12 +112,13 @@ Plans:
   3. Night peaks (22:00-06:00) apply configured discount automatically
   4. Results page shows before/after peak comparison with battery impact
   5. Peak shaving respects battery capacity constraints (cycles/day, max kW)
-**Plans:** 3 plans
+**Plans:** 4 plans (3 core + 1 gap closure)
 
 Plans:
-- [ ] 11-01-PLAN.md — Peak billing calculation module (TDD) with N-peak averaging, night discount, constraints
-- [ ] 11-02-PLAN.md — Wizard inputs and peak estimation (target inputs, auto-estimation from consumption)
-- [ ] 11-03-PLAN.md — Engine integration and results UI (before/after comparison, constraint warnings)
+- [x] 11-01-PLAN.md — Peak billing calculation module (TDD) with N-peak averaging, night discount, constraints
+- [x] 11-02-PLAN.md — Wizard inputs and peak estimation (target inputs, auto-estimation from consumption)
+- [x] 11-03-PLAN.md — Engine integration and results UI (before/after comparison, constraint warnings)
+- [ ] 11-04-PLAN.md — Gap closure: Wire PeakTargetInput into wizard and connect to calculation engine
 
 ### Phase 12: Analytics & Dashboard
 **Goal:** Working PostHog analytics with role-based embedded dashboards
@@ -157,11 +158,11 @@ Plans:
 | 7. Calculation Transparency | v1.1 | 4/4 | Complete | 2026-01-31 |
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
-| 10. Consumption Profiles | v1.2 | 0/3 | Planned | - |
-| 11. Peak Calculation Engine | v1.2 | 0/3 | Planned | - |
+| 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
+| 11. Peak Calculation Engine | v1.2 | 3/4 | Gap closure | - |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 11 planned)*
+*Last updated: 2026-02-05 (Phase 11 gap closure plan added)*
