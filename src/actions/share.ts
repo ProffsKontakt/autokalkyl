@@ -21,18 +21,21 @@ import type {
   CalculationBreakdownPublic,
   CalculationResultsPublicWithBreakdown,
   CalculationOverrides,
+  PublicCombinedResults,
+  PublicUnitBreakdown,
 } from '@/lib/share/types'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
 import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import { calcTotalElectricityFees } from '@/lib/calculations/fees'
-import type { CustomerType } from '@/lib/calculations/types'
+import type { CustomerType, UnitBreakdown } from '@/lib/calculations/types'
 import { checkSharePasswordRateLimit, hashIp } from '@/lib/rate-limit'
 import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger'
 import {
   trackCalculationViewed,
   trackShareLinkGenerated,
 } from '@/lib/analytics/server-events'
+import { calculateCombinedResults } from '@/lib/calculations/combo-calculations'
 
 // =============================================================================
 // GENERATE/UPDATE SHARE LINK (Authenticated - Closer/Admin)
@@ -441,6 +444,8 @@ export async function getPublicCalculation(
       totalPriceExVat: totalExVat,
       totalPriceIncVat: totalIncVat,
       costAfterGronTeknik: afterGronTeknik,
+      // Phase 17: Include quantity for combo view
+      quantity: b.quantity,
       // Note: costPrice, marginSek, installerCut NOT included
     }
   })
@@ -540,6 +545,108 @@ export async function getPublicCalculation(
     }
   }
 
+  // Phase 17: Build combined results if in Komboinvestering mode
+  const comboMode = (calculation.comboMode as 'komboinvestering' | 'jamfora') || 'jamfora'
+  let combinedResults: PublicCombinedResults | undefined
+
+  if (comboMode === 'komboinvestering' && calculation.batteries.length > 0) {
+    // Build combined results from stored battery results
+    // Note: We use stored results rather than recalculating to ensure consistency
+    const unitBreakdowns: PublicUnitBreakdown[] = calculation.batteries.map((b) => {
+      const batteryResults = b.results as Record<string, number> | null
+      if (!batteryResults) {
+        // Fallback if no results stored for this battery
+        return {
+          battery: {
+            name: b.batteryConfig.name,
+            capacityKwh: Number(b.batteryConfig.capacityKwh),
+            maxDischargeKw: Number(b.batteryConfig.maxDischargeKw),
+          },
+          quantity: b.quantity,
+          perUnitResults: {
+            totalPriceExVat: 0,
+            totalPriceIncVat: 0,
+            costAfterGronTeknik: 0,
+            spotprisSavings: 0,
+            effectTariffSavings: 0,
+            gridServicesIncome: 0,
+            totalAnnualSavings: 0,
+            paybackYears: 0,
+            roi10Year: 0,
+            roi15Year: 0,
+          },
+          subtotalCapacityKwh: Number(b.batteryConfig.capacityKwh) * b.quantity,
+          subtotalMaxDischargeKw: Number(b.batteryConfig.maxDischargeKw) * b.quantity,
+          subtotalAnnualSavingsSek: 0,
+          subtotalCostAfterGronTeknikSek: 0,
+        }
+      }
+
+      return {
+        battery: {
+          name: b.batteryConfig.name,
+          capacityKwh: Number(b.batteryConfig.capacityKwh),
+          maxDischargeKw: Number(b.batteryConfig.maxDischargeKw),
+        },
+        quantity: b.quantity,
+        perUnitResults: {
+          totalPriceExVat: batteryResults.totalPriceExVat || 0,
+          totalPriceIncVat: batteryResults.totalIncVatSek || 0,
+          costAfterGronTeknik: batteryResults.costAfterGronTeknikSek || 0,
+          spotprisSavings: batteryResults.spotprisSavingsSek || 0,
+          effectTariffSavings: batteryResults.effectTariffSavingsSek || 0,
+          gridServicesIncome: batteryResults.gridServicesIncomeSek || 0,
+          totalAnnualSavings: batteryResults.totalAnnualSavingsSek || 0,
+          paybackYears: batteryResults.paybackPeriodYears || 0,
+          roi10Year: batteryResults.roi10YearPercent || 0,
+          roi15Year: batteryResults.roi15YearPercent || 0,
+        },
+        subtotalCapacityKwh: Number(b.batteryConfig.capacityKwh) * b.quantity,
+        subtotalMaxDischargeKw: Number(b.batteryConfig.maxDischargeKw) * b.quantity,
+        subtotalAnnualSavingsSek: (batteryResults.totalAnnualSavingsSek || 0) * b.quantity,
+        subtotalCostAfterGronTeknikSek: (batteryResults.costAfterGronTeknikSek || 0) * b.quantity,
+      }
+    })
+
+    // Calculate aggregated totals from unit breakdowns
+    const totalCapacityKwh = unitBreakdowns.reduce((sum, u) => sum + u.subtotalCapacityKwh, 0)
+    const totalMaxDischargeKw = unitBreakdowns.reduce((sum, u) => sum + u.subtotalMaxDischargeKw, 0)
+    const totalAnnualSavingsSek = unitBreakdowns.reduce((sum, u) => sum + u.subtotalAnnualSavingsSek, 0)
+
+    // For cost, sum up per-unit costs times quantity (before Gron Teknik)
+    const totalCostExVat = unitBreakdowns.reduce((sum, u) => {
+      const perUnitExVat = u.perUnitResults.totalPriceExVat
+      return sum + (perUnitExVat * u.quantity)
+    }, 0)
+    const totalCostIncVat = totalCostExVat * (1 + VAT_RATE)
+    // Apply Gron Teknik to combined total (not per-unit)
+    const totalCostAfterGronTeknik = totalCostIncVat * (1 - GRON_TEKNIK_RATE)
+
+    // Calculate combined ROI metrics
+    const combinedPaybackYears = totalAnnualSavingsSek > 0
+      ? totalCostAfterGronTeknik / totalAnnualSavingsSek
+      : 0
+    const combinedRoi10Year = totalCostAfterGronTeknik > 0
+      ? ((totalAnnualSavingsSek * 10 - totalCostAfterGronTeknik) / totalCostAfterGronTeknik) * 100
+      : 0
+    const combinedRoi15Year = totalCostAfterGronTeknik > 0
+      ? ((totalAnnualSavingsSek * 15 - totalCostAfterGronTeknik) / totalCostAfterGronTeknik) * 100
+      : 0
+
+    combinedResults = {
+      totalCapacityKwh,
+      totalMaxDischargeKw,
+      totalCostExVat,
+      totalCostIncVat,
+      totalCostAfterGronTeknik,
+      totalAnnualSavingsSek,
+      combinedPaybackYears,
+      combinedRoi10Year,
+      combinedRoi15Year,
+      unitBreakdowns,
+    }
+  }
+
   // Track prospect view (analytics - non-blocking)
   try {
     await trackCalculationViewed(
@@ -583,6 +690,9 @@ export async function getPublicCalculation(
           currentSelfConsumptionKwh: calculation.currentSelfConsumptionKwh ? Number(calculation.currentSelfConsumptionKwh) : null,
           projectedSelfConsumptionKwh: calculation.projectedSelfConsumptionKwh ? Number(calculation.projectedSelfConsumptionKwh) : null,
         },
+        // Phase 17: Combo mode and combined results
+        comboMode,
+        combinedResults,
       },
       organization: calculation.organization,
       closer: {
