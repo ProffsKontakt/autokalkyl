@@ -4,7 +4,7 @@
 
 - v1.0 MVP — Phases 1-5 (shipped 2026-01-20)
 - v1.1 Fixed ROI Calculations — Phases 6-7 (shipped 2026-02-01)
-- v1.2 Realistic Consumption & Peak Tariffs — Phases 8-13 (in progress)
+- v1.2 Realistic Consumption & Peak Tariffs — Phases 8-13 (shipped 2026-02-05)
 
 ## Phases
 
@@ -40,7 +40,7 @@ All 21 requirements shipped.
 
 </details>
 
-### v1.2 Realistic Consumption & Peak Tariffs (In Progress)
+### v1.2 Realistic Consumption & Peak Tariffs (SHIPPED 2026-02-05)
 
 **Milestone Goal:** Replace simplified consumption model with realistic Swedish consumption profiles and accurate peak tariff calculations based on grid operator-specific rules.
 
@@ -49,7 +49,7 @@ All 21 requirements shipped.
 - [x] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
 - [x] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
 - [x] **Phase 12: Analytics & Dashboard** — PostHog fix, server-side events, embedded role-based dashboards
-- [ ] **Phase 13: Bug Fixes & Polish** — Display corrections, UI improvements
+- [x] **Phase 13: Bug Fixes & Polish** — Display corrections, UI improvements
 
 ## Phase Details
 
@@ -150,8 +150,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 13-01-PLAN.md — Spotpris efficiency and breakdown formatting (FIX-01, FIX-04)
-- [ ] 13-02-PLAN.md — Sidebar permanent menu with collapse functionality (FIX-02)
+- [x] 13-01-PLAN.md — Spotpris efficiency and breakdown formatting (FIX-01, FIX-04)
+- [x] 13-02-PLAN.md — Sidebar permanent menu with collapse functionality (FIX-02)
 
 ## Progress
 
@@ -165,8 +165,8 @@ Plans:
 | 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
 | 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
 | 12. Analytics & Dashboard | v1.2 | 5/5 | Complete | 2026-02-05 |
-| 13. Bug Fixes & Polish | v1.2 | 0/2 | Not started | - |
+| 13. Bug Fixes & Polish | v1.2 | 2/2 | Complete | 2026-02-05 |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 13 planned)*
+*Last updated: 2026-02-05 (Phase 13 complete, v1.2 shipped)*
