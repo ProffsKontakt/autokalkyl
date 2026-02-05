@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.3 Combo & Avgifter — Phase 16 (Fees & Taxes)
+**Current focus:** v1.3 Combo & Avgifter — Phase 17 (Multi-battery combo)
 
 ## Current Position
 
 Phase: 16 — Fees & Taxes
-Plan: 2/3
-Status: In progress
-Last activity: 2026-02-05 — Completed 16-02-PLAN.md
+Plan: 3/3
+Status: Phase complete
+Last activity: 2026-02-05 — Completed 16-03-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [########░░] 67%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#########░] 75%
 
 ## Milestone Summary
 
@@ -30,10 +30,10 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | ✓ Complete |
-| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | ✓ Complete |
-| 16 | Fees & taxes in calculations | FEES-01-05 | In progress (2/3) |
-| 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
+| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
+| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Complete |
+| 16 | Fees & taxes in calculations | FEES-01-05 | Complete (3/3) |
+| 17 | Multi-battery combo | COMBO-01-10 | Ready |
 
 ## Accumulated Context
 
@@ -55,6 +55,8 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 16-01 | PRIVATPERSON energiskatt rate includes moms (45 ore) | Simplifies calculations - no separate moms calculation needed |
 | 2026-02-05 | 16-02 | Purple color for fees breakdown | Consistent with financial/taxes theme |
 | 2026-02-05 | 16-02 | Moms label in subtitle based on customer type | Clear display of inkl/exkl moms for privatperson/foretag |
+| 2026-02-05 | 16-03 | Fees breakdown after Elinformation section | Logical grouping - fees relate to electricity information |
+| 2026-02-05 | 16-03 | Fees breakdown after StodtjansterBreakdown in public | Consistent breakdown ordering - last breakdown item |
 
 ### Pending Todos
 
@@ -74,7 +76,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 16-02-PLAN.md
+Stopped at: Completed 16-03-PLAN.md
 Resume file: None
 
-Next action: `/gsd:execute-plan 16-03-PLAN.md`
+Next action: Phase 17 (Multi-battery combo) now unblocked
