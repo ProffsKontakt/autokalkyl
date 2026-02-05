@@ -112,12 +112,12 @@ Plans:
   3. Night peaks (22:00-06:00) apply configured discount automatically
   4. Results page shows before/after peak comparison with battery impact
   5. Peak shaving respects battery capacity constraints (cycles/day, max kW)
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 11-01: Manual peak inputs and peak method strategy
-- [ ] 11-02: Night discount calculation and capacity constraints
-- [ ] 11-03: Peak shaving visualization and before/after comparison
+- [ ] 11-01-PLAN.md — Peak billing calculation module (TDD) with N-peak averaging, night discount, constraints
+- [ ] 11-02-PLAN.md — Wizard inputs and peak estimation (target inputs, auto-estimation from consumption)
+- [ ] 11-03-PLAN.md — Engine integration and results UI (before/after comparison, constraint warnings)
 
 ### Phase 12: Analytics & Dashboard
 **Goal:** Working PostHog analytics with role-based embedded dashboards
@@ -158,10 +158,10 @@ Plans:
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
 | 10. Consumption Profiles | v1.2 | 0/3 | Planned | - |
-| 11. Peak Calculation Engine | v1.2 | 0/3 | Not started | - |
+| 11. Peak Calculation Engine | v1.2 | 0/3 | Planned | - |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-01 (Phase 10 planned)*
+*Last updated: 2026-02-05 (Phase 11 planned)*
