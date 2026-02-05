@@ -27,6 +27,10 @@ import { createHash } from 'crypto'
 import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import { checkSharePasswordRateLimit, hashIp } from '@/lib/rate-limit'
 import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger'
+import {
+  trackCalculationViewed,
+  trackShareLinkGenerated,
+} from '@/lib/analytics/server-events'
 
 // =============================================================================
 // GENERATE/UPDATE SHARE LINK (Authenticated - Closer/Admin)
@@ -100,6 +104,20 @@ export async function generateShareLink(
           : calculation.customGreeting,
     },
   })
+
+  // Track share link generation (analytics - non-blocking)
+  try {
+    await trackShareLinkGenerated(
+      session.user.id,
+      calculationId,
+      calculation.orgId,
+      !!passwordHash,
+      !!settings.expiresAt
+    )
+  } catch (error) {
+    console.error('Analytics tracking failed:', error)
+    // Don't fail the action - analytics is non-critical
+  }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kalkyla.se'
   const shareUrl = `${baseUrl}/${calculation.organization.slug}/${shareCode}`
@@ -466,6 +484,19 @@ export async function getPublicCalculation(
 
       resultsPublic.breakdown = buildPublicBreakdown(r, inputs)
     }
+  }
+
+  // Track prospect view (analytics - non-blocking)
+  try {
+    await trackCalculationViewed(
+      calculation.id,
+      calculation.orgId,
+      calculation.createdBy,
+      'prospect'
+    )
+  } catch (error) {
+    console.error('Analytics tracking failed:', error)
+    // Don't fail the action - analytics is non-critical
   }
 
   return {
