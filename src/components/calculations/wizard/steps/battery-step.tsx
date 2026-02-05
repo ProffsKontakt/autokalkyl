@@ -24,7 +24,15 @@ interface BatteryStepProps {
 }
 
 export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
-  const { batteries, addBattery, removeBattery, updateBatteryPricing } = useCalculationWizardStore()
+  const {
+    batteries,
+    addBattery,
+    removeBattery,
+    updateBatteryPricing,
+    updateBatteryQuantity,
+    comboMode,
+    setComboMode,
+  } = useCalculationWizardStore()
   const [selectedBatteryId, setSelectedBatteryId] = useState<string>('')
 
   const handleAddBattery = () => {
@@ -64,6 +72,44 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
       <p className="text-sm text-gray-600 mb-6">
         Välj ett eller flera batterier för att jämföra (max 4).
       </p>
+
+      {/* Mode toggle - visible when at least 1 battery is added */}
+      {batteries.length > 0 && (
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Visningsläge
+          </label>
+          <div className="flex bg-gray-100 rounded-lg p-1 max-w-md">
+            <button
+              type="button"
+              onClick={() => setComboMode('komboinvestering')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                comboMode === 'komboinvestering'
+                  ? 'bg-white shadow text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Komboinvestering
+            </button>
+            <button
+              type="button"
+              onClick={() => setComboMode('jamfora')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                comboMode === 'jamfora'
+                  ? 'bg-white shadow text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Jämför
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            {comboMode === 'komboinvestering'
+              ? 'Kombinerar alla batterier till en total investering'
+              : 'Jämför batterier sida vid sida'}
+          </p>
+        </div>
+      )}
 
       {/* Battery selector */}
       <div className="flex gap-2 mb-6">
