@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 15 — Customer Electricity Inputs (In Progress)
-Plan: 1/3 (15-01 complete)
-Status: Plan 15-01 complete, continuing to 15-02
-Last activity: 2026-02-05 — Completed 15-01-PLAN.md
+Plan: 2/3 (15-01, 15-02 complete)
+Status: Plan 15-02 complete, continuing to 15-03
+Last activity: 2026-02-05 — Completed 15-02-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####░░░░░░] 33%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#####░░░░░] 42%
 
 ## Milestone Summary
 
@@ -30,8 +30,8 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | ✓ Complete |
-| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (1/3 plans) |
+| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
+| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (2/3 plans) |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Blocked by 14, 15 |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
 
@@ -50,6 +50,8 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 15-01 | String for customerType (not enum) | Allows Super Admin to configure customer types without schema migration |
 | 2026-02-05 | 15-01 | Decimal(10,2) for all kWh and price fields | Financial precision consistent with Phase 14 pattern |
 | 2026-02-05 | 15-01 | All new fields nullable except customerType and hasSolar | Backward compatibility with existing calculations |
+| 2026-02-05 | 15-02 | Default self-consumption: 30% without battery, 75% with | Typical Swedish residential patterns from research |
+| 2026-02-05 | 15-02 | Validation returns {valid, errors[], warnings[]} | Distinguish hard errors from soft warnings for UX |
 
 ### Pending Todos
 
@@ -72,8 +74,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 17:56 UTC
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-02-05 17:51 UTC
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None
 
-Next action: `/gsd:execute-phase 15` (plan 02) or `/gsd:plan-phase 15` (if more plans needed)
+Next action: `/gsd:execute-phase 15` (plan 03) or verify all Phase 15 plans complete
