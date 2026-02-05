@@ -81,6 +81,22 @@ interface WizardState {
   targetMonthlyCeilingKw: number | null // Max peak user wants to maintain
   peakEstimateSource: 'auto' | 'manual' // Track if user overrode auto-estimate
 
+  // Phase 15: Customer Type & Electricity Inputs
+  customerType: 'PRIVATPERSON' | 'FORETAG'
+  koptElKwh: number
+  koptElInputMode: 'annual' | 'monthly'
+  koptElMonthly: number[] // 12 months
+  electricityPriceOreKwh: number
+  electricityPriceInputMode: 'annual' | 'monthly'
+  electricityPriceMonthly: number[] // 12 months
+  hasSolar: boolean
+  solarProductionKwh: number | null
+  solarProductionInputMode: 'annual' | 'monthly'
+  solarProductionMonthly: number[] | null // 12 months
+  currentSelfConsumptionKwh: number | null
+  projectedSelfConsumptionKwh: number | null
+  selfConsumptionInputMode: 'kwh' | 'percent'
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -124,6 +140,22 @@ interface WizardState {
   updateTargetAveragePeakKw: (kw: number | null) => void
   updateTargetMonthlyCeilingKw: (kw: number | null) => void
   setPeakEstimateSource: (source: 'auto' | 'manual') => void
+
+  // Phase 15: Customer Type & Electricity Actions
+  updateCustomerType: (type: 'PRIVATPERSON' | 'FORETAG') => void
+  updateKoptEl: (kwh: number) => void
+  toggleKoptElInputMode: () => void
+  updateKoptElMonthly: (month: number, kwh: number) => void
+  updateElectricityPrice: (oreKwh: number) => void
+  toggleElectricityPriceInputMode: () => void
+  updateElectricityPriceMonthly: (month: number, oreKwh: number) => void
+  toggleHasSolar: () => void
+  updateSolarProduction: (kwh: number | null) => void
+  toggleSolarProductionInputMode: () => void
+  updateSolarProductionMonthly: (month: number, kwh: number) => void
+  updateCurrentSelfConsumption: (kwh: number | null) => void
+  updateProjectedSelfConsumption: (kwh: number | null) => void
+  toggleSelfConsumptionInputMode: () => void
 }
 
 /**
@@ -160,6 +192,22 @@ const initialState = {
   targetAveragePeakKw: null as number | null,
   targetMonthlyCeilingKw: null as number | null,
   peakEstimateSource: 'auto' as 'auto' | 'manual',
+
+  // Phase 15: Customer Type & Electricity Inputs
+  customerType: 'PRIVATPERSON' as const,
+  koptElKwh: 0,
+  koptElInputMode: 'annual' as const,
+  koptElMonthly: Array(12).fill(0) as number[],
+  electricityPriceOreKwh: 0, // No default - user must enter
+  electricityPriceInputMode: 'annual' as const,
+  electricityPriceMonthly: Array(12).fill(0) as number[],
+  hasSolar: false,
+  solarProductionKwh: null as number | null,
+  solarProductionInputMode: 'annual' as const,
+  solarProductionMonthly: null as number[] | null,
+  currentSelfConsumptionKwh: null as number | null,
+  projectedSelfConsumptionKwh: null as number | null,
+  selfConsumptionInputMode: 'kwh' as const,
 }
 
 /**
@@ -231,6 +279,110 @@ export const useCalculationWizardStore = create<WizardState>()(
       updateTargetAveragePeakKw: (kw) => set({ targetAveragePeakKw: kw }),
       updateTargetMonthlyCeilingKw: (kw) => set({ targetMonthlyCeilingKw: kw }),
       setPeakEstimateSource: (source) => set({ peakEstimateSource: source }),
+
+      // Phase 15: Customer Type & Electricity Actions
+      updateCustomerType: (type) => set({ customerType: type }),
+
+      updateKoptEl: (kwh) => set({ koptElKwh: kwh }),
+
+      toggleKoptElInputMode: () => set((state) => {
+        const newMode = state.koptElInputMode === 'annual' ? 'monthly' : 'annual'
+        if (newMode === 'monthly' && state.koptElMonthly.every(v => v === 0)) {
+          // Distribute annual value evenly across months
+          const monthlyValue = state.koptElKwh / 12
+          return {
+            koptElInputMode: newMode,
+            koptElMonthly: Array(12).fill(monthlyValue),
+          }
+        }
+        if (newMode === 'annual') {
+          // Sum monthly values
+          const annualSum = state.koptElMonthly.reduce((sum, v) => sum + v, 0)
+          return {
+            koptElInputMode: newMode,
+            koptElKwh: annualSum,
+          }
+        }
+        return { koptElInputMode: newMode }
+      }),
+
+      updateKoptElMonthly: (month, kwh) => set((state) => ({
+        koptElMonthly: state.koptElMonthly.map((v, i) => i === month ? kwh : v),
+      })),
+
+      updateElectricityPrice: (oreKwh) => set({ electricityPriceOreKwh: oreKwh }),
+
+      toggleElectricityPriceInputMode: () => set((state) => {
+        const newMode = state.electricityPriceInputMode === 'annual' ? 'monthly' : 'annual'
+        if (newMode === 'monthly' && state.electricityPriceMonthly.every(v => v === 0)) {
+          // Fill monthly with annual value
+          return {
+            electricityPriceInputMode: newMode,
+            electricityPriceMonthly: Array(12).fill(state.electricityPriceOreKwh),
+          }
+        }
+        if (newMode === 'annual') {
+          // Average of monthly values
+          const avg = state.electricityPriceMonthly.reduce((sum, v) => sum + v, 0) / 12
+          return {
+            electricityPriceInputMode: newMode,
+            electricityPriceOreKwh: avg,
+          }
+        }
+        return { electricityPriceInputMode: newMode }
+      }),
+
+      updateElectricityPriceMonthly: (month, oreKwh) => set((state) => ({
+        electricityPriceMonthly: state.electricityPriceMonthly.map((v, i) => i === month ? oreKwh : v),
+      })),
+
+      toggleHasSolar: () => set((state) => ({
+        hasSolar: !state.hasSolar,
+        // Clear solar fields when toggling off
+        ...(state.hasSolar ? {
+          solarProductionKwh: null,
+          solarProductionMonthly: null,
+          currentSelfConsumptionKwh: null,
+          projectedSelfConsumptionKwh: null,
+        } : {}),
+      })),
+
+      updateSolarProduction: (kwh) => set({ solarProductionKwh: kwh }),
+
+      toggleSolarProductionInputMode: () => set((state) => {
+        const newMode = state.solarProductionInputMode === 'annual' ? 'monthly' : 'annual'
+        if (newMode === 'monthly' && !state.solarProductionMonthly) {
+          // Create monthly array from annual value
+          const monthlyValue = (state.solarProductionKwh || 0) / 12
+          return {
+            solarProductionInputMode: newMode,
+            solarProductionMonthly: Array(12).fill(monthlyValue),
+          }
+        }
+        if (newMode === 'annual' && state.solarProductionMonthly) {
+          // Sum monthly to annual
+          const annualSum = state.solarProductionMonthly.reduce((sum, v) => sum + v, 0)
+          return {
+            solarProductionInputMode: newMode,
+            solarProductionKwh: annualSum,
+          }
+        }
+        return { solarProductionInputMode: newMode }
+      }),
+
+      updateSolarProductionMonthly: (month, kwh) => set((state) => ({
+        solarProductionMonthly: state.solarProductionMonthly
+          ? state.solarProductionMonthly.map((v, i) => i === month ? kwh : v)
+          : null,
+      })),
+
+      updateCurrentSelfConsumption: (kwh) => set({ currentSelfConsumptionKwh: kwh }),
+
+      updateProjectedSelfConsumption: (kwh) => set({ projectedSelfConsumptionKwh: kwh }),
+
+      toggleSelfConsumptionInputMode: () => set((state) => ({
+        selfConsumptionInputMode: state.selfConsumptionInputMode === 'kwh' ? 'percent' : 'kwh',
+      })),
 
       setOverride: (key, value) => set((state) => ({
         overrides: { ...state.overrides, [key]: value }
