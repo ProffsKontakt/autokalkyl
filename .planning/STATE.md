@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 10
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 11
 
 ## Current Position
 
-Phase: 10 of 13 (Consumption Profiles)
-Plan: 2 of 3 in phase
+Phase: 11 of 13 (Peak Calculation Engine)
+Plan: 1 of 3 in phase
 Status: In progress
-Last activity: 2026-02-02 — Completed 10-02-PLAN.md (Wizard Step UI)
+Last activity: 2026-02-05 — Completed 11-01-PLAN.md (Peak Billing Module)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#######___] 70%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [########__] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (v1.1 + Phase 8 + Phase 9 + Phase 10)
+- Total plans completed: 15 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11)
 - Average duration: ~4min
-- Total execution time: ~59min
+- Total execution time: ~62min
 
 **By Phase:**
 
@@ -32,6 +32,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#######___] 70%
 | 8 | 2/2 | ~6min | ~3min |
 | 9 | 3/3 | ~17min | ~5.6min |
 | 10 | 2/3 | ~7min | ~3.5min |
+| 11 | 1/3 | 3min | 3min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -57,6 +58,9 @@ Recent from v1.2:
 - [CP-01] Normalize monthly factors at runtime to ensure exact sum of 12 (10-01)
 - [CP-02] Store raw factors separately and normalize in HEATING_TYPE_PROFILES (10-01)
 - [CP-03] Keep height prop in DistributionChart for backward compatibility (10-02)
+- [PEAK-01] Night hour detection handles overnight wrap (22:00-06:00) (11-01)
+- [PEAK-02] N-peak average applies discount BEFORE sorting (Ellevio behavior) (11-01)
+- [PEAK-03] Battery constraint message shows both target and actual kW (11-01)
 
 Recent from v1.1:
 - Apply overrides server-side for invisible sync
@@ -79,8 +83,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-02
-Stopped at: Completed 10-02-PLAN.md (Wizard Step UI)
+Last session: 2026-02-05
+Stopped at: Completed 11-01-PLAN.md (Peak Billing Module)
 Resume file: None
 
-Next action: `/gsd:execute-plan 10-03` (Wizard Step Assembly)
+Next action: `/gsd:execute-plan 11-02` (Peak Shaving Optimizer)
