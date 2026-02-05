@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { PublicConsumptionSimulator } from './public-consumption-simulator'
 import { PublicBatterySummary } from './public-battery-summary'
 import { PublicResultsView } from './public-results-view'
+import { PublicComboView } from './public-combo-view'
 import { StickyResultsBar } from './sticky-results-bar'
 import { MobileBatteryCarousel } from './mobile-battery-carousel'
 import { saveVariant } from '@/actions/share'
@@ -11,6 +12,7 @@ import type {
   PublicBatteryInfo,
   CalculationResultsPublic,
   PublicElectricityData,
+  PublicCombinedResults,
 } from '@/lib/share/types'
 import type { Elomrade } from '@prisma/client'
 
@@ -33,6 +35,8 @@ interface InteractivePublicViewProps {
   } | null
   primaryColor: string
   electricity?: PublicElectricityData
+  comboMode?: 'komboinvestering' | 'jamfora'
+  combinedResults?: PublicCombinedResults
 }
 
 export function InteractivePublicView({
@@ -46,6 +50,8 @@ export function InteractivePublicView({
   quarterlyPrices,
   primaryColor,
   electricity,
+  comboMode = 'jamfora',
+  combinedResults,
 }: InteractivePublicViewProps) {
   // Use the results passed from the server (stored when salesperson saved the calculation)
   // DO NOT recalculate - this ensures public view matches admin view exactly
@@ -103,11 +109,18 @@ export function InteractivePublicView({
         electricity={electricity}
       />
 
-      {/* Results view with current results */}
-      <PublicResultsView
-        results={currentResults}
-        primaryColor={primaryColor}
-      />
+      {/* Results view - conditional based on combo mode */}
+      {comboMode === 'komboinvestering' && combinedResults ? (
+        <PublicComboView
+          combinedResults={combinedResults}
+          primaryColor={primaryColor}
+        />
+      ) : (
+        <PublicResultsView
+          results={currentResults}
+          primaryColor={primaryColor}
+        />
+      )}
 
       {/* Sticky bar */}
       <StickyResultsBar

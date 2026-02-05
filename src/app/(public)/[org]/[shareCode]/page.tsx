@@ -118,6 +118,8 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
             } : null}
             primaryColor={organization.primaryColor}
             electricity={calculation.electricity}
+            comboMode={calculation.comboMode}
+            combinedResults={calculation.combinedResults}
           />
         )}
       </main>
