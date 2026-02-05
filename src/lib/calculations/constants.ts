@@ -9,6 +9,17 @@
 export const VAT_RATE = 0.25 // 25%
 export const GRON_TEKNIK_RATE = 0.485 // 48.5% deduction
 
+// Swedish electricity tax (energiskatt) - 2026 rates
+// Base rate: 36 ore/kWh excl. moms
+// Privatperson rate includes 25% moms: 36 * 1.25 = 45 ore/kWh
+export const ENERGISKATT_RATES = {
+  PRIVATPERSON: 45, // ore/kWh incl. moms
+  FORETAG: 36, // ore/kWh excl. moms
+} as const
+
+// Default overforingsavgift when natagare config is missing (Ellevio 2026 baseline)
+export const DEFAULT_OVERFORINGSAVGIFT_ORE_KWH = 7.0
+
 // Default calculation parameters
 export const DEFAULT_GRID_SERVICES_RATE = 600 // SEK/kW/year (market rate)
 export const DEFAULT_CYCLES_PER_DAY = 1.5 // Standard daily cycling for home battery
