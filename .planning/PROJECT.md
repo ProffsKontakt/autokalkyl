@@ -8,6 +8,17 @@ Multi-tenant SaaS platform where solar/battery sales closers create and share ba
 
 Closers can build accurate, interactive battery ROI calculations and share them with prospects who can tweak their own consumption to see real savings — converting more sales through transparency and customization.
 
+## Current Milestone: v1.3 Combo & Avgifter
+
+**Goal:** Complete calculation accuracy with all Swedish electricity fees/taxes and multi-battery combo investments.
+
+**Target features:**
+- Enhanced electricity inputs (köpt el with price, egenproducerad el from existing solar)
+- Grid fees & taxes in calculations (energiskatt 45 öre/kWh, överföringsavgift per nätägare, moms 25%)
+- Customer type toggle (privatperson vs företag — företag excludes VAT)
+- Nätägare configuration enhancements (överföringsavgift field, effect tariff timing)
+- Multi-battery combo investments (toggle Jämföra vs Komboinvestering, same model stacking)
+
 ## Current State
 
 **Version:** v1.2 Realistic Consumption & Peak Tariffs (shipped 2026-02-05)
@@ -67,7 +78,13 @@ All v1.0, v1.1, and v1.2 requirements shipped:
 
 ### Active
 
-None — planning next milestone.
+**v1.3 Combo & Avgifter:**
+- [ ] Enhanced electricity inputs (köpt el price, egenproducerad el)
+- [ ] Grid fees & taxes (energiskatt, överföringsavgift, moms)
+- [ ] Customer type toggle (privatperson/företag with VAT logic)
+- [ ] Nätägare överföringsavgift configuration
+- [ ] Effect tariff timing (day/night, summer/winter)
+- [ ] Multi-battery combo investment mode
 
 ### Out of Scope
 
@@ -77,7 +94,7 @@ None — planning next milestone.
 - Multi-currency support — Swedish market only, SEK hardcoded
 - In-app chat/messaging — Scope creep, use email instead
 - Automatic contract generation — Legal complexity outside scope
-- Solar panel calculations — Batteries only for v1
+- Solar panel sales/sizing — v1.3 adds existing solar input, but not panel sales or sizing calculations
 - Mobile app — Web-first approach, PWA works well
 - Automatic peak detection from utility API — Requires OAuth integration, high complexity
 - Per-day consumption input — Overkill for ROI estimation, monthly sufficient
@@ -146,4 +163,4 @@ None — planning next milestone.
 | Runtime normalization of heating factors | Ensures exact sum of 12 for monthly distribution | ✓ Good — mathematically correct |
 
 ---
-*Last updated: 2026-02-05 after v1.2 milestone*
+*Last updated: 2026-02-05 after v1.3 milestone started*
