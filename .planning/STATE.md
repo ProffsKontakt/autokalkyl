@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 15 — Customer Electricity Inputs (In Progress)
-Plan: 5/7 (15-01, 15-02, 15-03, 15-04, 15-05 complete)
-Status: Plan 15-05 complete, continuing to 15-06
-Last activity: 2026-02-05 — Completed 15-05-PLAN.md
+Plan: 6/7 (15-01, 15-02, 15-03, 15-04, 15-05, 15-06 complete)
+Status: Plan 15-06 complete, continuing to 15-07
+Last activity: 2026-02-05 — Completed 15-06-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#######░░░] 57%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [########░░] 64%
 
 ## Milestone Summary
 
@@ -31,7 +31,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
-| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (5/7 plans) |
+| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (6/7 plans) |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Blocked by 14, 15 |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
 
@@ -61,6 +61,9 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 15-05 | Electricity price stored in ore/kWh internally | Store canonical unit, display based on user preference |
 | 2026-02-05 | 15-05 | Self-consumption auto-suggests on first solar entry | UX: helpful defaults when solar production entered |
 | 2026-02-05 | 15-05 | Solar section hidden by default | Reduces clutter for non-solar customers |
+| 2026-02-05 | 15-06 | Step 2 validation: kopt el > 0 AND electricity price > 0 | Both required for meaningful calculation |
+| 2026-02-05 | 15-06 | Solar required only if hasSolar enabled | Conditional validation for optional solar |
+| 2026-02-05 | 15-06 | Monthly arrays sent only when input mode is monthly | Avoid sending empty arrays; use null instead |
 
 ### Pending Todos
 
@@ -83,8 +86,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 18:04 UTC
-Stopped at: Completed 15-05-PLAN.md
+Last session: 2026-02-05 19:23 UTC
+Stopped at: Completed 15-06-PLAN.md
 Resume file: None
 
-Next action: `/gsd:execute-phase 15` (plan 06) to continue Phase 15
+Next action: `/gsd:execute-phase 15` (plan 07) to complete Phase 15
