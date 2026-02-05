@@ -76,6 +76,11 @@ interface WizardState {
     tariffRateSekKw: number | null
   }
 
+  // Phase 11: Peak targets (PEAK-05, PEAK-06)
+  targetAveragePeakKw: number | null // User's goal for avg billing peak
+  targetMonthlyCeilingKw: number | null // Max peak user wants to maintain
+  peakEstimateSource: 'auto' | 'manual' // Track if user overrode auto-estimate
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -114,6 +119,11 @@ interface WizardState {
     batteries: BatterySelection[]
   }) => void
   reset: () => void
+
+  // Phase 11: Peak target actions
+  updateTargetAveragePeakKw: (kw: number | null) => void
+  updateTargetMonthlyCeilingKw: (kw: number | null) => void
+  setPeakEstimateSource: (source: 'auto' | 'manual') => void
 }
 
 /**
@@ -146,6 +156,10 @@ const initialState = {
     spreadOre: null,
     tariffRateSekKw: null,
   },
+  // Phase 11: Peak targets
+  targetAveragePeakKw: null as number | null,
+  targetMonthlyCeilingKw: null as number | null,
+  peakEstimateSource: 'auto' as 'auto' | 'manual',
 }
 
 /**
@@ -213,6 +227,11 @@ export const useCalculationWizardStore = create<WizardState>()(
       updatePostCampaignRate: (rate) => set({ postCampaignRate: rate }),
       updateHeatingType: (type) => set({ heatingType: type }),
 
+      // Phase 11: Peak target actions
+      updateTargetAveragePeakKw: (kw) => set({ targetAveragePeakKw: kw }),
+      updateTargetMonthlyCeilingKw: (kw) => set({ targetMonthlyCeilingKw: kw }),
+      setPeakEstimateSource: (source) => set({ peakEstimateSource: source }),
+
       setOverride: (key, value) => set((state) => ({
         overrides: { ...state.overrides, [key]: value }
       })),
@@ -255,6 +274,10 @@ export const useCalculationWizardStore = create<WizardState>()(
         batteries: data.batteries,
         isDraft: true,
         lastSavedAt: new Date(),
+        // Clear peak values when loading - they may need recalculation
+        targetAveragePeakKw: null,
+        targetMonthlyCeilingKw: null,
+        peakEstimateSource: 'auto',
       }),
 
       reset: () => set({
@@ -274,6 +297,10 @@ export const useCalculationWizardStore = create<WizardState>()(
           spreadOre: null,
           tariffRateSekKw: null,
         },
+        // Clear peak targets
+        targetAveragePeakKw: null,
+        targetMonthlyCeilingKw: null,
+        peakEstimateSource: 'auto',
       }),
     }),
     {
@@ -295,6 +322,10 @@ export const useCalculationWizardStore = create<WizardState>()(
         peakShavingPercent: state.peakShavingPercent,
         postCampaignRate: state.postCampaignRate,
         overrides: state.overrides,
+        // Phase 11: Peak targets
+        targetAveragePeakKw: state.targetAveragePeakKw,
+        targetMonthlyCeilingKw: state.targetMonthlyCeilingKw,
+        peakEstimateSource: state.peakEstimateSource,
       }),
     }
   )
