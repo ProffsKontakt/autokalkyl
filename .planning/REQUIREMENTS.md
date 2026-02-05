@@ -17,12 +17,12 @@ Requirements for v1.2 Realistic Consumption & Peak Tariffs. Each maps to roadmap
 
 ### Peak Tariffs
 
-- [ ] **PEAK-05**: User can input target average peak (kW) to maintain
-- [ ] **PEAK-06**: User can input target monthly peak ceiling (kW)
-- [ ] **PEAK-07**: Super Admin can configure peak calculation method per nätägare (e.g., Ellevio: 3 highest hourly peaks)
-- [ ] **PEAK-08**: System automatically applies night discount based on nätägare configuration (e.g., Ellevio: 50% for 22:00-06:00)
-- [ ] **PEAK-09**: Results page shows peak shaving impact with before/after comparison
-- [ ] **PEAK-10**: Peak calculations respect battery capacity constraints (cycles/day, max kW shaveable)
+- [x] **PEAK-05**: User can input target average peak (kW) to maintain
+- [x] **PEAK-06**: User can input target monthly peak ceiling (kW)
+- [x] **PEAK-07**: Super Admin can configure peak calculation method per nätägare (e.g., Ellevio: 3 highest hourly peaks)
+- [x] **PEAK-08**: System automatically applies night discount based on nätägare configuration (e.g., Ellevio: 50% for 22:00-06:00)
+- [x] **PEAK-09**: Results page shows peak shaving impact with before/after comparison
+- [x] **PEAK-10**: Peak calculations respect battery capacity constraints (cycles/day, max kW shaveable)
 
 ### Nätägare Management
 
@@ -88,12 +88,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONS-03 | Phase 10 | Pending |
 | CONS-04 | Phase 10 | Pending |
 | CONS-05 | Phase 10 | Pending |
-| PEAK-05 | Phase 11 | Pending |
-| PEAK-06 | Phase 11 | Pending |
-| PEAK-07 | Phase 11 | Pending |
-| PEAK-08 | Phase 11 | Pending |
-| PEAK-09 | Phase 11 | Pending |
-| PEAK-10 | Phase 11 | Pending |
+| PEAK-05 | Phase 11 | Complete |
+| PEAK-06 | Phase 11 | Complete |
+| PEAK-07 | Phase 11 | Complete |
+| PEAK-08 | Phase 11 | Complete |
+| PEAK-09 | Phase 11 | Complete |
+| PEAK-10 | Phase 11 | Complete |
 | NATA-06 | Phase 9 | Complete |
 | NATA-07 | Phase 9 | Complete |
 | NATA-08 | Phase 9 | Complete |
@@ -118,4 +118,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 (Phase 9 complete)*
+*Last updated: 2026-02-05 (Phase 11 complete)*

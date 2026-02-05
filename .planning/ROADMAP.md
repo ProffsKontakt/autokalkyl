@@ -46,8 +46,8 @@ All 21 requirements shipped.
 
 - [x] **Phase 8: Schema & Migration Foundation** — Data model extensions, hardcoded peak centralization
 - [x] **Phase 9: Natagare Centralization** — Global scope migration, Super Admin peak method configuration
-- [ ] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
-- [ ] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
+- [x] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
+- [x] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
 - [ ] **Phase 12: Analytics & Dashboard** — PostHog fix, server-side events, embedded role-based dashboards
 - [ ] **Phase 13: Bug Fixes & Polish** — Display corrections, UI improvements
 
@@ -118,7 +118,7 @@ Plans:
 - [x] 11-01-PLAN.md — Peak billing calculation module (TDD) with N-peak averaging, night discount, constraints
 - [x] 11-02-PLAN.md — Wizard inputs and peak estimation (target inputs, auto-estimation from consumption)
 - [x] 11-03-PLAN.md — Engine integration and results UI (before/after comparison, constraint warnings)
-- [ ] 11-04-PLAN.md — Gap closure: Wire PeakTargetInput into wizard and connect to calculation engine
+- [x] 11-04-PLAN.md — Gap closure: Wire PeakTargetInput into wizard and connect to calculation engine
 
 ### Phase 12: Analytics & Dashboard
 **Goal:** Working PostHog analytics with role-based embedded dashboards
@@ -159,10 +159,10 @@ Plans:
 | 8. Schema & Migration | v1.2 | 2/2 | Complete | 2026-02-01 |
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
 | 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
-| 11. Peak Calculation Engine | v1.2 | 3/4 | Gap closure | - |
+| 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
 | 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 11 gap closure plan added)*
+*Last updated: 2026-02-05 (Phase 11 complete)*
