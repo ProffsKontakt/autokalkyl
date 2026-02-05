@@ -70,6 +70,8 @@ export function ResultsStep({
     // Phase 10: Consumption profile
     annualConsumptionKwh,
     heatingType,
+    // Phase 11: Peak targets
+    targetAveragePeakKw,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -121,7 +123,7 @@ export function ResultsStep({
         batteryCostPrice: batteryInfo.costPrice,
         // Phase 6: New control parameters
         peakShavingPercent,
-        currentPeakKw: DEFAULT_CURRENT_PEAK_KW,
+        currentPeakKw: targetAveragePeakKw ?? DEFAULT_CURRENT_PEAK_KW,
         postCampaignRatePerKwYear: postCampaignRate,
         elomrade: elomrade || undefined,
         isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
@@ -142,7 +144,7 @@ export function ResultsStep({
         results,
       }
     }).filter(Boolean) as { batteryName: string; batteryInfo: BatteryInfo; results: CalculationResults }[]
-  }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade])
+  }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
 
   if (!prices) {
     return (
@@ -210,7 +212,7 @@ export function ResultsStep({
           </div>
           <div>
             <PeakShavingSlider
-              currentPeakKw={DEFAULT_CURRENT_PEAK_KW}
+              currentPeakKw={targetAveragePeakKw ?? DEFAULT_CURRENT_PEAK_KW}
               batteryMaxDischargeKw={primaryResult.batteryInfo.maxDischargeKw}
             />
           </div>
