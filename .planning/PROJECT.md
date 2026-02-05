@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Multi-tenant SaaS platform where solar/battery sales closers create and share battery ROI calculations with prospects. Built for ProffsKontakt AB and their partner organizations (Hyllinge Solkraft AB, SunBro AB). Closers build calculations with customer-specific data, share a link, and prospects can interactively tweak their consumption profile to see real savings, payback periods, and ROI.
+Multi-tenant SaaS platform where solar/battery sales closers create and share battery ROI calculations with prospects. Built for ProffsKontakt AB and their partner organizations (Hyllinge Solkraft AB, SunBro AB). Closers build calculations with customer-specific data including realistic consumption profiles and peak tariff configurations, share a link, and prospects can interactively tweak their consumption to see real savings, payback periods, and ROI.
 
 ## Core Value
 
@@ -10,9 +10,9 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 
 ## Current State
 
-**Version:** v1.2 Realistic Consumption & Peak Tariffs (in progress)
+**Version:** v1.2 Realistic Consumption & Peak Tariffs (shipped 2026-02-05)
 **Previous:** v1.1 Fixed ROI Calculations (shipped 2026-02-01)
-**Codebase:** ~22,200 lines TypeScript, Next.js 16, Prisma 7.2, Neon PostgreSQL
+**Codebase:** ~35,000 lines TypeScript, Next.js 16, Prisma 7.2, Neon PostgreSQL
 
 **Tech stack:**
 - Next.js 16 with App Router
@@ -21,10 +21,10 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 - Neon serverless PostgreSQL
 - Zustand for client state
 - Recharts for charts
-- PostHog (analytics), Sentry (errors), N8N (webhooks)
+- PostHog (server-side analytics), Sentry (errors), N8N (webhooks)
 
 **Production readiness:**
-- Database schema needs `npx prisma db push`
+- Database needs `npx prisma migrate deploy` for v1.2 schema
 - Environment variables needed: PostHog, Sentry, N8N webhook URL
 - Deploy to Vercel
 
@@ -32,7 +32,7 @@ Closers can build accurate, interactive battery ROI calculations and share them 
 
 ### Validated
 
-All v1.0 and v1.1 requirements shipped:
+All v1.0, v1.1, and v1.2 requirements shipped:
 
 **v1.0 (92 requirements):**
 - ✓ AUTH-01 to AUTH-06 — Authentication with role hierarchy — v1.0
@@ -56,25 +56,18 @@ All v1.0 and v1.1 requirements shipped:
 - ✓ TRANS-01 to TRANS-04 — Calculation transparency for prospects — v1.1
 - ✓ OVRD-01 to OVRD-04 — Manual override system with invisible sync — v1.1
 
-**Total: 113 requirements validated**
+**v1.2 (27 requirements):**
+- ✓ CONS-01 to CONS-05 — Consumption profiles with heating type distribution — v1.2
+- ✓ PEAK-05 to PEAK-10 — Peak tariff calculations with natagare-specific methods — v1.2
+- ✓ NATA-06 to NATA-11 — Centralized natagare management with approval workflow — v1.2
+- ✓ ANLY-07 to ANLY-12 — Server-side PostHog with role-based dashboards — v1.2
+- ✓ FIX-01 to FIX-04 — Display bugs and UI polish — v1.2
+
+**Total: 140 requirements validated**
 
 ### Active
 
-**Current Milestone: v1.2 — Realistic Consumption & Peak Tariffs**
-
-**Goal:** Replace simplified consumption model with realistic Swedish consumption profiles and accurate peak tariff calculations based on grid operator-specific rules.
-
-**Target features:**
-- Realistic consumption profile: Annual kWh input + heating type → seasonal distribution
-- Heating types: Bergvärme, Fjärrvärme, Direktverkande el, Luft-luft VP, Luft-vatten VP
-- Manual peak input: X highest peaks per month (kW per peak)
-- Nätägare peak calculation methods: Super Admin configures per grid operator
-- Ellevio AB: 3 highest hourly peaks (initial implementation)
-- Peak shaving controls: % reduction per peak on results page
-- Centralized nätägare management: Super Admin only (remove from Org Admin/Closer)
-- Spotpris efficiency bug fix: 90.2% displays correctly (not 90000.2%)
-- PostHog reconfiguration + automatic dashboard data population
-- Super Admin sidebar: permanent menu (not hover-triggered)
+None — planning next milestone.
 
 ### Out of Scope
 
@@ -86,6 +79,8 @@ All v1.0 and v1.1 requirements shipped:
 - Automatic contract generation — Legal complexity outside scope
 - Solar panel calculations — Batteries only for v1
 - Mobile app — Web-first approach, PWA works well
+- Automatic peak detection from utility API — Requires OAuth integration, high complexity
+- Per-day consumption input — Overkill for ROI estimation, monthly sufficient
 
 ## Context
 
@@ -117,7 +112,7 @@ All v1.0 and v1.1 requirements shipped:
 |----------|-----------|---------|
 | Battery-only v1 | Ship fast, validate with real users before expanding | ✓ Good — shipped in 2 days |
 | Hardcode Gron Teknik at 48.5% | Simplify MVP, assume all customers qualify | ✓ Good — no complaints |
-| One average day per month consumption | Balance simplicity and accuracy | ⚠️ Revisit — v1.2 adds realistic profiles |
+| One average day per month consumption | Balance simplicity and accuracy | ✓ Good — v1.2 adds realistic profiles |
 | 500 SEK/kW/year grid services default | Conservative estimate, org-configurable | ✓ Good — configurable per org |
 | Credentials auth only | Admin creates users, no self-registration needed | ✓ Good — appropriate for B2B |
 | mgrey.se API with fallback | May not have immediate access | ✓ Good — manual entry available |
@@ -134,10 +129,21 @@ All v1.0 and v1.1 requirements shipped:
 |----------|-----------|---------|
 | Keep calcSpotprisSavings and add V2 | Backwards compatibility with v1.0 code | ✓ Good — no breaking changes |
 | Emaldo detection via brand name | Simple heuristic for battery catalog | ✓ Good — works for current catalog |
-| currentPeakKw hardcoded to 8 kW | Placeholder until customer data available | ⚠️ Revisit — needs customer input |
+| currentPeakKw hardcoded to 8 kW | Placeholder until customer data available | ✓ Good — v1.2 centralizes and adds input |
 | Build breakdowns server-side | Security — prevents client manipulation | ✓ Good — secure by design |
 | Null-based override semantics | Clearer intent, JSON-friendly | ✓ Good — clean implementation |
 | Apply overrides server-side | OVRD-04 compliance — invisible to prospects | ✓ Good — satisfies requirement |
 
+## Key Decisions (v1.2)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| HeatingType as enum (not string) | Type safety at database and TypeScript level | ✓ Good — no runtime errors |
+| peakCalculationMethod as String | Future-proofs for new grid operators without schema changes | ✓ Good — flexible |
+| Night discount BEFORE sorting | Matches Ellevio billing behavior | ✓ Good — accurate calculations |
+| posthog-node with immediate flush | Required for Vercel serverless (no persistent process) | ✓ Good — events captured |
+| Permanent sidebar over hover dropdown | Better UX for Super Admin navigation | ✓ Good — user feedback positive |
+| Runtime normalization of heating factors | Ensures exact sum of 12 for monthly distribution | ✓ Good — mathematically correct |
+
 ---
-*Last updated: 2026-02-01 after v1.2 milestone started*
+*Last updated: 2026-02-05 after v1.2 milestone*

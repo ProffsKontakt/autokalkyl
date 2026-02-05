@@ -2,99 +2,34 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-01)
+See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 13 COMPLETE
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 13 of 13 (Bug Fixes & Polish) VERIFIED COMPLETE
-Plan: 2 of 2 in phase (all plans + verification passed)
-Status: v1.2 MILESTONE COMPLETE - ready for audit
-Last activity: 2026-02-05 — Phase 13 verification passed (5/5 must-haves)
+Phase: All 13 phases complete
+Plan: All 52 plans complete
+Status: v1.2 MILESTONE SHIPPED
+Last activity: 2026-02-05 — v1.2 milestone archived
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [############] 100%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 100%
 
-## Performance Metrics
+## Milestone Summary
 
-**Velocity:**
-- Total plans completed: 23 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + Phase 12 + Phase 13)
-- Average duration: ~4min
-- Total execution time: ~91min
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 6 | 3/3 | 12min | 4min |
-| 7 | 4/4 | 17min | 4.25min |
-| 8 | 2/2 | ~6min | ~3min |
-| 9 | 3/3 | ~17min | ~5.6min |
-| 10 | 2/3 | ~7min | ~3.5min |
-| 11 | 4/4 | ~12min | ~3min |
-| 12 | 5/5 | ~15min | ~3min |
-| 13 | 2/2 | ~4min | ~2min |
-
-*v1.2 milestone complete*
+| Milestone | Phases | Plans | Requirements | Shipped |
+|-----------|--------|-------|--------------|---------|
+| v1.0 MVP | 1-5 | 26 | 92 | 2026-01-20 |
+| v1.1 Fixed ROI | 6-7 | 7 | 21 | 2026-02-01 |
+| v1.2 Consumption & Peak | 8-13 | 19 | 27 | 2026-02-05 |
+| **Total** | **13** | **52** | **140** | — |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-
-Recent from Phase 13:
-- [FMT-01] formatPercentage takes decimal (0-1) and returns formatted string with % (13-01)
-- [FMT-02] Auto-trim trailing zeros via parseFloat(toFixed(N)) (13-01)
-- [FIX-02-01] Remove hover dropdown in favor of permanent visible menu (13-02)
-- [FIX-02-02] SSR-safe localStorage using mounted state (13-02)
-- [FIX-02-03] localStorage key 'kalkyla-sidebar-collapsed' for persistence (13-02)
-- [FIX-02-04] Mobile always shows full width, desktop respects collapse state (13-02)
-
-Recent from Phase 12:
-- [ANLY-01] flushAt:1, flushInterval:0 for serverless (events flush immediately) (12-01)
-- [ANLY-02] captureServerEvent calls shutdown() after every capture for Vercel (12-01)
-- [ANLY-03] Anonymous prospects use calc_{calculationId} as distinctId (12-01)
-- [ANLY-04] opt_out_useragent_filter: true disables aggressive bot detection (12-01)
-- [ANLY-05] HogQL WHERE clause injection for role-based filtering (12-02, implemented in 12-01)
-- [ANLY-06] Analytics wrapped in try/catch for graceful degradation (12-03)
-- [ANLY-07] Prospect views use 'prospect' viewer_type for tracking (12-03)
-- [ANLY-08] QueryClientProvider added to DashboardProviders for React Query (12-04)
-- [ANLY-09] 30s refetch for charts, 60s for widget (12-04)
-- [ANLY-10] Role-based conditional rendering in server component with Suspense (12-05)
-- [ANLY-11] 'Het' badge threshold at >3 views for hot lead signal (12-05)
-- [ANLY-12] Native HTML tables match existing project patterns (12-05)
-
-Recent from v1.2:
-- DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
-- Old estimation formula (annual/8760) replaced with constant fallback
-- HeatingType enum added with 5 Swedish heating types (08-01)
-- Natagare peak calculation fields added with sensible defaults (08-01)
-- Natagare globalScope pattern: nullable orgId + globalScope boolean (09-01)
-- ORG_ADMIN loses NATAGARE_EDIT/DELETE, can only request new natagare (09-01)
-- ApprovalStatus enum for workflow tracking (09-01)
-- Peak method stored as JSON string for flexibility (09-02)
-- List-with-side-panel pattern for configuration management (09-02)
-- Super Admin redirects from /natagare to /admin/natagare for config (09-03)
-- showActions prop pattern for role-based UI rendering (09-03)
-- userRole prop propagation through wizard for conditional features (09-03)
-- [CP-01] Normalize monthly factors at runtime to ensure exact sum of 12 (10-01)
-- [CP-02] Store raw factors separately and normalize in HEATING_TYPE_PROFILES (10-01)
-- [CP-03] Keep height prop in DistributionChart for backward compatibility (10-02)
-- [PEAK-01] Night hour detection handles overnight wrap (22:00-06:00) (11-01)
-- [PEAK-02] N-peak average applies discount BEFORE sorting (Ellevio behavior) (11-01)
-- [PEAK-03] Battery constraint message shows both target and actual kW (11-01)
-- [PEAK-04] Peak factors by heating type (DIREKTVERKANDE: 3.5 to FJARRVARME: 2.0) (11-02)
-- [PEAK-05] December (highest month) used for annual peak estimation (11-02)
-- [PEAK-06] Monthly ceiling defaults to 1.2x estimated average peak (11-02)
-- [PEAK-07] Engine integration adds peak billing after existing peak shaving (11-03)
-- [PEAK-08] PeakComparison shows reduction % and SEK savings prominently (11-03)
-- [PEAK-09] PeakTargetInput placed after EstimationHelper in consumption profile step (11-04)
-- [PEAK-10] Null coalescing fallback to DEFAULT_CURRENT_PEAK_KW for backward compatibility (11-04)
-
-Recent from v1.1:
-- Apply overrides server-side for invisible sync
+All decisions logged in PROJECT.md Key Decisions tables.
 
 ### Pending Todos
 
@@ -102,20 +37,19 @@ None.
 
 ### Blockers/Concerns
 
-**From research (info-level, not blocking):**
-- ~~PostHog may be blocked by bot detection~~ (RESOLVED: ANLY-04 in 12-01)
-- ~~Vattenfall/E.ON peak methods not finalized~~ (RESOLVED: system now configurable via JSON)
-- 113 existing calculations need backward compatibility during migration
-
-**Tech debt carried from v1.1:**
-- ~~currentPeakKw hardcoded in 6+ locations~~ (RESOLVED in 08-02)
+**Tech debt carried forward:**
 - No input validation for unrealistic slider combinations
 - totalProjectionYears fixed at 10 years
+- Phase 10 missing formal verification document (code complete)
+
+**Production deployment:**
+- Run `npx prisma migrate deploy` before production use
+- Verify PostHog events flowing in production
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 13-02-PLAN.md (Permanent Sidebar) - v1.2 COMPLETE
+Stopped at: v1.2 milestone completed and archived
 Resume file: None
 
-Next action: `/gsd:audit-milestone` (audit v1.2 before archiving)
+Next action: `/gsd:new-milestone` (start v1.3 planning)

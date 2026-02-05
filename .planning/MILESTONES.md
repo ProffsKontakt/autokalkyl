@@ -1,5 +1,33 @@
 # Project Milestones: Kalkyla.se
 
+## v1.2 Realistic Consumption & Peak Tariffs (Shipped: 2026-02-05)
+
+**Delivered:** Realistic Swedish consumption profiles with heating type selection and accurate peak tariff calculations using grid operator-specific methods, plus role-based PostHog analytics dashboards.
+
+**Phases completed:** 8-13 (19 plans total)
+
+**Key accomplishments:**
+
+- Realistic consumption profiles: Annual kWh input with heating type generates Swedish-specific seasonal distribution curves
+- Peak billing calculation engine: Natagare-specific methods (Ellevio 3-peak averaging) with night discount and battery constraints
+- Centralized nätägare management: Global scope migration with Super Admin configuration and Org Admin request workflow
+- Role-based PostHog analytics: Server-side events with embedded dashboards scoped by role (Super Admin all, Org Admin org, Closer own)
+- UI polish: Fixed spotpris efficiency display (90.2% not 90000.2%), permanent sidebar with collapse toggle
+- Schema extensions: HeatingType enum, natagare peak calculation fields with safe migration
+
+**Stats:**
+
+- 91 commits
+- ~22,200 lines of TypeScript added
+- 6 phases, 19 plans, 27 requirements
+- 5 days from start to ship (2026-02-01 → 2026-02-05)
+
+**Git range:** `feat(08-01)` → `docs(13)`
+
+**What's next:** v1.3 planning — potential features: Vattenfall/E.ON peak methods, EV charging profiles, solar integration
+
+---
+
 ## v1.1 Fixed ROI Calculations (Shipped: 2026-02-01)
 
 **Delivered:** Fixed calculation accuracy for spotprisoptimering, stödtjänster, and effektavgifter with transparent breakdowns and manual override capability.
