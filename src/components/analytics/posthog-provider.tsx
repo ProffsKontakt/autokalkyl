@@ -21,6 +21,9 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
         person_profiles: 'identified_only',
         // Autocapture clicks, form submits, etc.
         autocapture: true,
+        // FIX ANLY-07: Disable bot detection that blocks real traffic
+        // PostHog's default bot detection is too aggressive and blocks legitimate users
+        opt_out_useragent_filter: true,
         // Session recordings configuration
         disable_session_recording: false,
         session_recording: {
