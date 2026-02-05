@@ -399,6 +399,23 @@ model Calculation {
   // Nullable for backward compatibility with existing calculations
   heatingType HeatingType?
 
+  // Phase 15: Customer Type & Electricity Inputs
+  customerType              String   @default("PRIVATPERSON") // PRIVATPERSON | FORETAG
+  koptElKwh                 Decimal? @db.Decimal(10, 2) // Purchased electricity (kWh/year)
+  koptElInputMode           String?  @default("annual") // annual | monthly
+  koptElMonthly             Json?    // Array of 12 monthly values if monthly mode
+  electricityPriceOreKwh    Decimal? @db.Decimal(10, 2) // All-in price (ore/kWh)
+  electricityPriceInputMode String?  @default("annual") // annual | monthly
+  electricityPriceMonthly   Json?    // Array of 12 monthly prices if breakdown provided
+
+  hasSolar                  Boolean  @default(false)
+  solarProductionKwh        Decimal? @db.Decimal(10, 2) // Total solar production (kWh/year)
+  solarProductionInputMode  String?  @default("annual") // annual | monthly
+  solarProductionMonthly    Json?    // Array of 12 monthly production values
+  currentSelfConsumptionKwh Decimal? @db.Decimal(10, 2) // Current self-consumption (kWh)
+  projectedSelfConsumptionKwh Decimal? @db.Decimal(10, 2) // Projected with battery (kWh)
+  selfConsumptionInputMode  String?  @default("kwh") // kwh | percent
+
   // Results (calculated server-side)
   results Json?
 
