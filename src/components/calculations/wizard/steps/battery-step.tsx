@@ -122,13 +122,19 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
           disabled={batteries.length >= (comboMode === 'jamfora' ? 3 : 10)}
         >
           <option value="">Välj batteri...</option>
-          {batteryList
-            .filter(b => !batteries.some(sel => sel.configId === b.id))
-            .map((b) => (
-              <option key={b.id} value={b.id}>
+          {batteryList.map((b) => {
+            const isSelected = batteries.some(sel => sel.configId === b.id)
+            return (
+              <option
+                key={b.id}
+                value={b.id}
+                disabled={isSelected}
+              >
                 {b.brandName} {b.name} - {b.capacityKwh} kWh
+                {isSelected ? ' (redan vald)' : ''}
               </option>
-            ))}
+            )
+          })}
         </select>
         <button
           type="button"
