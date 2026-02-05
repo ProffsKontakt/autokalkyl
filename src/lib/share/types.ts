@@ -47,6 +47,19 @@ export interface PublicBatteryInfo {
 }
 
 /**
+ * Data for fees breakdown display (Phase 16)
+ */
+export interface FeesBreakdownData {
+  consumptionKwh: number
+  energiskattSek: number
+  energiskattRateOre: number
+  overforingsavgiftSek: number
+  overforingsavgiftRateOre: number
+  totalFeesSek: number
+  customerType: 'PRIVATPERSON' | 'FORETAG'
+}
+
+/**
  * Breakdown data for public transparency view.
  * Includes calculation inputs for each savings category.
  * EXCLUDES: margins, org cuts, cost prices (TRANS-04)
@@ -81,6 +94,8 @@ export interface CalculationBreakdownPublic {
     postCampaignAnnualSek?: number
     displayedAnnualSek: number
   }
+  // Fees breakdown (Phase 16)
+  fees?: FeesBreakdownData
 }
 
 /**
