@@ -16,6 +16,7 @@ import { AnnualKwhInput } from '../consumption-profile/annual-kwh-input'
 import { HeatingTypeSelect } from '../consumption-profile/heating-type-select'
 import { EstimationHelper } from '../consumption-profile/estimation-helper'
 import { DistributionChart } from '../consumption-profile/distribution-chart'
+import { PeakTargetInput } from '@/components/calculations/controls/peak-target-input'
 import { HEATING_TYPE_PROFILES } from '@/lib/calculations/consumption-profiles'
 
 export function ConsumptionProfileStep() {
@@ -66,6 +67,9 @@ export function ConsumptionProfileStep() {
             heatingType={heatingType}
             onEstimate={handleEstimate}
           />
+
+          {/* Peak target inputs - Phase 11 */}
+          <PeakTargetInput />
         </div>
 
         {/* Right column: Live preview chart */}
