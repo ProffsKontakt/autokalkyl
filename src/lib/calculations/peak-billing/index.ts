@@ -12,6 +12,7 @@ import type { PeakBillingInput, PeakBillingResult, PeakMethod } from './types'
 
 // Re-export types and functions for external use
 export { isNightHour, applyNightDiscount } from './night-discount'
+export { isWinterMonth, isHighLoadHour, type HighLoadConfig } from './season'
 export { calculateSimpleMax, calculateNPeakAverage, calculateSeasonalPeak } from './methods'
 export {
   parsePeakMethod,

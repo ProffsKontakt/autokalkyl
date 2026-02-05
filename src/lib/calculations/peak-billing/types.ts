@@ -35,6 +35,9 @@ export const PeakMethodConfigSchema = z.object({
       end: z.number().int().min(0).max(23),
     })
   ).optional(),
+  highLoadStartHour: z.number().int().min(0).max(23).optional(),
+  highLoadEndHour: z.number().int().min(0).max(23).optional(),
+  isWinterOnlyHighLoad: z.boolean().optional(),
 })
 
 /**
@@ -49,6 +52,9 @@ export interface PeakMethodConfig {
   nightStartHour?: number
   nightEndHour?: number
   timeWindows?: { start: number; end: number }[]
+  highLoadStartHour?: number
+  highLoadEndHour?: number
+  isWinterOnlyHighLoad?: boolean
 }
 
 /**
