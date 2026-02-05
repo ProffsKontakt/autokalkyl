@@ -459,6 +459,23 @@ export async function getCalculation(id: string) {
       calculation: {
         ...calculation,
         annualConsumptionKwh: Number(calculation.annualConsumptionKwh),
+
+        // Phase 15: Customer Type & Electricity Inputs (Decimal -> Number)
+        customerType: calculation.customerType,
+        koptElKwh: calculation.koptElKwh ? Number(calculation.koptElKwh) : null,
+        koptElInputMode: calculation.koptElInputMode,
+        koptElMonthly: calculation.koptElMonthly,
+        electricityPriceOreKwh: calculation.electricityPriceOreKwh ? Number(calculation.electricityPriceOreKwh) : null,
+        electricityPriceInputMode: calculation.electricityPriceInputMode,
+        electricityPriceMonthly: calculation.electricityPriceMonthly,
+        hasSolar: calculation.hasSolar,
+        solarProductionKwh: calculation.solarProductionKwh ? Number(calculation.solarProductionKwh) : null,
+        solarProductionInputMode: calculation.solarProductionInputMode,
+        solarProductionMonthly: calculation.solarProductionMonthly,
+        currentSelfConsumptionKwh: calculation.currentSelfConsumptionKwh ? Number(calculation.currentSelfConsumptionKwh) : null,
+        projectedSelfConsumptionKwh: calculation.projectedSelfConsumptionKwh ? Number(calculation.projectedSelfConsumptionKwh) : null,
+        selfConsumptionInputMode: calculation.selfConsumptionInputMode,
+
         batteries: calculation.batteries.map(b => ({
           ...b,
           totalPriceExVat: Number(b.totalPriceExVat),
