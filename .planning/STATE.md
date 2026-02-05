@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 16 — Fees & Taxes
-Plan: 3/3
-Status: Phase complete
-Last activity: 2026-02-05 — Completed 16-03-PLAN.md
+Phase: 17 — Multi-battery combo
+Plan: 1/3
+Status: In progress
+Last activity: 2026-02-05 — Completed 17-01-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#########░] 75%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [##########] 80%
 
 ## Milestone Summary
 
@@ -32,8 +32,8 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Complete |
-| 16 | Fees & taxes in calculations | FEES-01-05 | ✓ Complete |
-| 17 | Multi-battery combo | COMBO-01-10 | Ready |
+| 16 | Fees & taxes in calculations | FEES-01-05 | Complete |
+| 17 | Multi-battery combo | COMBO-01-10 | In progress (1/3) |
 
 ## Accumulated Context
 
@@ -57,6 +57,10 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 16-02 | Moms label in subtitle based on customer type | Clear display of inkl/exkl moms for privatperson/foretag |
 | 2026-02-05 | 16-03 | Fees breakdown after Elinformation section | Logical grouping - fees relate to electricity information |
 | 2026-02-05 | 16-03 | Fees breakdown after StodtjansterBreakdown in public | Consistent breakdown ordering - last breakdown item |
+| 2026-02-05 | 17-01 | localStorage version v4 | Force cache reset for quantity support in battery state |
+| 2026-02-05 | 17-01 | comboMode defaults to 'jamfora' in database | Backward compatible - existing calculations show comparison view |
+| 2026-02-05 | 17-01 | quantity defaults to 1 for all batteries | Backward compatible with existing single-battery calculations |
+| 2026-02-05 | 17-01 | Used prisma db push instead of migrate dev | Shadow database migration issues, manual migration file created |
 
 ### Pending Todos
 
@@ -70,13 +74,17 @@ None.
 - Phase 10 missing formal verification document (code complete)
 
 **Production deployment:**
-- Run `npx prisma migrate deploy` before production use (includes 14-01 and 15-01 migrations)
+- Run `npx prisma migrate deploy` before production use (includes 14-01, 15-01, and 17-01 migrations)
 - Verify PostHog events flowing in production
+
+**Phase 17 migration note:**
+- Migration 20260205220900_add_combo_mode created manually (shadow DB issue)
+- Schema already synced via `prisma db push`, migration for production tracking only
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: Phase 16 complete and verified
+Last session: 2026-02-05 23:11
+Stopped at: Completed 17-01-PLAN.md (Multi-battery combo foundation)
 Resume file: None
 
-Next action: `/gsd:discuss-phase 17` or `/gsd:plan-phase 17`
+Next action: Continue Phase 17 with 17-02 (combo mode UI toggle) or 17-03 (quantity controls)
