@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 12 in progress
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 12 COMPLETE
 
 ## Current Position
 
-Phase: 12 of 13 (Analytics & Dashboard)
-Plan: 4 of 5 in phase
-Status: In progress
-Last activity: 2026-02-05 — Completed 12-04-PLAN.md (Dashboard UI Components)
+Phase: 12 of 13 (Analytics & Dashboard) - COMPLETE
+Plan: 5 of 5 in phase
+Status: Phase complete
+Last activity: 2026-02-05 — Completed 12-05-PLAN.md (Dashboard Integration)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###########] 98%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [############] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + 12-01 + 12-02 + 12-03 + 12-04)
+- Total plans completed: 21 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + Phase 12)
 - Average duration: ~4min
-- Total execution time: ~72min
+- Total execution time: ~87min
 
 **By Phase:**
 
@@ -33,9 +33,9 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###########] 98%
 | 9 | 3/3 | ~17min | ~5.6min |
 | 10 | 2/3 | ~7min | ~3.5min |
 | 11 | 4/4 | ~12min | ~3min |
-| 12 | 4/5 | ~11min | ~2.75min |
+| 12 | 5/5 | ~15min | ~3min |
 
-*v1.2 metrics will be tracked as phases complete*
+*Phase 12 complete - ready for Phase 13*
 
 ## Accumulated Context
 
@@ -53,6 +53,9 @@ Recent from Phase 12:
 - [ANLY-07] Prospect views use 'prospect' viewer_type for tracking (12-03)
 - [ANLY-08] QueryClientProvider added to DashboardProviders for React Query (12-04)
 - [ANLY-09] 30s refetch for charts, 60s for widget (12-04)
+- [ANLY-10] Role-based conditional rendering in server component with Suspense (12-05)
+- [ANLY-11] 'Het' badge threshold at >3 views for hot lead signal (12-05)
+- [ANLY-12] Native HTML tables match existing project patterns (12-05)
 
 Recent from v1.2:
 - DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
@@ -103,7 +106,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 12-04-PLAN.md (Dashboard UI Components)
+Stopped at: Completed 12-05-PLAN.md (Dashboard Integration) - Phase 12 COMPLETE
 Resume file: None
 
-Next action: `/gsd:execute-plan .planning/phases/12-analytics-dashboard/12-05-PLAN.md`
+Next action: Phase 13 (Polish & Performance) or v1.2 release preparation
