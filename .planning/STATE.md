@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 12 COMPLETE
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 13 IN PROGRESS
 
 ## Current Position
 
-Phase: 12 of 13 (Analytics & Dashboard) VERIFIED COMPLETE
-Plan: 5 of 5 in phase (all plans + verification passed)
-Status: Phase 12 verified complete - ready for Phase 13
-Last activity: 2026-02-05 — Phase 12 verification passed (5/5 must-haves)
+Phase: 13 of 13 (Bug Fixes & Polish)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-05 — Completed 13-01-PLAN.md (Spotpris Efficiency Display)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [############] 100%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###########-] 92%
 
 ## Performance Metrics
 
@@ -34,14 +34,19 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [############] 100%
 | 10 | 2/3 | ~7min | ~3.5min |
 | 11 | 4/4 | ~12min | ~3min |
 | 12 | 5/5 | ~15min | ~3min |
+| 13 | 1/2 | ~2min | ~2min |
 
-*Phase 12 complete - ready for Phase 13*
+*Phase 13 in progress*
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+Recent from Phase 13:
+- [FMT-01] formatPercentage takes decimal (0-1) and returns formatted string with % (13-01)
+- [FMT-02] Auto-trim trailing zeros via parseFloat(toFixed(N)) (13-01)
 
 Recent from Phase 12:
 - [ANLY-01] flushAt:1, flushInterval:0 for serverless (events flush immediately) (12-01)
@@ -106,7 +111,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 12-05-PLAN.md (Dashboard Integration) - Phase 12 COMPLETE
+Stopped at: Completed 13-01-PLAN.md (Spotpris Efficiency Display)
 Resume file: None
 
-Next action: `/gsd:plan-phase 13` (Phase 13: Bug Fixes & Polish)
+Next action: Execute 13-02-PLAN.md (Remaining bug fixes)
