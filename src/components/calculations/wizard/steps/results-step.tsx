@@ -3,19 +3,22 @@
 import { useMemo } from 'react'
 import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { calculateBatteryROI } from '@/lib/calculations/engine'
+import { calculateCombinedResults } from '@/lib/calculations/combo-calculations'
 import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_GRID_SERVICES_RATE, DEFAULT_AVG_DISCHARGE_PERCENT, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
 import { SummaryCards } from '@/components/calculations/results/summary-cards'
 import { SavingsBreakdown } from '@/components/calculations/results/savings-breakdown'
 import { ROITimelineChart } from '@/components/calculations/results/roi-timeline-chart'
 import { ComparisonView } from '@/components/calculations/results/comparison-view'
 import { PeakComparison } from '@/components/calculations/results/peak-comparison'
+import { ComboSummary } from '@/components/calculations/results/combo-summary'
+import { ComboBreakdown } from '@/components/calculations/results/combo-breakdown'
 import { CyclesSlider } from '@/components/calculations/controls/cycles-slider'
 import { PeakShavingSlider } from '@/components/calculations/controls/peak-shaving-slider'
 import { StodtjansterInput } from '@/components/calculations/controls/stodtjanster-input'
 import { ConsumptionDistributionSection } from '@/components/calculations/results/consumption-distribution-section'
 import { FeesBreakdown } from '@/components/calculations/breakdowns/fees-breakdown'
 import { calcTotalElectricityFees } from '@/lib/calculations/fees'
-import type { BatterySpec, CalculationResults, CustomerType } from '@/lib/calculations/types'
+import type { BatterySpec, CalculationResults, CustomerType, BatterySelection } from '@/lib/calculations/types'
 
 interface NatagareInfo {
   id: string
@@ -84,6 +87,8 @@ export function ResultsStep({
     solarProductionKwh,
     currentSelfConsumptionKwh,
     projectedSelfConsumptionKwh,
+    // Phase 17: Combo mode
+    comboMode,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -157,6 +162,59 @@ export function ResultsStep({
       }
     }).filter(Boolean) as { batteryName: string; batteryInfo: BatteryInfo; results: CalculationResults }[]
   }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
+
+  // Phase 17: Calculate combined results for komboinvestering mode
+  const combinedResults = useMemo(() => {
+    if (comboMode !== 'komboinvestering' || !prices || !natagareInfo) return null
+
+    // Count total batteries (sum of quantities)
+    const totalBatteryCount = selectedBatteries.reduce((sum, sel) => sum + (sel.quantity || 1), 0)
+
+    // Only calculate combined results if multiple batteries
+    if (totalBatteryCount <= 1) return null
+
+    // Build BatterySelection array for combo calculation
+    const selections: BatterySelection[] = selectedBatteries.map(selection => {
+      const batteryInfo = batteryList.find(b => b.id === selection.configId)
+      if (!batteryInfo) return null
+
+      const batterySpec: BatterySpec = {
+        capacityKwh: batteryInfo.capacityKwh,
+        chargeEfficiency: batteryInfo.chargeEfficiency,
+        dischargeEfficiency: batteryInfo.dischargeEfficiency,
+        maxDischargeKw: batteryInfo.maxDischargeKw,
+        maxChargeKw: batteryInfo.maxChargeKw,
+        costPrice: batteryInfo.costPrice,
+      }
+
+      return {
+        battery: batterySpec,
+        quantity: selection.quantity || 1,
+        totalPriceExVat: selection.totalPriceExVat,
+        installationCost: selection.installationCost,
+      }
+    }).filter(Boolean) as BatterySelection[]
+
+    // Base inputs common across all batteries
+    const baseInputs = {
+      cyclesPerDay,
+      avgDischargePercent: DEFAULT_AVG_DISCHARGE_PERCENT,
+      dayPriceOre: prices.avgDayPriceOre,
+      nightPriceOre: prices.avgNightPriceOre,
+      effectTariffDayRate: natagareInfo.dayRateSekKw,
+      effectTariffNightRate: natagareInfo.nightRateSekKw,
+      gridServicesRatePerKwYear: DEFAULT_GRID_SERVICES_RATE,
+      vatRate: VAT_RATE,
+      gronTeknikRate: GRON_TEKNIK_RATE,
+      peakShavingPercent,
+      currentPeakKw: targetAveragePeakKw ?? DEFAULT_CURRENT_PEAK_KW,
+      postCampaignRatePerKwYear: postCampaignRate,
+      elomrade: elomrade || undefined,
+      totalProjectionYears: 10,
+    }
+
+    return calculateCombinedResults(selections, baseInputs)
+  }, [comboMode, selectedBatteries, batteryList, prices, natagareInfo, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
 
   // Phase 16: Calculate fees for display
   const feesData = useMemo(() => {
@@ -258,30 +316,41 @@ export function ResultsStep({
         </div>
       </div>
 
-      {/* Summary cards for primary battery */}
-      <SummaryCards
-        results={primaryResult.results}
-        batteryName={primaryResult.batteryName}
-      />
+      {/* Phase 17: Conditional rendering based on comboMode */}
+      {comboMode === 'komboinvestering' && combinedResults ? (
+        <>
+          {/* Combined investment summary and breakdown */}
+          <ComboSummary combinedResults={combinedResults} />
+          <ComboBreakdown unitBreakdowns={combinedResults.unitBreakdowns} />
+        </>
+      ) : (
+        <>
+          {/* Summary cards for primary battery */}
+          <SummaryCards
+            results={primaryResult.results}
+            batteryName={primaryResult.batteryName}
+          />
 
-      {/* Peak billing comparison - Phase 11 */}
-      {primaryResult.results.peakBillingBeforeKw !== undefined && primaryResult.results.peakBillingBeforeKw > 0 && (
-        <PeakComparison
-          beforePeakKw={primaryResult.results.peakBillingBeforeKw}
-          afterPeakKw={primaryResult.results.peakBillingAfterKw ?? 0}
-          beforeMonthlyCost={primaryResult.results.peakBillingBeforeKw * (natagareInfo?.dayRateSekKw ?? 0)}
-          afterMonthlyCost={(primaryResult.results.peakBillingAfterKw ?? 0) * (natagareInfo?.dayRateSekKw ?? 0)}
-          annualSavings={primaryResult.results.peakBillingAnnualSavingsSek ?? 0}
-          methodName={primaryResult.results.peakMethodUsed ?? 'Enkel max'}
-          nightDiscountApplied={primaryResult.results.peakNightDiscountApplied ?? false}
-          isConstrained={primaryResult.results.peakWasConstrained ?? false}
-          constraintMessage={primaryResult.results.peakConstraintReason ?? null}
-        />
-      )}
+          {/* Peak billing comparison - Phase 11 */}
+          {primaryResult.results.peakBillingBeforeKw !== undefined && primaryResult.results.peakBillingBeforeKw > 0 && (
+            <PeakComparison
+              beforePeakKw={primaryResult.results.peakBillingBeforeKw}
+              afterPeakKw={primaryResult.results.peakBillingAfterKw ?? 0}
+              beforeMonthlyCost={primaryResult.results.peakBillingBeforeKw * (natagareInfo?.dayRateSekKw ?? 0)}
+              afterMonthlyCost={(primaryResult.results.peakBillingAfterKw ?? 0) * (natagareInfo?.dayRateSekKw ?? 0)}
+              annualSavings={primaryResult.results.peakBillingAnnualSavingsSek ?? 0}
+              methodName={primaryResult.results.peakMethodUsed ?? 'Enkel max'}
+              nightDiscountApplied={primaryResult.results.peakNightDiscountApplied ?? false}
+              isConstrained={primaryResult.results.peakWasConstrained ?? false}
+              constraintMessage={primaryResult.results.peakConstraintReason ?? null}
+            />
+          )}
 
-      {/* Comparison view if multiple batteries */}
-      {calculatedResults.length > 1 && (
-        <ComparisonView batteries={calculatedResults} />
+          {/* Comparison view if multiple batteries */}
+          {calculatedResults.length > 1 && (
+            <ComparisonView batteries={calculatedResults} />
+          )}
+        </>
       )}
 
       {/* Detailed breakdown for primary battery */}
