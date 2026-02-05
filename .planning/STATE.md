@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 12 of 13 (Analytics & Dashboard)
-Plan: 1 of 5 in phase
+Plan: 2 of 5 in phase
 Status: In progress
-Last activity: 2026-02-05 — Completed 12-01-PLAN.md (Server-Side PostHog Setup)
+Last activity: 2026-02-05 — Completed 12-02-PLAN.md (PostHog Query API Proxy)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 94%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + 12-01)
+- Total plans completed: 18 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + 12-01 + 12-02)
 - Average duration: ~4min
-- Total execution time: ~67min
+- Total execution time: ~70min
 
 **By Phase:**
 
@@ -33,7 +33,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 94%
 | 9 | 3/3 | ~17min | ~5.6min |
 | 10 | 2/3 | ~7min | ~3.5min |
 | 11 | 4/4 | ~12min | ~3min |
-| 12 | 1/5 | ~2min | ~2min |
+| 12 | 2/5 | ~5min | ~2.5min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -48,6 +48,7 @@ Recent from Phase 12:
 - [ANLY-02] captureServerEvent calls shutdown() after every capture for Vercel (12-01)
 - [ANLY-03] Anonymous prospects use calc_{calculationId} as distinctId (12-01)
 - [ANLY-04] opt_out_useragent_filter: true disables aggressive bot detection (12-01)
+- [ANLY-05] HogQL WHERE clause injection for role-based filtering (12-02, implemented in 12-01)
 
 Recent from v1.2:
 - DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
@@ -98,7 +99,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 12-01-PLAN.md (Server-Side PostHog Setup)
+Stopped at: Completed 12-02-PLAN.md (PostHog Query API Proxy)
 Resume file: None
 
-Next action: `/gsd:execute-plan .planning/phases/12-analytics-dashboard/12-02-PLAN.md`
+Next action: `/gsd:execute-plan .planning/phases/12-analytics-dashboard/12-03-PLAN.md`
