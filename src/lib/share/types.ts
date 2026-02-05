@@ -44,6 +44,8 @@ export interface PublicBatteryInfo {
   totalPriceExVat: number
   totalPriceIncVat: number
   costAfterGronTeknik: number
+  // Phase 17: Quantity for combo investments
+  quantity?: number
 }
 
 /**
@@ -139,6 +141,51 @@ export interface PublicElectricityData {
 }
 
 /**
+ * Phase 17: Combined results for Komboinvestering mode.
+ * Aggregated metrics and per-unit breakdowns for public display.
+ */
+export interface PublicCombinedResults {
+  totalCapacityKwh: number
+  totalMaxDischargeKw: number
+  totalCostExVat: number
+  totalCostIncVat: number
+  totalCostAfterGronTeknik: number
+  totalAnnualSavingsSek: number
+  combinedPaybackYears: number
+  combinedRoi10Year: number
+  combinedRoi15Year: number
+  unitBreakdowns: PublicUnitBreakdown[]
+}
+
+/**
+ * Phase 17: Per-unit breakdown for public display.
+ */
+export interface PublicUnitBreakdown {
+  battery: {
+    name: string
+    capacityKwh: number
+    maxDischargeKw: number
+  }
+  quantity: number
+  perUnitResults: {
+    totalPriceExVat: number
+    totalPriceIncVat: number
+    costAfterGronTeknik: number
+    spotprisSavings: number
+    effectTariffSavings: number
+    gridServicesIncome: number
+    totalAnnualSavings: number
+    paybackYears: number
+    roi10Year: number
+    roi15Year: number
+  }
+  subtotalCapacityKwh: number
+  subtotalMaxDischargeKw: number
+  subtotalAnnualSavingsSek: number
+  subtotalCostAfterGronTeknikSek: number
+}
+
+/**
  * Public calculation data structure.
  * This is the full payload returned to the public view page.
  * No sensitive pricing (margin, cost price, installer cut) is included.
@@ -162,6 +209,9 @@ export interface PublicCalculationData {
     }
     // Phase 15: Customer electricity data
     electricity?: PublicElectricityData
+    // Phase 17: Combo mode and combined results
+    comboMode?: 'komboinvestering' | 'jamfora'
+    combinedResults?: PublicCombinedResults
   }
   organization: {
     name: string
