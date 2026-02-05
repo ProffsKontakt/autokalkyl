@@ -82,8 +82,8 @@ Full archive: `.planning/milestones/v1.2-ROADMAP.md`
 **Plans:** 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md — Schema migration + action + form for overforingsavgift and high-load timing
-- [ ] 14-02-PLAN.md — TDD season utilities for peak billing integration
+- [x] 14-01-PLAN.md — Schema migration + action + form for overforingsavgift and high-load timing
+- [x] 14-02-PLAN.md — TDD season utilities for peak billing integration
 
 **Success Criteria:**
 1. Super Admin can set overforingsavgift (ore/kWh) per natagare in configuration
@@ -157,13 +157,13 @@ Plans:
 | 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
 | 12. Analytics & Dashboard | v1.2 | 5/5 | Complete | 2026-02-05 |
 | 13. Bug Fixes & Polish | v1.2 | 2/2 | Complete | 2026-02-05 |
-| 14. Schema & Natagare | v1.3 | 0/2 | Planned | — |
+| 14. Schema & Natagare | v1.3 | 2/2 | Complete | 2026-02-05 |
 | 15. Customer & Electricity | v1.3 | 0/? | Pending | — |
 | 16. Fees & Taxes | v1.3 | 0/? | Pending | — |
 | 17. Multi-Battery Combo | v1.3 | 0/? | Pending | — |
 
-**Total: 17 phases, 54+ plans, 168 requirements (140 shipped, 28 pending)**
+**Total: 17 phases, 56 plans, 168 requirements (143 shipped, 25 pending)**
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 14 planned)*
+*Last updated: 2026-02-05 (Phase 14 complete)*

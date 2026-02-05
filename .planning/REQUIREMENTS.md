@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CUST-02 | Phase 15 | Pending |
 | CUST-03 | Phase 15 | Pending |
 | CUST-04 | Phase 15 | Pending |
-| NATA-12 | Phase 14 | Pending |
-| NATA-13 | Phase 14 | Pending |
-| NATA-14 | Phase 14 | Pending |
+| NATA-12 | Phase 14 | Complete |
+| NATA-13 | Phase 14 | Complete |
+| NATA-14 | Phase 14 | Complete |
 | COMBO-01 | Phase 17 | Pending |
 | COMBO-02 | Phase 17 | Pending |
 | COMBO-03 | Phase 17 | Pending |
