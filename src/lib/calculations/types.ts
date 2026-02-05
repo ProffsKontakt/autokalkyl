@@ -58,6 +58,32 @@ export interface SolarInputs {
 }
 
 // =============================================================================
+// PHASE 16: Fees & Taxes
+// =============================================================================
+
+/**
+ * Result from fee calculation utilities.
+ * All monetary values in SEK (converted from ore internally).
+ */
+export interface FeeCalculationResult {
+  energiskattSek: number
+  energiskattRateOre: number
+  overforingsavgiftSek: number
+  overforingsavgiftRateOre: number
+  totalFeesSek: number
+  customerType: CustomerType
+}
+
+/**
+ * Decimal version of fee calculation result for internal use.
+ */
+export interface FeeCalculationResultDecimal {
+  energiskattSek: Decimal
+  overforingsavgiftSek: Decimal
+  totalFeesSek: Decimal
+}
+
+// =============================================================================
 // CONSUMPTION & BATTERY TYPES
 // =============================================================================
 
