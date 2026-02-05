@@ -19,6 +19,11 @@ interface NatagareConfigPanelProps {
     peakNightEndHour: number | null;
     globalScope: boolean;
     approvalStatus: string;
+    // Phase 14: New fields (NATA-12, NATA-13)
+    overforingsavgiftOreKwh: number | null;
+    highLoadStartHour: number | null;
+    highLoadEndHour: number | null;
+    isWinterOnlyHighLoad: boolean;
   }>;
   pendingCount: number;
 }

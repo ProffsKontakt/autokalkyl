@@ -34,6 +34,11 @@ const formSchema = z.object({
   nightDiscountPercent: z.number().min(0).max(100).nullable(),
   peakNightStartHour: z.number().int().min(0).max(23).nullable(),
   peakNightEndHour: z.number().int().min(0).max(23).nullable(),
+  // Phase 14: New fields (NATA-12, NATA-13)
+  overforingsavgiftOreKwh: z.number().min(0).max(100).nullable(),
+  highLoadStartHour: z.number().int().min(0).max(23).nullable(),
+  highLoadEndHour: z.number().int().min(0).max(23).nullable(),
+  isWinterOnlyHighLoad: z.boolean(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -52,6 +57,11 @@ interface NatagareEditFormProps {
     peakNightEndHour: number | null;
     globalScope: boolean;
     approvalStatus: string;
+    // Phase 14: New fields (NATA-12, NATA-13)
+    overforingsavgiftOreKwh: number | null;
+    highLoadStartHour: number | null;
+    highLoadEndHour: number | null;
+    isWinterOnlyHighLoad: boolean;
   };
 }
 
@@ -90,6 +100,11 @@ export function NatagareEditForm({ natagare }: NatagareEditFormProps) {
       nightDiscountPercent: natagare.nightDiscountPercent,
       peakNightStartHour: natagare.peakNightStartHour,
       peakNightEndHour: natagare.peakNightEndHour,
+      // Phase 14: New fields (NATA-12, NATA-13)
+      overforingsavgiftOreKwh: natagare.overforingsavgiftOreKwh,
+      highLoadStartHour: natagare.highLoadStartHour,
+      highLoadEndHour: natagare.highLoadEndHour,
+      isWinterOnlyHighLoad: natagare.isWinterOnlyHighLoad,
     },
   });
 
@@ -113,6 +128,11 @@ export function NatagareEditForm({ natagare }: NatagareEditFormProps) {
         nightDiscountPercent: data.nightDiscountPercent ?? undefined,
         peakNightStartHour: data.peakNightStartHour ?? undefined,
         peakNightEndHour: data.peakNightEndHour ?? undefined,
+        // Phase 14: New fields (NATA-12, NATA-13)
+        overforingsavgiftOreKwh: data.overforingsavgiftOreKwh ?? undefined,
+        highLoadStartHour: data.highLoadStartHour ?? undefined,
+        highLoadEndHour: data.highLoadEndHour ?? undefined,
+        isWinterOnlyHighLoad: data.isWinterOnlyHighLoad,
       });
 
       if (result.error) {
@@ -426,6 +446,100 @@ export function NatagareEditForm({ natagare }: NatagareEditFormProps) {
             </p>
           </div>
         )}
+      </section>
+
+      {/* Transfer Fee Section - Phase 14 NATA-12 */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+          Overforingsavgift
+        </h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <Label htmlFor="overforingsavgiftOreKwh">Avgift (ore/kWh)</Label>
+            <Input
+              id="overforingsavgiftOreKwh"
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              placeholder="7.00"
+              {...register('overforingsavgiftOreKwh', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
+              })}
+            />
+            {errors.overforingsavgiftOreKwh && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.overforingsavgiftOreKwh.message}
+              </p>
+            )}
+            <p className="text-xs text-slate-500 mt-1">
+              Ellevio 2026: 7 ore/kWh. 100 ore = 1 SEK.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* High-Load Timing Section - Phase 14 NATA-13 */}
+      <section className="space-y-4">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+          Hogbelastningstider
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Period da effekttariffen galler. Vissa natagare tillampare endast under vinterhalvaret.
+        </p>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="highLoadStartHour">Start</Label>
+            <select
+              id="highLoadStartHour"
+              className="w-full h-10 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              {...register('highLoadStartHour', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
+              })}
+            >
+              <option value="">-</option>
+              {hourOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="highLoadEndHour">Slut</Label>
+            <select
+              id="highLoadEndHour"
+              className="w-full h-10 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              {...register('highLoadEndHour', {
+                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
+              })}
+            >
+              <option value="">-</option>
+              {hourOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 pt-6">
+            <input
+              type="checkbox"
+              id="isWinterOnlyHighLoad"
+              className="w-4 h-4 rounded border-slate-300"
+              {...register('isWinterOnlyHighLoad')}
+            />
+            <Label htmlFor="isWinterOnlyHighLoad" className="font-normal">
+              Endast vinter (nov-mar)
+            </Label>
+          </div>
+        </div>
+        <p className="text-xs text-slate-500">
+          Jonkoping Energi: 07:00-20:00 vardagar nov-mar. Ellevio: Anvander ej hogbelastningstider.
+        </p>
       </section>
 
       {/* Action buttons */}

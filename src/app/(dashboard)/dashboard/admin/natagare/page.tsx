@@ -61,6 +61,11 @@ export default async function AdminNatagarePage() {
     peakNightEndHour: n.peakNightEndHour,
     globalScope: n.globalScope,
     approvalStatus: n.approvalStatus,
+    // Phase 14: New fields (NATA-12, NATA-13)
+    overforingsavgiftOreKwh: n.overforingsavgiftOreKwh ? Number(n.overforingsavgiftOreKwh) : null,
+    highLoadStartHour: n.highLoadStartHour,
+    highLoadEndHour: n.highLoadEndHour,
+    isWinterOnlyHighLoad: n.isWinterOnlyHighLoad,
   }));
 
   return (
