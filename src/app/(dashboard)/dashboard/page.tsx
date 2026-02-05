@@ -1,8 +1,11 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth/auth'
 import { getDashboardStats } from '@/actions/dashboard'
 import { DashboardStatsView } from '@/components/dashboard/dashboard-stats'
 import { NewCalculationButton } from '@/components/calculations/new-calculation-button'
+import { MyCalculationsTable } from '@/components/analytics/my-calculations-table'
+import { OrgOverview } from '@/components/analytics/org-overview'
 import type { Role } from '@/lib/auth/permissions'
 
 export const metadata = {
@@ -47,6 +50,23 @@ export default async function DashboardPage() {
         stats={stats}
         showCloser={role === 'ORG_ADMIN'}
       />
+
+      {/* Analytics section - role-specific views */}
+      <div className="mt-8 space-y-6">
+        {/* Org Admin sees OrgOverview metrics */}
+        {role === 'ORG_ADMIN' && (
+          <Suspense fallback={<div className="h-32 w-full animate-pulse bg-slate-200 dark:bg-slate-700 rounded-lg" />}>
+            <OrgOverview />
+          </Suspense>
+        )}
+
+        {/* Closer sees their calculation engagement table */}
+        {role === 'CLOSER' && (
+          <Suspense fallback={<div className="h-64 w-full animate-pulse bg-slate-200 dark:bg-slate-700 rounded-lg" />}>
+            <MyCalculationsTable />
+          </Suspense>
+        )}
+      </div>
     </div>
   )
 }
