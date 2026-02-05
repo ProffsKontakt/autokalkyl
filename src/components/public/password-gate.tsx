@@ -80,6 +80,19 @@ export function PasswordGate({ orgSlug, shareCode, error }: PasswordGateProps) {
               {loading ? 'Laddar...' : 'Visa kalkyl'}
             </button>
           </form>
+
+          {/* Subtle terms acceptance */}
+          <p className="text-xs text-gray-400 mt-6 text-center">
+            Genom att fortsatta godkanner du{' '}
+            <a
+              href="/villkor"
+              className="underline hover:text-gray-600"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              anvandningsvillkoren
+            </a>
+          </p>
         </div>
       </div>
     </div>
