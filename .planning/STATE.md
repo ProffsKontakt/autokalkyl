@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 15 — Customer Type & Electricity Inputs (COMPLETE)
-Plan: 7/7
-Status: Phase complete, verified
-Last activity: 2026-02-05 — Phase 15 complete
+Phase: 16 — Fees & Taxes
+Plan: 1/3
+Status: In progress
+Last activity: 2026-02-05 — Completed 16-01-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [######░░░░] 50%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#######░░░] 58%
 
 ## Milestone Summary
 
@@ -32,7 +32,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | ✓ Complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | ✓ Complete |
-| 16 | Fees & taxes in calculations | FEES-01-05 | Ready |
+| 16 | Fees & taxes in calculations | FEES-01-05 | In progress (1/3) |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
 
 ## Accumulated Context
@@ -52,6 +52,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 15-03 | localStorage version v3 | Force reset of user cached drafts |
 | 2026-02-05 | 15-05 | Store price in ore/kWh internally | Canonical unit, display based on preference |
 | 2026-02-05 | 15-06 | Validation requires kopt el > 0 AND price > 0 | Both required for meaningful calculation |
+| 2026-02-05 | 16-01 | PRIVATPERSON energiskatt rate includes moms (45 ore) | Simplifies calculations - no separate moms calculation needed |
 
 ### Pending Todos
 
@@ -71,7 +72,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Phase 15 complete and verified
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None
 
-Next action: `/gsd:discuss-phase 16` or `/gsd:plan-phase 16`
+Next action: `/gsd:execute-plan 16-02-PLAN.md`
