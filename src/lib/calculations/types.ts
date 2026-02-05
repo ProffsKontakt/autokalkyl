@@ -219,3 +219,56 @@ export interface CalculationResultsDecimal {
  * Swedish electricity price zones.
  */
 export type Elomrade = 'SE1' | 'SE2' | 'SE3' | 'SE4'
+
+// =============================================================================
+// PHASE 17: Multi-Battery Combo
+// =============================================================================
+
+/**
+ * Battery selection with quantity for combo calculations.
+ */
+export interface BatterySelection {
+  battery: BatterySpec
+  quantity: number
+  totalPriceExVat: number // Per unit price
+  installationCost: number // Per unit installation cost
+}
+
+/**
+ * Per-unit breakdown showing individual and subtotal results.
+ */
+export interface UnitBreakdown {
+  battery: BatterySpec
+  quantity: number
+  perUnitResults: CalculationResults
+  subtotalCapacityKwh: number
+  subtotalMaxDischargeKw: number
+  subtotalAnnualSavingsSek: number
+  subtotalCostAfterGronTeknikSek: number
+}
+
+/**
+ * Combined results for multi-battery configurations.
+ * Aggregates individual battery results into unified totals.
+ */
+export interface CombinedResults {
+  // Aggregated capacity metrics
+  totalCapacityKwh: number
+  totalMaxDischargeKw: number
+
+  // Aggregated cost metrics
+  totalCostExVat: number
+  totalCostIncVat: number
+  totalCostAfterGronTeknik: number
+
+  // Aggregated savings
+  totalAnnualSavingsSek: number
+
+  // Derived ROI metrics (calculated from combined totals)
+  combinedPaybackYears: number
+  combinedRoi10Year: number
+  combinedRoi15Year: number
+
+  // Per-unit breakdown for detailed view
+  unitBreakdowns: UnitBreakdown[]
+}
