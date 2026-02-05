@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 15 — Customer Electricity Inputs (In Progress)
-Plan: 2/3 (15-01, 15-02 complete)
-Status: Plan 15-02 complete, continuing to 15-03
-Last activity: 2026-02-05 — Completed 15-02-PLAN.md
+Plan: 4/7 (15-01, 15-02, 15-03, 15-04 complete)
+Status: Plan 15-04 complete, continuing to 15-05
+Last activity: 2026-02-05 — Completed 15-04-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#####░░░░░] 42%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [######░░░░] 50%
 
 ## Milestone Summary
 
@@ -31,7 +31,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
-| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (2/3 plans) |
+| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (4/7 plans) |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Blocked by 14, 15 |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
 
@@ -52,6 +52,9 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 15-01 | All new fields nullable except customerType and hasSolar | Backward compatibility with existing calculations |
 | 2026-02-05 | 15-02 | Default self-consumption: 30% without battery, 75% with | Typical Swedish residential patterns from research |
 | 2026-02-05 | 15-02 | Validation returns {valid, errors[], warnings[]} | Distinguish hard errors from soft warnings for UX |
+| 2026-02-05 | 15-04 | All Phase 15 fields optional in Zod schema | Backward compatibility with existing auto-save hook |
+| 2026-02-05 | 15-04 | Defaults applied in persistence layer, not schema | Avoids TypeScript inference issues with superRefine |
+| 2026-02-05 | 15-04 | Use Prisma.DbNull for monthly Json arrays | Correct way to set database NULL for Json? columns |
 
 ### Pending Todos
 
@@ -74,8 +77,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 17:51 UTC
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-02-05 17:58 UTC
+Stopped at: Completed 15-04-PLAN.md
 Resume file: None
 
-Next action: `/gsd:execute-phase 15` (plan 03) or verify all Phase 15 plans complete
+Next action: `/gsd:execute-phase 15` (plan 05) to continue Phase 15
