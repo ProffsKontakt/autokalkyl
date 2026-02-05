@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 13 IN PROGRESS
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 13 COMPLETE
 
 ## Current Position
 
-Phase: 13 of 13 (Bug Fixes & Polish)
-Plan: 1 of 2 in phase
-Status: In progress
-Last activity: 2026-02-05 — Completed 13-01-PLAN.md (Spotpris Efficiency Display)
+Phase: 13 of 13 (Bug Fixes & Polish) COMPLETE
+Plan: 2 of 2 in phase
+Status: Phase 13 complete - v1.2 milestone DONE
+Last activity: 2026-02-05 — Completed 13-02-PLAN.md (Permanent Sidebar)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###########-] 92%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [############] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + Phase 12)
+- Total plans completed: 23 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + Phase 12 + Phase 13)
 - Average duration: ~4min
-- Total execution time: ~87min
+- Total execution time: ~91min
 
 **By Phase:**
 
@@ -34,9 +34,9 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [###########-] 92%
 | 10 | 2/3 | ~7min | ~3.5min |
 | 11 | 4/4 | ~12min | ~3min |
 | 12 | 5/5 | ~15min | ~3min |
-| 13 | 1/2 | ~2min | ~2min |
+| 13 | 2/2 | ~4min | ~2min |
 
-*Phase 13 in progress*
+*v1.2 milestone complete*
 
 ## Accumulated Context
 
@@ -47,6 +47,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent from Phase 13:
 - [FMT-01] formatPercentage takes decimal (0-1) and returns formatted string with % (13-01)
 - [FMT-02] Auto-trim trailing zeros via parseFloat(toFixed(N)) (13-01)
+- [FIX-02-01] Remove hover dropdown in favor of permanent visible menu (13-02)
+- [FIX-02-02] SSR-safe localStorage using mounted state (13-02)
+- [FIX-02-03] localStorage key 'kalkyla-sidebar-collapsed' for persistence (13-02)
+- [FIX-02-04] Mobile always shows full width, desktop respects collapse state (13-02)
 
 Recent from Phase 12:
 - [ANLY-01] flushAt:1, flushInterval:0 for serverless (events flush immediately) (12-01)
@@ -111,7 +115,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 13-01-PLAN.md (Spotpris Efficiency Display)
+Stopped at: Completed 13-02-PLAN.md (Permanent Sidebar) - v1.2 COMPLETE
 Resume file: None
 
-Next action: Execute 13-02-PLAN.md (Remaining bug fixes)
+Next action: v1.2 milestone complete - ready for user verification
