@@ -45,8 +45,9 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
       return
     }
 
-    // Max 4 batteries for comparison
-    if (batteries.length >= 4) {
+    // Max batteries based on mode
+    const maxBatteries = comboMode === 'jamfora' ? 3 : 10
+    if (batteries.length >= maxBatteries) {
       return
     }
 
@@ -70,7 +71,8 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
     <div className="max-w-4xl mx-auto">
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Välj batteri</h2>
       <p className="text-sm text-gray-600 mb-6">
-        Välj ett eller flera batterier för att jämföra (max 4).
+        Välj ett eller flera batterier för att jämföra{' '}
+        {comboMode === 'jamfora' ? '(max 3 i jämförelseläge)' : ''}.
       </p>
 
       {/* Mode toggle - visible when at least 1 battery is added */}
@@ -117,7 +119,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
           value={selectedBatteryId}
           onChange={(e) => setSelectedBatteryId(e.target.value)}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
-          disabled={batteries.length >= 4}
+          disabled={batteries.length >= (comboMode === 'jamfora' ? 3 : 10)}
         >
           <option value="">Välj batteri...</option>
           {batteryList
@@ -131,7 +133,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
         <button
           type="button"
           onClick={handleAddBattery}
-          disabled={!selectedBatteryId || batteries.length >= 4}
+          disabled={!selectedBatteryId || batteries.length >= (comboMode === 'jamfora' ? 3 : 10)}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Lägg till
@@ -174,6 +176,33 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                   >
                     Ta bort
                   </button>
+                </div>
+
+                {/* Quantity selector */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Antal enheter
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => updateBatteryQuantity(index, Math.max(1, (selected.quantity ?? 1) - 1))}
+                      disabled={(selected.quantity ?? 1) <= 1}
+                      className="px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      -
+                    </button>
+                    <span className="w-12 text-center font-medium text-lg">
+                      {selected.quantity ?? 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateBatteryQuantity(index, (selected.quantity ?? 1) + 1)}
+                      className="px-3 py-1.5 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -228,23 +257,43 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                 {selected.totalPriceExVat > 0 && (
                   <div className="mt-4 p-3 bg-gray-50 rounded-md">
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Totalt ex. moms:</span>
-                        <span className="font-medium">
-                          {formatSek(selected.totalPriceExVat + selected.installationCost)}
-                        </span>
-                      </div>
+                      {(selected.quantity ?? 1) > 1 && (
+                        <>
+                          <div className="flex justify-between col-span-2">
+                            <span className="text-gray-600">Per enhet ex. moms:</span>
+                            <span className="font-medium">
+                              {formatSek(selected.totalPriceExVat + selected.installationCost)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between col-span-2 pt-2 border-t">
+                            <span className="text-gray-600">
+                              Totalt för {selected.quantity} enheter ex. moms:
+                            </span>
+                            <span className="font-medium">
+                              {formatSek((selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1))}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                      {(selected.quantity ?? 1) === 1 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Totalt ex. moms:</span>
+                          <span className="font-medium">
+                            {formatSek(selected.totalPriceExVat + selected.installationCost)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-gray-600">Totalt inkl. moms (25%):</span>
                         <span className="font-medium">
-                          {formatSek((selected.totalPriceExVat + selected.installationCost) * 1.25)}
+                          {formatSek((selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1) * 1.25)}
                         </span>
                       </div>
                       <div className="flex justify-between col-span-2 pt-2 border-t">
                         <span className="text-gray-600">Efter Grön Teknik (48.5%):</span>
                         <span className="font-medium text-green-600">
                           {formatSek(
-                            (selected.totalPriceExVat + selected.installationCost) * 1.25 * (1 - 0.485)
+                            (selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1) * 1.25 * (1 - 0.485)
                           )}
                         </span>
                       </div>
@@ -270,9 +319,21 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
       )}
 
       {/* Comparison hint */}
-      {batteries.length > 1 && (
+      {batteries.length > 0 && (
         <p className="text-sm text-blue-600 mt-4">
-          {batteries.length} batterier valda - jämförelse visas i resultatsteget.
+          {(() => {
+            const totalUnits = batteries.reduce((sum, b) => sum + (b.quantity ?? 1), 0)
+            const uniqueModels = batteries.length
+            if (uniqueModels === 1 && totalUnits === 1) {
+              return '1 batteri vald'
+            } else if (uniqueModels === 1) {
+              return `${totalUnits} batterier valda (samma modell)`
+            } else if (totalUnits === uniqueModels) {
+              return `${uniqueModels} olika batterier valda - jämförelse visas i resultatsteget`
+            } else {
+              return `${totalUnits} batterier valda (${uniqueModels} olika modeller) - jämförelse visas i resultatsteget`
+            }
+          })()}
         </p>
       )}
     </div>
