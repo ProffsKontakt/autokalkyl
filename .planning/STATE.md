@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 11 of 13 (Peak Calculation Engine)
-Plan: 1 of 3 in phase
+Plan: 2 of 3 in phase
 Status: In progress
-Last activity: 2026-02-05 — Completed 11-01-PLAN.md (Peak Billing Module)
+Last activity: 2026-02-05 — Completed 11-02-PLAN.md (Peak Target Input)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [########__] 80%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [#########_] 85%
 
 ## Performance Metrics
 
@@ -32,7 +32,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [########__] 80%
 | 8 | 2/2 | ~6min | ~3min |
 | 9 | 3/3 | ~17min | ~5.6min |
 | 10 | 2/3 | ~7min | ~3.5min |
-| 11 | 1/3 | 3min | 3min |
+| 11 | 2/3 | 6min | 3min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -61,6 +61,9 @@ Recent from v1.2:
 - [PEAK-01] Night hour detection handles overnight wrap (22:00-06:00) (11-01)
 - [PEAK-02] N-peak average applies discount BEFORE sorting (Ellevio behavior) (11-01)
 - [PEAK-03] Battery constraint message shows both target and actual kW (11-01)
+- [PEAK-04] Peak factors by heating type (DIREKTVERKANDE: 3.5 to FJARRVARME: 2.0) (11-02)
+- [PEAK-05] December (highest month) used for annual peak estimation (11-02)
+- [PEAK-06] Monthly ceiling defaults to 1.2x estimated average peak (11-02)
 
 Recent from v1.1:
 - Apply overrides server-side for invisible sync
@@ -84,7 +87,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 11-01-PLAN.md (Peak Billing Module)
+Stopped at: Completed 11-02-PLAN.md (Peak Target Input)
 Resume file: None
 
-Next action: `/gsd:execute-plan 11-02` (Peak Shaving Optimizer)
+Next action: `/gsd:execute-plan 11-03` (Peak Billing Integration)
