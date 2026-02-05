@@ -32,7 +32,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Complete |
-| 16 | Fees & taxes in calculations | FEES-01-05 | Complete (3/3) |
+| 16 | Fees & taxes in calculations | FEES-01-05 | ✓ Complete |
 | 17 | Multi-battery combo | COMBO-01-10 | Ready |
 
 ## Accumulated Context
@@ -76,7 +76,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 16-03-PLAN.md
+Stopped at: Phase 16 complete and verified
 Resume file: None
 
-Next action: Phase 17 (Multi-battery combo) now unblocked
+Next action: `/gsd:discuss-phase 17` or `/gsd:plan-phase 17`

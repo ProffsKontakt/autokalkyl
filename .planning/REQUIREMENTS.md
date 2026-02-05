@@ -18,11 +18,11 @@ Requirements for v1.3 Combo & Avgifter milestone. Each maps to roadmap phases.
 
 ### Grid Fees & Taxes
 
-- [ ] **FEES-01**: Calculation includes energiskatt at 45 ore/kWh
-- [ ] **FEES-02**: Calculation includes overforingsavgift per natagare (ore/kWh)
-- [ ] **FEES-03**: Calculation includes moms at 25% for privatperson
-- [ ] **FEES-04**: All fee components visible in calculation breakdown
-- [ ] **FEES-05**: Total electricity cost displayed with all components
+- [x] **FEES-01**: Calculation includes energiskatt at 45 ore/kWh
+- [x] **FEES-02**: Calculation includes overforingsavgift per natagare (ore/kWh)
+- [x] **FEES-03**: Calculation includes moms at 25% for privatperson
+- [x] **FEES-04**: All fee components visible in calculation breakdown
+- [x] **FEES-05**: Total electricity cost displayed with all components
 
 ### Customer Type
 
@@ -84,11 +84,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ELEC-04 | Phase 15 | Complete |
 | ELEC-05 | Phase 15 | Complete |
 | ELEC-06 | Phase 15 | Complete |
-| FEES-01 | Phase 16 | Pending |
-| FEES-02 | Phase 16 | Pending |
-| FEES-03 | Phase 16 | Pending |
-| FEES-04 | Phase 16 | Pending |
-| FEES-05 | Phase 16 | Pending |
+| FEES-01 | Phase 16 | Complete |
+| FEES-02 | Phase 16 | Complete |
+| FEES-03 | Phase 16 | Complete |
+| FEES-04 | Phase 16 | Complete |
+| FEES-05 | Phase 16 | Complete |
 | CUST-01 | Phase 15 | Complete |
 | CUST-02 | Phase 15 | Complete |
 | CUST-03 | Phase 15 | Complete |
