@@ -17,6 +17,12 @@ import { z } from 'zod'
 import { Prisma } from '@prisma/client'
 import type { ConsumptionProfile, Elomrade } from '@/lib/calculations/types'
 import type { CalculationOverrides } from '@/lib/share/types'
+import {
+  trackCalculationCreated,
+  trackCalculationUpdated,
+  trackCalculationDeleted,
+  trackWizardCompleted,
+} from '@/lib/analytics/server-events'
 
 // =============================================================================
 // ZOD SCHEMAS
@@ -139,6 +145,19 @@ export async function saveDraft(input: SaveDraftInput) {
         effectiveOrgId
       )
 
+      // Track calculation update (analytics - non-blocking)
+      try {
+        await trackCalculationUpdated(
+          session.user.id,
+          data.calculationId,
+          effectiveOrgId,
+          'DRAFT'
+        )
+      } catch (error) {
+        console.error('Analytics tracking failed:', error)
+        // Don't fail the action - analytics is non-critical
+      }
+
       return { calculationId: updated.id }
     } else {
       // Create new draft
@@ -176,6 +195,19 @@ export async function saveDraft(input: SaveDraftInput) {
         session.user.id,
         effectiveOrgId
       )
+
+      // Track calculation creation (analytics - non-blocking)
+      try {
+        await trackCalculationCreated(
+          session.user.id,
+          created.id,
+          effectiveOrgId,
+          data.customerName
+        )
+      } catch (error) {
+        console.error('Analytics tracking failed:', error)
+        // Don't fail the action - analytics is non-critical
+      }
 
       return { calculationId: created.id }
     }
@@ -511,6 +543,12 @@ export async function finalizeCalculation(id: string, results: unknown) {
       }
     }
 
+    // Fetch calculation to get orgId and battery count for tracking
+    const calculation = await tenantClient.calculation.findUnique({
+      where: { id },
+      select: { orgId: true, _count: { select: { batteries: true } } },
+    })
+
     await tenantClient.calculation.update({
       where: { id },
       data: {
@@ -519,6 +557,27 @@ export async function finalizeCalculation(id: string, results: unknown) {
         finalizedAt: new Date(),
       },
     })
+
+    // Track finalization and wizard completion (analytics - non-blocking)
+    if (calculation) {
+      try {
+        await trackCalculationUpdated(
+          session.user.id,
+          id,
+          calculation.orgId,
+          'FINALIZED'
+        )
+        await trackWizardCompleted(
+          session.user.id,
+          id,
+          calculation.orgId,
+          calculation._count.batteries
+        )
+      } catch (error) {
+        console.error('Analytics tracking failed:', error)
+        // Don't fail the action - analytics is non-critical
+      }
+    }
 
     revalidatePath('/dashboard/calculations')
     return { success: true }
@@ -551,15 +610,19 @@ export async function deleteCalculation(id: string) {
       ? prisma
       : createTenantClient(session.user.orgId!)
 
+    // Fetch calculation for ownership check and orgId for tracking
+    const calculation = await tenantClient.calculation.findUnique({
+      where: { id },
+      select: { createdBy: true, orgId: true },
+    })
+
+    if (!calculation) {
+      return { error: 'Kalkyl hittades inte' }
+    }
+
     // Check ownership for Closer
-    if (role === 'CLOSER') {
-      const existing = await tenantClient.calculation.findUnique({
-        where: { id },
-        select: { createdBy: true },
-      })
-      if (!existing || existing.createdBy !== session.user.id) {
-        return { error: 'Forbidden' }
-      }
+    if (role === 'CLOSER' && calculation.createdBy !== session.user.id) {
+      return { error: 'Forbidden' }
     }
 
     // Soft delete (archive)
@@ -567,6 +630,18 @@ export async function deleteCalculation(id: string) {
       where: { id },
       data: { status: 'ARCHIVED' },
     })
+
+    // Track deletion (analytics - non-blocking)
+    try {
+      await trackCalculationDeleted(
+        session.user.id,
+        id,
+        calculation.orgId
+      )
+    } catch (error) {
+      console.error('Analytics tracking failed:', error)
+      // Don't fail the action - analytics is non-critical
+    }
 
     revalidatePath('/dashboard/calculations')
     return { success: true }
