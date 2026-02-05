@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 17 — Multi-battery combo
-Plan: 4/6
+Plan: 5/6
 Status: In progress
-Last activity: 2026-02-05 — Completed 17-04-PLAN.md
+Last activity: 2026-02-05 — Completed 17-05-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [############] 89%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#############] 92%
 
 ## Milestone Summary
 
@@ -33,7 +33,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Complete |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Complete |
-| 17 | Multi-battery combo | COMBO-01-10 | In progress (4/6) |
+| 17 | Multi-battery combo | COMBO-01-10 | In progress (5/6) |
 
 ## Accumulated Context
 
@@ -73,6 +73,10 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 17-04 | Show per-unit AND subtotal in breakdown | Closers need both individual battery economics AND total contribution |
 | 2026-02-05 | 17-04 | Grid services stacking gets visual callout | Key differentiation for Emaldo - each unit can be registered separately |
 | 2026-02-05 | 17-04 | Conditional rendering based on comboMode | Komboinvestering shows combined view, jamfora shows comparison table |
+| 2026-02-05 | 17-05 | PublicCombinedResults mirrors admin CombinedResults structure | Consistency between admin and public types simplifies mental model |
+| 2026-02-05 | 17-05 | Build combined results from stored battery results | Public view must match admin view exactly, stored results are source of truth |
+| 2026-02-05 | 17-05 | Conditional render in InteractivePublicView | Keeps public page simple, logic encapsulated in view component |
+| 2026-02-05 | 17-05 | No mode toggle for prospects | Closer decides presentation mode, prospects see chosen view only (per CONTEXT.md) |
 
 ### Pending Todos
 
@@ -96,7 +100,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05 23:39
-Stopped at: Completed 17-04-PLAN.md (Combo results display)
+Stopped at: Completed 17-05-PLAN.md (Public share combo integration)
 Resume file: None
 
-Next action: Phase 17 plan 05 (Save combo mode to database) and plan 06 (Public share integration)
+Next action: Phase 17 plan 06 (Save combo mode to database - write path)
