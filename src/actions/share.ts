@@ -25,6 +25,8 @@ import type {
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
 import { VAT_RATE, GRON_TEKNIK_RATE, DEFAULT_CURRENT_PEAK_KW } from '@/lib/calculations/constants'
+import { calcTotalElectricityFees } from '@/lib/calculations/fees'
+import type { CustomerType } from '@/lib/calculations/types'
 import { checkSharePasswordRateLimit, hashIp } from '@/lib/rate-limit'
 import { logSecurityEvent, SecurityEventType } from '@/lib/audit/logger'
 import {
@@ -250,6 +252,15 @@ function buildPublicBreakdown(
     isEmaldoBattery: boolean
     batteryCapacityKw: number
     postCampaignRatePerKwYear: number
+  },
+  feesData?: {
+    consumptionKwh: number
+    energiskattSek: number
+    energiskattRateOre: number
+    overforingsavgiftSek: number
+    overforingsavgiftRateOre: number
+    totalFeesSek: number
+    customerType: CustomerType
   }
 ): CalculationBreakdownPublic {
   const targetPeakShaving = inputs.currentPeakKw * (inputs.peakShavingPercent / 100)
@@ -288,6 +299,16 @@ function buildPublicBreakdown(
         : undefined,
       displayedAnnualSek: results.gridServicesIncomeSek ?? 0,
     },
+    // Phase 16: Fees breakdown
+    fees: feesData ? {
+      consumptionKwh: feesData.consumptionKwh,
+      energiskattSek: feesData.energiskattSek,
+      energiskattRateOre: feesData.energiskattRateOre,
+      overforingsavgiftSek: feesData.overforingsavgiftSek,
+      overforingsavgiftRateOre: feesData.overforingsavgiftRateOre,
+      totalFeesSek: feesData.totalFeesSek,
+      customerType: feesData.customerType,
+    } : undefined,
   }
   // NOTE: marginSek, costPriceTotal, installerCut are NOT included (TRANS-04)
 }
@@ -334,6 +355,8 @@ export async function getPublicCalculation(
           nightRateSekKw: true,
           dayStartHour: true,
           dayEndHour: true,
+          // Phase 16: Fees
+          overforingsavgiftOreKwh: true,
         },
       },
       batteries: {
@@ -482,7 +505,38 @@ export async function getPublicCalculation(
         postCampaignRatePerKwYear: overrides?.postCampaignRate ?? r.postCampaignRatePerKwYear ?? 500,
       }
 
-      resultsPublic.breakdown = buildPublicBreakdown(r, inputs)
+      // Phase 16: Calculate fees for breakdown
+      const consumptionKwh = calculation.koptElKwh
+        ? Number(calculation.koptElKwh)
+        : Number(calculation.annualConsumptionKwh)
+      const customerType = (calculation.customerType as CustomerType) ?? 'PRIVATPERSON'
+      const overforingsavgiftOreKwh = calculation.natagare.overforingsavgiftOreKwh
+        ? Number(calculation.natagare.overforingsavgiftOreKwh)
+        : null
+
+      let feesData: {
+        consumptionKwh: number
+        energiskattSek: number
+        energiskattRateOre: number
+        overforingsavgiftSek: number
+        overforingsavgiftRateOre: number
+        totalFeesSek: number
+        customerType: CustomerType
+      } | undefined
+
+      if (consumptionKwh > 0) {
+        const { result: feesResult } = calcTotalElectricityFees(
+          consumptionKwh,
+          customerType,
+          overforingsavgiftOreKwh
+        )
+        feesData = {
+          consumptionKwh,
+          ...feesResult,
+        }
+      }
+
+      resultsPublic.breakdown = buildPublicBreakdown(r, inputs, feesData)
     }
   }
 
