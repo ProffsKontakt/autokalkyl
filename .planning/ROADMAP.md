@@ -48,7 +48,7 @@ All 21 requirements shipped.
 - [x] **Phase 9: Natagare Centralization** — Global scope migration, Super Admin peak method configuration
 - [x] **Phase 10: Consumption Profiles** — Annual kWh input with heating type seasonal distribution
 - [x] **Phase 11: Peak Calculation Engine** — Peak methods, night discount, capacity-constrained shaving
-- [ ] **Phase 12: Analytics & Dashboard** — PostHog fix, server-side events, embedded role-based dashboards
+- [x] **Phase 12: Analytics & Dashboard** — PostHog fix, server-side events, embedded role-based dashboards
 - [ ] **Phase 13: Bug Fixes & Polish** — Display corrections, UI improvements
 
 ## Phase Details
@@ -133,11 +133,11 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — PostHog server-side setup (posthog-node, server events, bot detection fix)
-- [ ] 12-02-PLAN.md — Analytics API route (PostHog Query proxy, role-based HogQL filtering)
-- [ ] 12-03-PLAN.md — Event integration (track calculations, shares, views in server actions)
-- [ ] 12-04-PLAN.md — Dashboard components (Recharts, widgets, analytics page)
-- [ ] 12-05-PLAN.md — Dashboard integration (role-specific views, checkpoint)
+- [x] 12-01-PLAN.md — PostHog server-side setup (posthog-node, server events, bot detection fix)
+- [x] 12-02-PLAN.md — Analytics API route (PostHog Query proxy, role-based HogQL filtering)
+- [x] 12-03-PLAN.md — Event integration (track calculations, shares, views in server actions)
+- [x] 12-04-PLAN.md — Dashboard components (Recharts, widgets, analytics page)
+- [x] 12-05-PLAN.md — Dashboard integration (role-specific views, checkpoint)
 
 ### Phase 13: Bug Fixes & Polish
 **Goal:** v1.2 release-ready with display bugs fixed and UI polished
@@ -163,9 +163,9 @@ Plans:
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
 | 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
 | 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
-| 12. Analytics & Dashboard | v1.2 | 0/5 | Not started | - |
+| 12. Analytics & Dashboard | v1.2 | 5/5 | Complete | 2026-02-05 |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 12 planned)*
+*Last updated: 2026-02-05 (Phase 12 complete)*

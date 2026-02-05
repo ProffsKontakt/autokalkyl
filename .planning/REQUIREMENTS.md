@@ -9,11 +9,11 @@ Requirements for v1.2 Realistic Consumption & Peak Tariffs. Each maps to roadmap
 
 ### Consumption Profiles
 
-- [ ] **CONS-01**: User can input annual electricity consumption in kWh
-- [ ] **CONS-02**: User can select heating type from: Bergvärme, Fjärrvärme, Direktverkande el, Luft-luft VP, Luft-vatten VP
-- [ ] **CONS-03**: System generates monthly consumption distribution based on heating type and seasonal factors
-- [ ] **CONS-04**: User can view visual curve showing monthly consumption distribution
-- [ ] **CONS-05**: Seasonal factors reflect Swedish consumption patterns (higher winter, lower summer, varies by heating type)
+- [x] **CONS-01**: User can input annual electricity consumption in kWh
+- [x] **CONS-02**: User can select heating type from: Bergvärme, Fjärrvärme, Direktverkande el, Luft-luft VP, Luft-vatten VP
+- [x] **CONS-03**: System generates monthly consumption distribution based on heating type and seasonal factors
+- [x] **CONS-04**: User can view visual curve showing monthly consumption distribution
+- [x] **CONS-05**: Seasonal factors reflect Swedish consumption patterns (higher winter, lower summer, varies by heating type)
 
 ### Peak Tariffs
 
@@ -35,12 +35,12 @@ Requirements for v1.2 Realistic Consumption & Peak Tariffs. Each maps to roadmap
 
 ### Analytics & Tracking
 
-- [ ] **ANLY-07**: PostHog configuration is fixed (bot detection disabled, events flowing)
-- [ ] **ANLY-08**: Server-side events capture calculation creation, updates, and views
-- [ ] **ANLY-09**: Super Admin dashboard shows embedded PostHog analytics for all calculations
-- [ ] **ANLY-10**: Org Admin dashboard shows embedded analytics for organization's calculations
-- [ ] **ANLY-11**: Closer dashboard shows embedded analytics for their own calculations only
-- [ ] **ANLY-12**: Dashboards auto-populate with calculation metrics (views, time on page, sections viewed)
+- [x] **ANLY-07**: PostHog configuration is fixed (bot detection disabled, events flowing)
+- [x] **ANLY-08**: Server-side events capture calculation creation, updates, and views
+- [x] **ANLY-09**: Super Admin dashboard shows embedded PostHog analytics for all calculations
+- [x] **ANLY-10**: Org Admin dashboard shows embedded analytics for organization's calculations
+- [x] **ANLY-11**: Closer dashboard shows embedded analytics for their own calculations only
+- [x] **ANLY-12**: Dashboards auto-populate with calculation metrics (views, time on page, sections viewed)
 
 ### Bug Fixes
 
@@ -83,11 +83,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONS-01 | Phase 10 | Pending |
-| CONS-02 | Phase 10 | Pending |
-| CONS-03 | Phase 10 | Pending |
-| CONS-04 | Phase 10 | Pending |
-| CONS-05 | Phase 10 | Pending |
+| CONS-01 | Phase 10 | Complete |
+| CONS-02 | Phase 10 | Complete |
+| CONS-03 | Phase 10 | Complete |
+| CONS-04 | Phase 10 | Complete |
+| CONS-05 | Phase 10 | Complete |
 | PEAK-05 | Phase 11 | Complete |
 | PEAK-06 | Phase 11 | Complete |
 | PEAK-07 | Phase 11 | Complete |
@@ -100,12 +100,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NATA-09 | Phase 9 | Complete |
 | NATA-10 | Phase 9 | Complete |
 | NATA-11 | Phase 9 | Complete |
-| ANLY-07 | Phase 12 | Pending |
-| ANLY-08 | Phase 12 | Pending |
-| ANLY-09 | Phase 12 | Pending |
-| ANLY-10 | Phase 12 | Pending |
-| ANLY-11 | Phase 12 | Pending |
-| ANLY-12 | Phase 12 | Pending |
+| ANLY-07 | Phase 12 | Complete |
+| ANLY-08 | Phase 12 | Complete |
+| ANLY-09 | Phase 12 | Complete |
+| ANLY-10 | Phase 12 | Complete |
+| ANLY-11 | Phase 12 | Complete |
+| ANLY-12 | Phase 12 | Complete |
 | FIX-01 | Phase 13 | Pending |
 | FIX-02 | Phase 13 | Pending |
 | FIX-03 | Phase 8 | Complete |
@@ -118,4 +118,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-05 (Phase 11 complete)*
+*Last updated: 2026-02-05 (Phase 12 complete)*
