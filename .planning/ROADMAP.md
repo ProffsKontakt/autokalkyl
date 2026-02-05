@@ -153,6 +153,16 @@ Plans:
 
 **Requirements:** COMBO-01, COMBO-02, COMBO-03, COMBO-04, COMBO-05, COMBO-06, COMBO-07, COMBO-08, COMBO-09, COMBO-10
 
+**Plans:** 6 plans
+
+Plans:
+- [ ] 17-01-PLAN.md — Store extension (quantity + comboMode + persistence + schema)
+- [ ] 17-02-PLAN.md — TDD combo calculation aggregation
+- [ ] 17-03-PLAN.md — Battery step UI (quantity selector + mode toggle)
+- [ ] 17-04-PLAN.md — Komboinvestering results display
+- [ ] 17-05-PLAN.md — Share payload + public view integration
+- [ ] 17-06-PLAN.md — Human verification checkpoint
+
 **Success Criteria:**
 1. Closer can add multiple batteries to a single calculation
 2. Closer can toggle between Jamfora (compare) and Komboinvestering (combine) modes
@@ -178,10 +188,10 @@ Plans:
 | 14. Schema & Natagare | v1.3 | 2/2 | Complete | 2026-02-05 |
 | 15. Customer & Electricity | v1.3 | 7/7 | Complete | 2026-02-05 |
 | 16. Fees & Taxes | v1.3 | 3/3 | Complete | 2026-02-05 |
-| 17. Multi-Battery Combo | v1.3 | 0/? | Pending | — |
+| 17. Multi-Battery Combo | v1.3 | 0/6 | Planned | — |
 
-**Total: 17 phases, 76 plans, 168 requirements (158 shipped, 10 pending)**
+**Total: 17 phases, 82 plans, 168 requirements (158 shipped, 10 pending)**
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 16 complete)*
+*Last updated: 2026-02-05 (Phase 17 planned)*
