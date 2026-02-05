@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 14 — Schema & Natagare Enhancements
-Plan: —
-Status: Ready for planning
-Last activity: 2026-02-05 — v1.3 roadmap created
+Plan: 01 of 3
+Status: In progress
+Last activity: 2026-02-05 — Completed 14-01-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [░░░░░░░░░░] 0%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#░░░░░░░░░] 10%
 
 ## Milestone Summary
 
@@ -30,7 +30,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [░�
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Ready |
+| 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Plan 01 complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Blocked by 14 |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Blocked by 14, 15 |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
@@ -39,7 +39,12 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [░�
 
 ### Decisions
 
-All decisions logged in PROJECT.md Key Decisions tables.
+| Date | Phase | Decision | Rationale |
+|------|-------|----------|-----------|
+| 2026-02-05 | 14-01 | Decimal(10,2) for overforingsavgiftOreKwh | Preserve financial precision (100 ore = 1 SEK) |
+| 2026-02-05 | 14-01 | Default overforingsavgift 7.00 ore/kWh | Based on Ellevio 2026 pricing research |
+| 2026-02-05 | 14-01 | High-load hours default 07:00-20:00 | Common Swedish grid operator pattern |
+| 2026-02-05 | 14-01 | isWinterOnlyHighLoad default false | Some operators (Jonkoping) only charge Nov-Mar |
 
 ### Pending Todos
 
@@ -53,13 +58,13 @@ None.
 - Phase 10 missing formal verification document (code complete)
 
 **Production deployment:**
-- Run `npx prisma migrate deploy` before production use
+- Run `npx prisma migrate deploy` before production use (includes new 14-01 migration)
 - Verify PostHog events flowing in production
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: v1.3 roadmap created, ready for phase planning
+Last session: 2026-02-05 16:17 UTC
+Stopped at: Completed 14-01-PLAN.md (Schema & tariff fields)
 Resume file: None
 
-Next action: `/gsd:plan-phase 14`
+Next action: Execute 14-02-PLAN.md (if exists) or plan next phase
