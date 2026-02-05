@@ -27,9 +27,25 @@ import {
 } from './formulas'
 import { calculateActualPeakShaving } from './constraints'
 import { EMALDO_STODTJANSTER_RATES, EMALDO_CAMPAIGN_MONTHS, DEFAULT_ROUND_TRIP_EFFICIENCY, DEFAULT_SPOT_SPREAD_ORE } from './constants'
+import { calculatePeakBilling, parsePeakMethod, type DailyPeak, type PeakMethod } from './peak-billing'
 
 // Helper to create Decimal from number
 const d = (n: number) => new Decimal(n)
+
+/**
+ * Convert peak method type to human-readable Swedish display name.
+ */
+function getPeakMethodDisplayName(method: PeakMethod, numPeaks?: number): string {
+  switch (method) {
+    case 'N_PEAK_AVERAGE':
+      return numPeaks ? `${numPeaks}-topp medel` : '3-topp medel'
+    case 'SEASONAL_PEAK':
+      return 'Sasongsmedel'
+    case 'SIMPLE_MAX':
+    default:
+      return 'Enkel max'
+  }
+}
 
 /**
  * LOGIC-10: Main calculation function using decimal.js for precision.
@@ -91,6 +107,66 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     peakShavingResults.actualKw,
     inputs.effectTariffDayRate
   )
+
+  // Phase 11: Peak billing calculation (PEAK-08, PEAK-09, PEAK-10)
+  let peakBillingResults = {
+    beforePeakKw: 0,
+    afterPeakKw: 0,
+    monthlySavingsSek: 0,
+    annualSavingsSek: 0,
+    methodUsed: 'Enkel max',
+    nightDiscountApplied: false,
+    wasConstrained: false,
+    constraintReason: null as string | null,
+  }
+
+  if (inputs.natagareConfig && inputs.currentPeakKw) {
+    const peakMethod = parsePeakMethod(inputs.natagareConfig.peakCalculationMethod)
+
+    // Determine target peak reduction from wizard inputs or estimate from percentage
+    const targetReductionKw = inputs.targetAveragePeakKw
+      ? inputs.currentPeakKw - inputs.targetAveragePeakKw
+      : (inputs.peakShavingPercent ?? 0) / 100 * inputs.currentPeakKw
+
+    // Create synthetic monthly peaks for the calculation
+    // Use currentPeakKw as the representative peak for each month
+    // Night hours: assume daytime peak for billing purposes (worst case)
+    const monthlyPeaks: DailyPeak[] = Array.from({ length: 12 }, (_, month) => ({
+      peakKw: inputs.currentPeakKw!,
+      month,
+      isNight: false, // Default to day peak (no discount assumed)
+      hour: 18, // Typical peak hour
+    }))
+
+    // Calculate peak billing with constraints
+    const billingResult = calculatePeakBilling({
+      monthlyPeaks,
+      config: {
+        method: peakMethod.method,
+        numPeaks: peakMethod.numPeaks,
+        avgPeriod: peakMethod.avgPeriod,
+        nightDiscountPercent: inputs.natagareConfig.nightDiscountPercent ?? 0,
+        nightStartHour: inputs.natagareConfig.peakNightStartHour ?? 22,
+        nightEndHour: inputs.natagareConfig.peakNightEndHour ?? 6,
+      },
+      batteryMaxDischargeKw: inputs.battery.maxDischargeKw,
+      targetPeakReductionKw: targetReductionKw > 0 ? targetReductionKw : undefined,
+      effectTariffSekKw: inputs.natagareConfig.dayRateSekKw,
+    })
+
+    const monthlySavings = billingResult.actualReductionKw * inputs.natagareConfig.dayRateSekKw
+
+    peakBillingResults = {
+      beforePeakKw: billingResult.beforePeakKw,
+      afterPeakKw: billingResult.afterPeakKw,
+      monthlySavingsSek: monthlySavings,
+      annualSavingsSek: billingResult.annualSavingsSek ?? monthlySavings * 12,
+      methodUsed: getPeakMethodDisplayName(peakMethod.method, peakMethod.numPeaks),
+      nightDiscountApplied: (inputs.natagareConfig.nightDiscountPercent ?? 0) > 0,
+      wasConstrained: billingResult.isConstrained,
+      constraintReason: billingResult.constraintReason,
+    }
+  }
 
   // GRID-01, GRID-02, GRID-03, GRID-04: Stodtjanster calculation
   const totalYears = inputs.totalProjectionYears || 10
@@ -182,6 +258,15 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     stodtjansterPostCampaignSek: stodtjansterPostCampaign,
     stodtjansterTotalSek: stodtjansterTotal,
     stodtjansterAnnualAverageSek: stodtjansterAnnualAverage,
+    // Phase 11: Peak billing results
+    peakBillingBeforeKw: peakBillingResults.beforePeakKw,
+    peakBillingAfterKw: peakBillingResults.afterPeakKw,
+    peakBillingMonthlySavingsSek: d(peakBillingResults.monthlySavingsSek),
+    peakBillingAnnualSavingsSek: d(peakBillingResults.annualSavingsSek),
+    peakMethodUsed: peakBillingResults.methodUsed,
+    peakNightDiscountApplied: peakBillingResults.nightDiscountApplied,
+    peakWasConstrained: peakBillingResults.wasConstrained,
+    peakConstraintReason: peakBillingResults.constraintReason,
   }
 
   return {
@@ -216,5 +301,14 @@ export function serializeResults(decimals: CalculationResultsDecimal): Calculati
     stodtjansterPostCampaignSek: decimals.stodtjansterPostCampaignSek?.toNumber(),
     stodtjansterTotalSek: decimals.stodtjansterTotalSek?.toNumber(),
     stodtjansterAnnualAverageSek: decimals.stodtjansterAnnualAverageSek?.toNumber(),
+    // Phase 11: Peak billing results
+    peakBillingBeforeKw: decimals.peakBillingBeforeKw,
+    peakBillingAfterKw: decimals.peakBillingAfterKw,
+    peakBillingMonthlySavingsSek: decimals.peakBillingMonthlySavingsSek?.toNumber(),
+    peakBillingAnnualSavingsSek: decimals.peakBillingAnnualSavingsSek?.toNumber(),
+    peakMethodUsed: decimals.peakMethodUsed,
+    peakNightDiscountApplied: decimals.peakNightDiscountApplied,
+    peakWasConstrained: decimals.peakWasConstrained,
+    peakConstraintReason: decimals.peakConstraintReason,
   }
 }

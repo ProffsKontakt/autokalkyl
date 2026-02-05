@@ -53,6 +53,17 @@ export interface CalculationInputs {
   elomrade?: 'SE1' | 'SE2' | 'SE3' | 'SE4' // For zone-based stodtjanster
   isEmaldoBattery?: boolean // Determines stodtjanster calculation method
   totalProjectionYears?: number // For stodtjanster projection, default 10
+  // Phase 11: Peak billing inputs
+  natagareConfig?: {
+    peakCalculationMethod: string | null
+    nightDiscountPercent: number | null
+    peakNightStartHour: number | null
+    peakNightEndHour: number | null
+    dayRateSekKw: number
+  }
+  targetAveragePeakKw?: number | null
+  targetMonthlyCeilingKw?: number | null
+  monthlyConsumptionKwh?: number[] // From Phase 10 distribution
 }
 
 /**
@@ -79,6 +90,15 @@ export interface CalculationResults {
   stodtjansterPostCampaignSek?: number // Post-campaign portion
   stodtjansterTotalSek?: number // Combined over projection period
   stodtjansterAnnualAverageSek?: number // Average per year
+  // Phase 11: Peak billing results
+  peakBillingBeforeKw?: number // Billing peak without battery
+  peakBillingAfterKw?: number // Billing peak with battery
+  peakBillingMonthlySavingsSek?: number
+  peakBillingAnnualSavingsSek?: number
+  peakMethodUsed?: string // e.g., "Ellevio 3-topp medel"
+  peakNightDiscountApplied?: boolean
+  peakWasConstrained?: boolean
+  peakConstraintReason?: string | null
 }
 
 /**
@@ -104,6 +124,15 @@ export interface CalculationResultsDecimal {
   stodtjansterPostCampaignSek?: Decimal // Post-campaign portion
   stodtjansterTotalSek?: Decimal // Combined over projection period
   stodtjansterAnnualAverageSek?: Decimal // Average per year
+  // Phase 11: Peak billing results
+  peakBillingBeforeKw?: number
+  peakBillingAfterKw?: number
+  peakBillingMonthlySavingsSek?: Decimal
+  peakBillingAnnualSavingsSek?: Decimal
+  peakMethodUsed?: string
+  peakNightDiscountApplied?: boolean
+  peakWasConstrained?: boolean
+  peakConstraintReason?: string | null
 }
 
 /**
