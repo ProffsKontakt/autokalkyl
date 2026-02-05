@@ -416,6 +416,9 @@ model Calculation {
   projectedSelfConsumptionKwh Decimal? @db.Decimal(10, 2) // Projected with battery (kWh)
   selfConsumptionInputMode  String?  @default("kwh") // kwh | percent
 
+  // Phase 17: Multi-battery combo mode
+  comboMode String? @default("jamfora") // 'komboinvestering' | 'jamfora'
+
   // Results (calculated server-side)
   results Json?
 
@@ -456,6 +459,9 @@ model CalculationBattery {
   // Pricing
   totalPriceExVat  Decimal @db.Decimal(10, 2)
   installationCost Decimal @db.Decimal(10, 2)
+
+  // Phase 17: Battery quantity for combo investments
+  quantity Int @default(1) // Number of this battery model
 
   // Calculated results for this battery
   results Json?
