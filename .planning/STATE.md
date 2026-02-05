@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 15 — Customer Electricity Inputs (In Progress)
-Plan: 4/7 (15-01, 15-02, 15-03, 15-04 complete)
-Status: Plan 15-04 complete, continuing to 15-05
-Last activity: 2026-02-05 — Completed 15-04-PLAN.md
+Plan: 5/7 (15-01, 15-02, 15-03, 15-04, 15-05 complete)
+Status: Plan 15-05 complete, continuing to 15-06
+Last activity: 2026-02-05 — Completed 15-05-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [######░░░░] 50%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [#######░░░] 57%
 
 ## Milestone Summary
 
@@ -31,7 +31,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
-| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (4/7 plans) |
+| 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | In Progress (5/7 plans) |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Blocked by 14, 15 |
 | 17 | Multi-battery combo | COMBO-01-10 | Blocked by 16 |
 
@@ -58,6 +58,9 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 15-04 | All Phase 15 fields optional in Zod schema | Backward compatibility with existing auto-save hook |
 | 2026-02-05 | 15-04 | Defaults applied in persistence layer, not schema | Avoids TypeScript inference issues with superRefine |
 | 2026-02-05 | 15-04 | Use Prisma.DbNull for monthly Json arrays | Correct way to set database NULL for Json? columns |
+| 2026-02-05 | 15-05 | Electricity price stored in ore/kWh internally | Store canonical unit, display based on user preference |
+| 2026-02-05 | 15-05 | Self-consumption auto-suggests on first solar entry | UX: helpful defaults when solar production entered |
+| 2026-02-05 | 15-05 | Solar section hidden by default | Reduces clutter for non-solar customers |
 
 ### Pending Todos
 
@@ -80,8 +83,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 17:58 UTC
-Stopped at: Completed 15-04-PLAN.md
+Last session: 2026-02-05 18:04 UTC
+Stopped at: Completed 15-05-PLAN.md
 Resume file: None
 
-Next action: `/gsd:execute-phase 15` (plan 05) to continue Phase 15
+Next action: `/gsd:execute-phase 15` (plan 06) to continue Phase 15
