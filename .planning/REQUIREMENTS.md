@@ -9,12 +9,12 @@ Requirements for v1.3 Combo & Avgifter milestone. Each maps to roadmap phases.
 
 ### Electricity Inputs
 
-- [ ] **ELEC-01**: Closer can input customer's annual purchased electricity (kopt el) in kWh
-- [ ] **ELEC-02**: Closer can input customer's electricity price (annual total or monthly average)
-- [ ] **ELEC-03**: Closer can toggle between annual and monthly price input modes
-- [ ] **ELEC-04**: Closer can input customer's existing solar production (egenproducerad el) in kWh/year
-- [ ] **ELEC-05**: Egenproducerad el reduces kopt el in calculations (solar offsets grid consumption)
-- [ ] **ELEC-06**: Net consumption (kopt el - egenproducerad el) used as basis for savings calculations
+- [x] **ELEC-01**: Closer can input customer's annual purchased electricity (kopt el) in kWh
+- [x] **ELEC-02**: Closer can input customer's electricity price (annual total or monthly average)
+- [x] **ELEC-03**: Closer can toggle between annual and monthly price input modes
+- [x] **ELEC-04**: Closer can input customer's existing solar production (egenproducerad el) in kWh/year
+- [x] **ELEC-05**: Egenproducerad el reduces kopt el in calculations (solar offsets grid consumption)
+- [x] **ELEC-06**: Net consumption (kopt el - egenproducerad el) used as basis for savings calculations
 
 ### Grid Fees & Taxes
 
@@ -26,10 +26,10 @@ Requirements for v1.3 Combo & Avgifter milestone. Each maps to roadmap phases.
 
 ### Customer Type
 
-- [ ] **CUST-01**: Closer can toggle customer type: Privatperson vs Foretag
-- [ ] **CUST-02**: Foretag calculations exclude moms (VAT) from cost basis
-- [ ] **CUST-03**: Customer type affects all price displays and savings calculations
-- [ ] **CUST-04**: Customer type visible in calculation summary and public view
+- [x] **CUST-01**: Closer can toggle customer type: Privatperson vs Foretag
+- [x] **CUST-02**: Foretag calculations exclude moms (VAT) from cost basis
+- [x] **CUST-03**: Customer type affects all price displays and savings calculations
+- [x] **CUST-04**: Customer type visible in calculation summary and public view
 
 ### Natagare Configuration
 
@@ -78,21 +78,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ELEC-01 | Phase 15 | Pending |
-| ELEC-02 | Phase 15 | Pending |
-| ELEC-03 | Phase 15 | Pending |
-| ELEC-04 | Phase 15 | Pending |
-| ELEC-05 | Phase 15 | Pending |
-| ELEC-06 | Phase 15 | Pending |
+| ELEC-01 | Phase 15 | Complete |
+| ELEC-02 | Phase 15 | Complete |
+| ELEC-03 | Phase 15 | Complete |
+| ELEC-04 | Phase 15 | Complete |
+| ELEC-05 | Phase 15 | Complete |
+| ELEC-06 | Phase 15 | Complete |
 | FEES-01 | Phase 16 | Pending |
 | FEES-02 | Phase 16 | Pending |
 | FEES-03 | Phase 16 | Pending |
 | FEES-04 | Phase 16 | Pending |
 | FEES-05 | Phase 16 | Pending |
-| CUST-01 | Phase 15 | Pending |
-| CUST-02 | Phase 15 | Pending |
-| CUST-03 | Phase 15 | Pending |
-| CUST-04 | Phase 15 | Pending |
+| CUST-01 | Phase 15 | Complete |
+| CUST-02 | Phase 15 | Complete |
+| CUST-03 | Phase 15 | Complete |
+| CUST-04 | Phase 15 | Complete |
 | NATA-12 | Phase 14 | Complete |
 | NATA-13 | Phase 14 | Complete |
 | NATA-14 | Phase 14 | Complete |
