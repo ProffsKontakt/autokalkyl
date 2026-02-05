@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Closers can build accurate, interactive battery ROI calculations that prospects can customize to see real savings.
-**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 11 complete
+**Current focus:** v1.2 Realistic Consumption & Peak Tariffs — Phase 12 in progress
 
 ## Current Position
 
-Phase: 11 of 13 (Peak Calculation Engine) VERIFIED COMPLETE
-Plan: 4 of 4 in phase (all plans + verification passed)
-Status: Phase 11 verified complete - ready for Phase 12
-Last activity: 2026-02-05 — Phase 11 verification passed (5/5 must-haves)
+Phase: 12 of 13 (Analytics & Dashboard)
+Plan: 1 of 5 in phase
+Status: In progress
+Last activity: 2026-02-05 — Completed 12-01-PLAN.md (Server-Side PostHog Setup)
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 92%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 94%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11)
+- Total plans completed: 17 (v1.1 + Phase 8 + Phase 9 + Phase 10 + Phase 11 + 12-01)
 - Average duration: ~4min
-- Total execution time: ~65min
+- Total execution time: ~67min
 
 **By Phase:**
 
@@ -33,6 +33,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 92%
 | 9 | 3/3 | ~17min | ~5.6min |
 | 10 | 2/3 | ~7min | ~3.5min |
 | 11 | 4/4 | ~12min | ~3min |
+| 12 | 1/5 | ~2min | ~2min |
 
 *v1.2 metrics will be tracked as phases complete*
 
@@ -41,6 +42,12 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] 92%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+Recent from Phase 12:
+- [ANLY-01] flushAt:1, flushInterval:0 for serverless (events flush immediately) (12-01)
+- [ANLY-02] captureServerEvent calls shutdown() after every capture for Vercel (12-01)
+- [ANLY-03] Anonymous prospects use calc_{calculationId} as distinctId (12-01)
+- [ANLY-04] opt_out_useragent_filter: true disables aggressive bot detection (12-01)
 
 Recent from v1.2:
 - DEFAULT_CURRENT_PEAK_KW = 8 centralized in constants.ts (FIX-03 addressed)
@@ -79,7 +86,7 @@ None.
 ### Blockers/Concerns
 
 **From research (info-level, not blocking):**
-- PostHog may be blocked by bot detection (ANLY-07 addresses)
+- ~~PostHog may be blocked by bot detection~~ (RESOLVED: ANLY-04 in 12-01)
 - ~~Vattenfall/E.ON peak methods not finalized~~ (RESOLVED: system now configurable via JSON)
 - 113 existing calculations need backward compatibility during migration
 
@@ -91,7 +98,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Phase 11 verified complete (5/5 must-haves passed)
+Stopped at: Completed 12-01-PLAN.md (Server-Side PostHog Setup)
 Resume file: None
 
-Next action: `/gsd:plan-phase 12` (Phase 12: Analytics & Dashboard)
+Next action: `/gsd:execute-plan .planning/phases/12-analytics-dashboard/12-02-PLAN.md`
