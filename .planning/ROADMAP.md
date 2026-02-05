@@ -147,10 +147,11 @@ Plans:
   1. Spotpris efficiency displays as percentage (90.2% not 90000.2%)
   2. Super Admin sidebar is permanent menu (not hover-triggered)
   3. Spotpris breakdown shows verkningsgrad as %, daglig energi/besparing with correct values
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 13-01: Display and UI bug fixes
+- [ ] 13-01-PLAN.md — Spotpris efficiency and breakdown formatting (FIX-01, FIX-04)
+- [ ] 13-02-PLAN.md — Sidebar permanent menu with collapse functionality (FIX-02)
 
 ## Progress
 
@@ -164,8 +165,8 @@ Plans:
 | 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
 | 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
 | 12. Analytics & Dashboard | v1.2 | 5/5 | Complete | 2026-02-05 |
-| 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
+| 13. Bug Fixes & Polish | v1.2 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 12 complete)*
+*Last updated: 2026-02-05 (Phase 13 planned)*
