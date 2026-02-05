@@ -9,46 +9,46 @@ Requirements for v1.3 Combo & Avgifter milestone. Each maps to roadmap phases.
 
 ### Electricity Inputs
 
-- [ ] **ELEC-01**: Closer can input customer's annual purchased electricity (köpt el) in kWh
+- [ ] **ELEC-01**: Closer can input customer's annual purchased electricity (kopt el) in kWh
 - [ ] **ELEC-02**: Closer can input customer's electricity price (annual total or monthly average)
 - [ ] **ELEC-03**: Closer can toggle between annual and monthly price input modes
 - [ ] **ELEC-04**: Closer can input customer's existing solar production (egenproducerad el) in kWh/year
-- [ ] **ELEC-05**: Egenproducerad el reduces köpt el in calculations (solar offsets grid consumption)
-- [ ] **ELEC-06**: Net consumption (köpt el - egenproducerad el) used as basis for savings calculations
+- [ ] **ELEC-05**: Egenproducerad el reduces kopt el in calculations (solar offsets grid consumption)
+- [ ] **ELEC-06**: Net consumption (kopt el - egenproducerad el) used as basis for savings calculations
 
 ### Grid Fees & Taxes
 
-- [ ] **FEES-01**: Calculation includes energiskatt at 45 öre/kWh
-- [ ] **FEES-02**: Calculation includes överföringsavgift per nätägare (öre/kWh)
+- [ ] **FEES-01**: Calculation includes energiskatt at 45 ore/kWh
+- [ ] **FEES-02**: Calculation includes overforingsavgift per natagare (ore/kWh)
 - [ ] **FEES-03**: Calculation includes moms at 25% for privatperson
 - [ ] **FEES-04**: All fee components visible in calculation breakdown
 - [ ] **FEES-05**: Total electricity cost displayed with all components
 
 ### Customer Type
 
-- [ ] **CUST-01**: Closer can toggle customer type: Privatperson vs Företag
-- [ ] **CUST-02**: Företag calculations exclude moms (VAT) from cost basis
+- [ ] **CUST-01**: Closer can toggle customer type: Privatperson vs Foretag
+- [ ] **CUST-02**: Foretag calculations exclude moms (VAT) from cost basis
 - [ ] **CUST-03**: Customer type affects all price displays and savings calculations
 - [ ] **CUST-04**: Customer type visible in calculation summary and public view
 
-### Nätägare Configuration
+### Natagare Configuration
 
-- [ ] **NATA-12**: Super Admin can configure överföringsavgift (öre/kWh) per nätägare
+- [ ] **NATA-12**: Super Admin can configure overforingsavgift (ore/kWh) per natagare
 - [ ] **NATA-13**: Super Admin can configure effect tariff timing (high-load hours, night hours)
 - [ ] **NATA-14**: Effect tariff timing used in peak calculations (day/night, summer/winter)
 
 ### Multi-Battery Combo
 
 - [ ] **COMBO-01**: Closer can add multiple batteries to a calculation
-- [ ] **COMBO-02**: Closer can toggle between "Jämföra" (compare) and "Komboinvestering" (combine) modes
+- [ ] **COMBO-02**: Closer can toggle between "Jamfora" (compare) and "Komboinvestering" (combine) modes
 - [ ] **COMBO-03**: Komboinvestering requires same battery model for all units
-- [ ] **COMBO-04**: Komboinvestering combines battery capacity (e.g., 2× 15.36 kWh = 30.72 kWh)
-- [ ] **COMBO-05**: Komboinvestering combines battery price (e.g., 2× 89,900 = 179,800 SEK)
+- [ ] **COMBO-04**: Komboinvestering combines battery capacity (e.g., 2x 15.36 kWh = 30.72 kWh)
+- [ ] **COMBO-05**: Komboinvestering combines battery price (e.g., 2x 89,900 = 179,800 SEK)
 - [ ] **COMBO-06**: Grid services income stacks per qualifying unit (each 15.36 kWh Emaldo = separate enrollment)
 - [ ] **COMBO-07**: Peak shaving capacity uses combined system capacity
 - [ ] **COMBO-08**: Spotpris optimization uses combined system capacity
-- [ ] **COMBO-09**: Jämföra mode shows side-by-side comparison (different quantities or different models)
-- [ ] **COMBO-10**: Jämföra mode supports comparing up to 3 configurations
+- [ ] **COMBO-09**: Jamfora mode shows side-by-side comparison (different quantities or different models)
+- [ ] **COMBO-10**: Jamfora mode supports comparing up to 3 configurations
 
 ## Previous Milestones (Validated)
 
@@ -78,40 +78,40 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ELEC-01 | TBD | Pending |
-| ELEC-02 | TBD | Pending |
-| ELEC-03 | TBD | Pending |
-| ELEC-04 | TBD | Pending |
-| ELEC-05 | TBD | Pending |
-| ELEC-06 | TBD | Pending |
-| FEES-01 | TBD | Pending |
-| FEES-02 | TBD | Pending |
-| FEES-03 | TBD | Pending |
-| FEES-04 | TBD | Pending |
-| FEES-05 | TBD | Pending |
-| CUST-01 | TBD | Pending |
-| CUST-02 | TBD | Pending |
-| CUST-03 | TBD | Pending |
-| CUST-04 | TBD | Pending |
-| NATA-12 | TBD | Pending |
-| NATA-13 | TBD | Pending |
-| NATA-14 | TBD | Pending |
-| COMBO-01 | TBD | Pending |
-| COMBO-02 | TBD | Pending |
-| COMBO-03 | TBD | Pending |
-| COMBO-04 | TBD | Pending |
-| COMBO-05 | TBD | Pending |
-| COMBO-06 | TBD | Pending |
-| COMBO-07 | TBD | Pending |
-| COMBO-08 | TBD | Pending |
-| COMBO-09 | TBD | Pending |
-| COMBO-10 | TBD | Pending |
+| ELEC-01 | Phase 15 | Pending |
+| ELEC-02 | Phase 15 | Pending |
+| ELEC-03 | Phase 15 | Pending |
+| ELEC-04 | Phase 15 | Pending |
+| ELEC-05 | Phase 15 | Pending |
+| ELEC-06 | Phase 15 | Pending |
+| FEES-01 | Phase 16 | Pending |
+| FEES-02 | Phase 16 | Pending |
+| FEES-03 | Phase 16 | Pending |
+| FEES-04 | Phase 16 | Pending |
+| FEES-05 | Phase 16 | Pending |
+| CUST-01 | Phase 15 | Pending |
+| CUST-02 | Phase 15 | Pending |
+| CUST-03 | Phase 15 | Pending |
+| CUST-04 | Phase 15 | Pending |
+| NATA-12 | Phase 14 | Pending |
+| NATA-13 | Phase 14 | Pending |
+| NATA-14 | Phase 14 | Pending |
+| COMBO-01 | Phase 17 | Pending |
+| COMBO-02 | Phase 17 | Pending |
+| COMBO-03 | Phase 17 | Pending |
+| COMBO-04 | Phase 17 | Pending |
+| COMBO-05 | Phase 17 | Pending |
+| COMBO-06 | Phase 17 | Pending |
+| COMBO-07 | Phase 17 | Pending |
+| COMBO-08 | Phase 17 | Pending |
+| COMBO-09 | Phase 17 | Pending |
+| COMBO-10 | Phase 17 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 28 total
-- Mapped to phases: 0
-- Unmapped: 28
+- Mapped to phases: 28
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-05 (traceability completed)*
