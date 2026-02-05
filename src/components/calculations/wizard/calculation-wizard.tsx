@@ -58,6 +58,7 @@ interface InitialData {
     configId: string
     totalPriceExVat: number
     installationCost: number
+    quantity?: number // Phase 17: Optional for backward compatibility
   }>
 }
 

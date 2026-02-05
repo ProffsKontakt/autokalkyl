@@ -46,6 +46,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
       configId: selectedBatteryId,
       totalPriceExVat: 0,
       installationCost: 0,
+      quantity: 1,
     })
     setSelectedBatteryId('')
   }

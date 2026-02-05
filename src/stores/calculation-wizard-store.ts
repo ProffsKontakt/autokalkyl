@@ -30,8 +30,9 @@ import {
  */
 interface BatterySelection {
   configId: string
-  totalPriceExVat: number
-  installationCost: number
+  totalPriceExVat: number      // Per-unit price
+  installationCost: number     // Per-unit cost
+  quantity: number             // Number of this model (default: 1)
 }
 
 /**
@@ -97,6 +98,9 @@ interface WizardState {
   projectedSelfConsumptionKwh: number | null
   selfConsumptionInputMode: 'kwh' | 'percent'
 
+  // Phase 17: Multi-battery combo mode
+  comboMode: 'komboinvestering' | 'jamfora'
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -132,7 +136,12 @@ interface WizardState {
     annualConsumptionKwh: number
     heatingType?: HeatingType | null
     consumptionProfile: ConsumptionProfile
-    batteries: BatterySelection[]
+    batteries: Array<{
+      configId: string
+      totalPriceExVat: number
+      installationCost: number
+      quantity?: number // Phase 17: Optional for backward compatibility
+    }>
     // Phase 15: Optional electricity inputs (backward compatible)
     customerType?: 'PRIVATPERSON' | 'FORETAG'
     koptElKwh?: number
@@ -164,6 +173,10 @@ interface WizardState {
   updateCurrentSelfConsumption: (kwh: number | null) => void
   updateProjectedSelfConsumption: (kwh: number | null) => void
   toggleSelfConsumptionInputMode: () => void
+
+  // Phase 17: Multi-battery combo actions
+  updateBatteryQuantity: (index: number, quantity: number) => void
+  setComboMode: (mode: 'komboinvestering' | 'jamfora') => void
 }
 
 /**
@@ -216,6 +229,9 @@ const initialState = {
   currentSelfConsumptionKwh: null as number | null,
   projectedSelfConsumptionKwh: null as number | null,
   selfConsumptionInputMode: 'kwh' as const,
+
+  // Phase 17: Multi-battery combo mode
+  comboMode: 'komboinvestering' as const,
 }
 
 /**
@@ -265,7 +281,7 @@ export const useCalculationWizardStore = create<WizardState>()(
       }),
 
       addBattery: (battery) => set((state) => ({
-        batteries: [...state.batteries, battery]
+        batteries: [...state.batteries, { ...battery, quantity: battery.quantity ?? 1 }]
       })),
 
       removeBattery: (index) => set((state) => ({
@@ -392,6 +408,15 @@ export const useCalculationWizardStore = create<WizardState>()(
         selfConsumptionInputMode: state.selfConsumptionInputMode === 'kwh' ? 'percent' : 'kwh',
       })),
 
+      // Phase 17: Multi-battery combo actions
+      updateBatteryQuantity: (index, quantity) => set((state) => ({
+        batteries: state.batteries.map((b, i) =>
+          i === index ? { ...b, quantity: Math.max(1, quantity) } : b
+        ),
+      })),
+
+      setComboMode: (mode) => set({ comboMode: mode }),
+
       setOverride: (key, value) => set((state) => ({
         overrides: { ...state.overrides, [key]: value }
       })),
@@ -431,7 +456,7 @@ export const useCalculationWizardStore = create<WizardState>()(
         annualConsumptionKwh: data.annualConsumptionKwh,
         heatingType: data.heatingType ?? null,
         consumptionProfile: data.consumptionProfile,
-        batteries: data.batteries,
+        batteries: data.batteries.map(b => ({ ...b, quantity: b.quantity ?? 1 })),
         isDraft: true,
         lastSavedAt: new Date(),
         // Clear peak values when loading - they may need recalculation
@@ -446,6 +471,8 @@ export const useCalculationWizardStore = create<WizardState>()(
         solarProductionKwh: data.solarProductionKwh ?? null,
         currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
         projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
+        // Phase 17: Load combo mode (with default for backward compatibility)
+        comboMode: (data as any).comboMode ?? 'komboinvestering',
       }),
 
       reset: () => set({
@@ -484,10 +511,12 @@ export const useCalculationWizardStore = create<WizardState>()(
         currentSelfConsumptionKwh: null,
         projectedSelfConsumptionKwh: null,
         selfConsumptionInputMode: 'kwh',
+        // Phase 17: Reset combo mode
+        comboMode: 'komboinvestering',
       }),
     }),
     {
-      name: 'kalkyla-wizard-draft-v3', // Phase 15: Bumped version to reset cached values
+      name: 'kalkyla-wizard-draft-v4', // Phase 17: Bumped version to reset cached values for quantity support
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         // Only persist form data, not transient UI state
@@ -524,6 +553,8 @@ export const useCalculationWizardStore = create<WizardState>()(
         currentSelfConsumptionKwh: state.currentSelfConsumptionKwh,
         projectedSelfConsumptionKwh: state.projectedSelfConsumptionKwh,
         selfConsumptionInputMode: state.selfConsumptionInputMode,
+        // Phase 17: Combo mode
+        comboMode: state.comboMode,
       }),
     }
   )
