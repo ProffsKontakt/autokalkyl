@@ -11,8 +11,6 @@ import {
   LayoutDashboard,
   Calculator,
   Users,
-  Settings,
-  Shield,
   LogOut,
   Network,
   Bolt,
@@ -115,10 +113,10 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         )}
       </button>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - z-30 to stay behind sidebar z-40 */}
       {isMobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -127,7 +125,8 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       <motion.aside
         initial={false}
         animate={{
-          width: effectiveCollapsed ? 80 : 256,
+          // On mobile (isMobileOpen), always show full width; on desktop, respect collapse state
+          width: isMobileOpen ? 256 : (effectiveCollapsed ? 80 : 256),
         }}
         transition={{
           duration: 0.3,
@@ -138,6 +137,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl
           border-r border-slate-200/50 dark:border-slate-700/50
           flex flex-col overflow-hidden
+          transition-transform duration-300
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
