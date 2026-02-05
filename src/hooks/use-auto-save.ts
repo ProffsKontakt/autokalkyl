@@ -69,6 +69,21 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     lastSavedAt,
     markSaved,
     setSaving,
+    // Phase 15: Customer Type & Electricity Inputs
+    customerType,
+    koptElKwh,
+    koptElInputMode,
+    koptElMonthly,
+    electricityPriceOreKwh,
+    electricityPriceInputMode,
+    electricityPriceMonthly,
+    hasSolar,
+    solarProductionKwh,
+    solarProductionInputMode,
+    solarProductionMonthly,
+    currentSelfConsumptionKwh,
+    projectedSelfConsumptionKwh,
+    selfConsumptionInputMode,
   } = useCalculationWizardStore()
 
   const isFirstRender = useRef(true)
@@ -91,6 +106,21 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
       consumptionProfile,
       batteries,
       orgId,
+      // Phase 15: Customer Type & Electricity Inputs
+      customerType,
+      koptElKwh,
+      koptElInputMode,
+      koptElMonthly,
+      electricityPriceOreKwh,
+      electricityPriceInputMode,
+      electricityPriceMonthly,
+      hasSolar,
+      solarProductionKwh,
+      solarProductionInputMode,
+      solarProductionMonthly,
+      currentSelfConsumptionKwh,
+      projectedSelfConsumptionKwh,
+      selfConsumptionInputMode,
     })
 
     // Skip if state hasn't changed since last save
@@ -117,6 +147,22 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
         })),
         // Include orgId for Super Admin (optional for regular users)
         orgId,
+
+        // Phase 15: Customer Type & Electricity Inputs
+        customerType,
+        koptElKwh: koptElKwh || undefined,
+        koptElInputMode,
+        koptElMonthly: koptElInputMode === 'monthly' ? koptElMonthly : null,
+        electricityPriceOreKwh: electricityPriceOreKwh || undefined,
+        electricityPriceInputMode,
+        electricityPriceMonthly: electricityPriceInputMode === 'monthly' ? electricityPriceMonthly : null,
+        hasSolar,
+        solarProductionKwh,
+        solarProductionInputMode,
+        solarProductionMonthly: solarProductionInputMode === 'monthly' ? solarProductionMonthly : null,
+        currentSelfConsumptionKwh,
+        projectedSelfConsumptionKwh,
+        selfConsumptionInputMode,
       })
 
       if (result.calculationId) {
@@ -141,6 +187,21 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     orgId,
     markSaved,
     setSaving,
+    // Phase 15: Customer Type & Electricity Inputs
+    customerType,
+    koptElKwh,
+    koptElInputMode,
+    koptElMonthly,
+    electricityPriceOreKwh,
+    electricityPriceInputMode,
+    electricityPriceMonthly,
+    hasSolar,
+    solarProductionKwh,
+    solarProductionInputMode,
+    solarProductionMonthly,
+    currentSelfConsumptionKwh,
+    projectedSelfConsumptionKwh,
+    selfConsumptionInputMode,
   ])
 
   const debouncedSave = useDebouncedCallback(performSave, 2000)
@@ -161,6 +222,21 @@ export function useAutoSave(options: UseAutoSaveOptions = {}): UseAutoSaveReturn
     consumptionProfile,
     batteries,
     debouncedSave,
+    // Phase 15: Customer Type & Electricity Inputs
+    customerType,
+    koptElKwh,
+    koptElInputMode,
+    koptElMonthly,
+    electricityPriceOreKwh,
+    electricityPriceInputMode,
+    electricityPriceMonthly,
+    hasSolar,
+    solarProductionKwh,
+    solarProductionInputMode,
+    solarProductionMonthly,
+    currentSelfConsumptionKwh,
+    projectedSelfConsumptionKwh,
+    selfConsumptionInputMode,
   ])
 
   // Force save on unmount (flush debounce)
