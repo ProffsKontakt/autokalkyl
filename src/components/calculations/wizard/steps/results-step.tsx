@@ -13,7 +13,9 @@ import { CyclesSlider } from '@/components/calculations/controls/cycles-slider'
 import { PeakShavingSlider } from '@/components/calculations/controls/peak-shaving-slider'
 import { StodtjansterInput } from '@/components/calculations/controls/stodtjanster-input'
 import { ConsumptionDistributionSection } from '@/components/calculations/results/consumption-distribution-section'
-import type { BatterySpec, CalculationResults } from '@/lib/calculations/types'
+import { FeesBreakdown } from '@/components/calculations/breakdowns/fees-breakdown'
+import { calcTotalElectricityFees } from '@/lib/calculations/fees'
+import type { BatterySpec, CalculationResults, CustomerType } from '@/lib/calculations/types'
 
 interface NatagareInfo {
   id: string
@@ -25,6 +27,8 @@ interface NatagareInfo {
   nightDiscountPercent?: number | null
   peakNightStartHour?: number | null
   peakNightEndHour?: number | null
+  // Phase 16: Fees
+  overforingsavgiftOreKwh?: number | null
 }
 
 interface BatteryInfo {
@@ -153,6 +157,26 @@ export function ResultsStep({
       }
     }).filter(Boolean) as { batteryName: string; batteryInfo: BatteryInfo; results: CalculationResults }[]
   }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
+
+  // Phase 16: Calculate fees for display
+  const feesData = useMemo(() => {
+    // Use koptElKwh if available, otherwise annualConsumptionKwh
+    const consumptionKwh = koptElKwh > 0 ? koptElKwh : annualConsumptionKwh
+
+    // Get overforingsavgift from natagare if available
+    const overforingsavgiftOreKwh = selectedNatagare?.overforingsavgiftOreKwh ?? null
+
+    const { result } = calcTotalElectricityFees(
+      consumptionKwh,
+      (customerType as CustomerType) ?? 'PRIVATPERSON',
+      overforingsavgiftOreKwh
+    )
+
+    return {
+      ...result,
+      consumptionKwh,
+    }
+  }, [koptElKwh, annualConsumptionKwh, customerType, selectedNatagare])
 
   if (!prices) {
     return (
@@ -330,6 +354,20 @@ export function ResultsStep({
           )}
         </dl>
       </div>
+
+      {/* Phase 16: Fees breakdown */}
+      {feesData.consumptionKwh > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+          <FeesBreakdown
+            consumptionKwh={feesData.consumptionKwh}
+            energiskattSek={feesData.energiskattSek}
+            energiskattRateOre={feesData.energiskattRateOre}
+            overforingsavgiftSek={feesData.overforingsavgiftSek}
+            overforingsavgiftRateOre={feesData.overforingsavgiftRateOre}
+            customerType={feesData.customerType}
+          />
+        </div>
+      )}
 
       {/* Margin display for ProffsKontakt affiliates */}
       {orgSettings?.isProffsKontaktAffiliated && primaryResult.results.marginSek !== undefined && (
