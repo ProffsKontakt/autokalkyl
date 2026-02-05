@@ -72,6 +72,14 @@ export function ResultsStep({
     heatingType,
     // Phase 11: Peak targets
     targetAveragePeakKw,
+    // Phase 15: Customer type and electricity
+    customerType,
+    koptElKwh,
+    electricityPriceOreKwh,
+    hasSolar,
+    solarProductionKwh,
+    currentSelfConsumptionKwh,
+    projectedSelfConsumptionKwh,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -269,6 +277,59 @@ export function ResultsStep({
         heatingType={heatingType}
         defaultExpanded={false}
       />
+
+      {/* Phase 15: Electricity Information Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Elinformation
+        </h3>
+        <dl className="grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+          <div>
+            <dt className="text-gray-500 dark:text-gray-400">Kundtyp</dt>
+            <dd className="font-medium text-gray-900 dark:text-gray-100">
+              {customerType === 'FORETAG' ? 'Foretag (exkl. moms)' : 'Privatperson'}
+            </dd>
+          </div>
+          {koptElKwh > 0 && (
+            <div>
+              <dt className="text-gray-500 dark:text-gray-400">Kopt el</dt>
+              <dd className="font-medium text-gray-900 dark:text-gray-100">
+                {koptElKwh.toLocaleString('sv-SE')} kWh/ar
+              </dd>
+            </div>
+          )}
+          {electricityPriceOreKwh > 0 && (
+            <div>
+              <dt className="text-gray-500 dark:text-gray-400">Elpris</dt>
+              <dd className="font-medium text-gray-900 dark:text-gray-100">
+                {electricityPriceOreKwh.toFixed(0)} ore/kWh
+              </dd>
+            </div>
+          )}
+          {hasSolar && solarProductionKwh && solarProductionKwh > 0 && (
+            <>
+              <div>
+                <dt className="text-gray-500 dark:text-gray-400">Solproduktion</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">
+                  {solarProductionKwh.toLocaleString('sv-SE')} kWh/ar
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 dark:text-gray-400">Egenanv. idag / med batteri</dt>
+                <dd className="font-medium text-gray-900 dark:text-gray-100">
+                  {currentSelfConsumptionKwh && solarProductionKwh > 0
+                    ? `${((currentSelfConsumptionKwh / solarProductionKwh) * 100).toFixed(0)}%`
+                    : '-'}
+                  {' / '}
+                  {projectedSelfConsumptionKwh && solarProductionKwh > 0
+                    ? `${((projectedSelfConsumptionKwh / solarProductionKwh) * 100).toFixed(0)}%`
+                    : '-'}
+                </dd>
+              </div>
+            </>
+          )}
+        </dl>
+      </div>
 
       {/* Margin display for ProffsKontakt affiliates */}
       {orgSettings?.isProffsKontaktAffiliated && primaryResult.results.marginSek !== undefined && (
