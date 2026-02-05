@@ -23,6 +23,11 @@ export {
   type PeakMethod,
   type AvgPeriod,
 } from './types'
+export {
+  estimateMonthlyPeakKw,
+  estimatePeakFromAnnualConsumption,
+  getDetailedPeakEstimation,
+} from './estimation'
 
 /**
  * Calculate peak billing using natagare-specific method.
