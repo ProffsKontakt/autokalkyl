@@ -166,6 +166,22 @@ export async function saveDraft(input: SaveDraftInput) {
           natagareId: data.natagareId,
           annualConsumptionKwh: data.annualConsumptionKwh,
           consumptionProfile: data.consumptionProfile as unknown as object,
+
+          // Phase 15: Customer Type & Electricity Inputs
+          customerType: data.customerType ?? 'PRIVATPERSON',
+          koptElKwh: data.koptElKwh ?? null,
+          koptElInputMode: data.koptElInputMode ?? 'annual',
+          koptElMonthly: data.koptElMonthly ?? Prisma.DbNull,
+          electricityPriceOreKwh: data.electricityPriceOreKwh ?? null,
+          electricityPriceInputMode: data.electricityPriceInputMode ?? 'annual',
+          electricityPriceMonthly: data.electricityPriceMonthly ?? Prisma.DbNull,
+          hasSolar: data.hasSolar ?? false,
+          solarProductionKwh: data.solarProductionKwh ?? null,
+          solarProductionInputMode: data.solarProductionInputMode ?? 'annual',
+          solarProductionMonthly: data.solarProductionMonthly ?? Prisma.DbNull,
+          currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
+          projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
+          selfConsumptionInputMode: data.selfConsumptionInputMode ?? 'kwh',
         },
       })
 
@@ -222,6 +238,22 @@ export async function saveDraft(input: SaveDraftInput) {
           consumptionProfile: data.consumptionProfile,
           createdBy: session.user.id,
           status: 'DRAFT',
+
+          // Phase 15: Customer Type & Electricity Inputs
+          customerType: data.customerType ?? 'PRIVATPERSON',
+          koptElKwh: data.koptElKwh ?? null,
+          koptElInputMode: data.koptElInputMode ?? 'annual',
+          koptElMonthly: data.koptElMonthly ?? null,
+          electricityPriceOreKwh: data.electricityPriceOreKwh ?? null,
+          electricityPriceInputMode: data.electricityPriceInputMode ?? 'annual',
+          electricityPriceMonthly: data.electricityPriceMonthly ?? null,
+          hasSolar: data.hasSolar ?? false,
+          solarProductionKwh: data.solarProductionKwh ?? null,
+          solarProductionInputMode: data.solarProductionInputMode ?? 'annual',
+          solarProductionMonthly: data.solarProductionMonthly ?? null,
+          currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
+          projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
+          selfConsumptionInputMode: data.selfConsumptionInputMode ?? 'kwh',
         },
       })
 
