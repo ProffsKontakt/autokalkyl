@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 Phase: 17 — Multi-battery combo
 Plan: 2/3
 Status: In progress
-Last activity: 2026-02-05 — Completed 17-03-PLAN.md
+Last activity: 2026-02-05 — Completed 17-02-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [###########] 86%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [###########] 87%
 
 ## Milestone Summary
 
@@ -61,6 +61,10 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 17-01 | comboMode defaults to 'jamfora' in database | Backward compatible - existing calculations show comparison view |
 | 2026-02-05 | 17-01 | quantity defaults to 1 for all batteries | Backward compatible with existing single-battery calculations |
 | 2026-02-05 | 17-01 | Used prisma db push instead of migrate dev | Shadow database migration issues, manual migration file created |
+| 2026-02-05 | 17-02 | Apply Gron Teknik to combined total, not per-unit | Gron Teknik subsidy applies to total investment amount |
+| 2026-02-05 | 17-02 | Grid services stacking per physical unit for Emaldo | Each Emaldo battery gets separate grid services enrollment |
+| 2026-02-05 | 17-02 | Use decimal.js for all financial aggregation | Prevent floating-point rounding errors in combo calculations |
+| 2026-02-05 | 17-02 | Per-unit breakdown stores subtotals for UI | Expandable UI shows per-unit AND subtotal (per-unit × quantity) |
 | 2026-02-05 | 17-03 | Mode toggle visible only when batteries.length > 0 | Prevents confusion with empty state |
 | 2026-02-05 | 17-03 | Max 3 batteries in Jamfora mode, 10 in Komboinvestering | Jamfora limited by comparison UI, Komboinvestering more flexible |
 | 2026-02-05 | 17-03 | Price summary adapts to quantity | Shows per-unit and total when quantity > 1 |
@@ -87,8 +91,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 22:18
-Stopped at: Completed 17-03-PLAN.md (Battery step UI with mode toggle and quantity controls)
+Last session: 2026-02-05 23:18
+Stopped at: Completed 17-02-PLAN.md (Combo calculation aggregation)
 Resume file: None
 
-Next action: Continue Phase 17 with remaining plans (results view, calculation logic)
+Next action: Phase 17 plan 03 already complete (battery step UI). Next is combo results display.
