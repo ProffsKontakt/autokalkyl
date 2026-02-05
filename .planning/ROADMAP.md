@@ -130,11 +130,14 @@ Plans:
   3. Super Admin sees embedded analytics for all calculations
   4. Org Admin sees embedded analytics scoped to their organization
   5. Closer sees embedded analytics for their own calculations only
-**Plans:** TBD
+**Plans:** 5 plans
 
 Plans:
-- [ ] 12-01: PostHog reconfiguration and server-side events
-- [ ] 12-02: Embedded dashboards with role-based scoping
+- [ ] 12-01-PLAN.md — PostHog server-side setup (posthog-node, server events, bot detection fix)
+- [ ] 12-02-PLAN.md — Analytics API route (PostHog Query proxy, role-based HogQL filtering)
+- [ ] 12-03-PLAN.md — Event integration (track calculations, shares, views in server actions)
+- [ ] 12-04-PLAN.md — Dashboard components (Recharts, widgets, analytics page)
+- [ ] 12-05-PLAN.md — Dashboard integration (role-specific views, checkpoint)
 
 ### Phase 13: Bug Fixes & Polish
 **Goal:** v1.2 release-ready with display bugs fixed and UI polished
@@ -160,9 +163,9 @@ Plans:
 | 9. Natagare Centralization | v1.2 | 3/3 | Complete | 2026-02-01 |
 | 10. Consumption Profiles | v1.2 | 3/3 | Complete | 2026-02-04 |
 | 11. Peak Calculation Engine | v1.2 | 4/4 | Complete | 2026-02-05 |
-| 12. Analytics & Dashboard | v1.2 | 0/2 | Not started | - |
+| 12. Analytics & Dashboard | v1.2 | 0/5 | Not started | - |
 | 13. Bug Fixes & Polish | v1.2 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 11 complete)*
+*Last updated: 2026-02-05 (Phase 12 planned)*
