@@ -1,6 +1,7 @@
 'use client'
 
 import { ExpandableBreakdown } from './expandable-breakdown'
+import { formatPercentage } from '@/lib/utils'
 
 interface SpotprisBreakdownProps {
   capacityKwh: number
@@ -23,6 +24,7 @@ export function SpotprisBreakdown({
 
   const formatSek = (n: number) =>
     Math.round(n).toLocaleString('sv-SE') + ' kr'
+  const formatSekDecimal = (n: number) => n.toFixed(2) + ' SEK'
 
   return (
     <ExpandableBreakdown
@@ -48,30 +50,30 @@ export function SpotprisBreakdown({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">x Verkningsgrad</span>
-              <span className="font-medium">{(efficiency * 100).toFixed(0)}%</span>
+              <span className="font-medium">{formatPercentage(efficiency)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">x Cykler/dag</span>
               <span className="font-medium">{cyclesPerDay}</span>
             </div>
             <div className="flex justify-between border-t border-gray-200 dark:border-slate-700 pt-2">
-              <span className="text-gray-600 dark:text-gray-400">= Daglig energi</span>
-              <span className="font-medium">{dailyKwh.toFixed(1)} kWh/dag</span>
+              <span className="text-gray-600 dark:text-gray-400">Daglig energi</span>
+              <span className="font-medium">{dailyKwh.toFixed(2)} kWh</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">x Prisskillnad (dag-natt)</span>
               <span className="font-medium">~{spreadSek.toFixed(2)} kr/kWh</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">= Daglig besparing</span>
-              <span className="font-medium">{dailySavings.toFixed(0)} kr/dag</span>
+              <span className="text-gray-600 dark:text-gray-400">Daglig besparing</span>
+              <span className="font-medium">{formatSekDecimal(dailySavings)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">x 365 dagar</span>
               <span className="font-medium">365</span>
             </div>
             <div className="flex justify-between border-t border-gray-200 dark:border-slate-700 pt-2 text-green-600 dark:text-green-400">
-              <span className="font-medium">= Arlig besparing</span>
+              <span className="font-medium">Arlig besparing</span>
               <span className="font-bold">{formatSek(annualSavingsSek)}</span>
             </div>
           </div>
