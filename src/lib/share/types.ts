@@ -110,6 +110,20 @@ export interface CalculationResultsPublicWithBreakdown extends CalculationResult
 }
 
 /**
+ * Phase 15: Customer electricity data for public view.
+ * Contains customer type and electricity consumption details.
+ */
+export interface PublicElectricityData {
+  customerType: string
+  koptElKwh: number | null
+  electricityPriceOreKwh: number | null
+  hasSolar: boolean
+  solarProductionKwh: number | null
+  currentSelfConsumptionKwh: number | null
+  projectedSelfConsumptionKwh: number | null
+}
+
+/**
  * Public calculation data structure.
  * This is the full payload returned to the public view page.
  * No sensitive pricing (margin, cost price, installer cut) is included.
@@ -131,6 +145,8 @@ export interface PublicCalculationData {
       dayStartHour: number
       dayEndHour: number
     }
+    // Phase 15: Customer electricity data
+    electricity?: PublicElectricityData
   }
   organization: {
     name: string

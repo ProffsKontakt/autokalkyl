@@ -117,6 +117,7 @@ export default async function PublicCalculationPage({ params, searchParams }: Pa
               avgNightPriceOre: Number(quarterlyPrices.avgNightPriceOre),
             } : null}
             primaryColor={organization.primaryColor}
+            electricity={calculation.electricity}
           />
         )}
       </main>

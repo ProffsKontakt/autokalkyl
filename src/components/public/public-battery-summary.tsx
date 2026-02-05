@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import type { PublicBatteryInfo, CalculationResultsPublic } from '@/lib/share/types'
+import type { PublicBatteryInfo, CalculationResultsPublic, PublicElectricityData } from '@/lib/share/types'
 
 interface PublicBatterySummaryProps {
   battery: PublicBatteryInfo
   allBatteries: PublicBatteryInfo[]
   results: CalculationResultsPublic
+  electricity?: PublicElectricityData
 }
 
 function formatSek(value: number): string {
@@ -25,6 +26,7 @@ export function PublicBatterySummary({
   battery,
   allBatteries,
   results,
+  electricity,
 }: PublicBatterySummaryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const currentBattery = allBatteries[selectedIndex] || battery
@@ -140,11 +142,77 @@ export function PublicBatterySummary({
             <p className="font-medium text-gray-900 dark:text-gray-100">{currentBattery.guaranteedCycles.toLocaleString('sv-SE')}</p>
           </div>
           <div>
-            <p className="text-gray-500 dark:text-gray-400">Degradering/år</p>
+            <p className="text-gray-500 dark:text-gray-400">Degradering/ar</p>
             <p className="font-medium text-gray-900 dark:text-gray-100">{formatPercent(currentBattery.degradationPerYear)}</p>
           </div>
         </div>
       </details>
+
+      {/* Phase 15: Electricity info (expandable) */}
+      {electricity && (electricity.customerType || electricity.koptElKwh || electricity.hasSolar) && (
+        <details className="border-t border-gray-200 dark:border-slate-700">
+          <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center justify-between">
+            <span className="font-medium text-gray-700 dark:text-gray-200">Elinformation</span>
+            <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div className="px-6 pb-6">
+            <dl className="text-sm space-y-2">
+              {electricity.customerType && (
+                <div className="flex justify-between">
+                  <dt className="text-gray-500 dark:text-gray-400">Kundtyp</dt>
+                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                    {electricity.customerType === 'FORETAG' ? 'Foretag (exkl. moms)' : 'Privatperson'}
+                  </dd>
+                </div>
+              )}
+              {electricity.koptElKwh && electricity.koptElKwh > 0 && (
+                <div className="flex justify-between">
+                  <dt className="text-gray-500 dark:text-gray-400">Kopt el</dt>
+                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                    {electricity.koptElKwh.toLocaleString('sv-SE')} kWh/ar
+                  </dd>
+                </div>
+              )}
+              {electricity.electricityPriceOreKwh && electricity.electricityPriceOreKwh > 0 && (
+                <div className="flex justify-between">
+                  <dt className="text-gray-500 dark:text-gray-400">Elpris</dt>
+                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                    {electricity.electricityPriceOreKwh.toFixed(0)} ore/kWh
+                  </dd>
+                </div>
+              )}
+              {electricity.hasSolar && electricity.solarProductionKwh && electricity.solarProductionKwh > 0 && (
+                <>
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500 dark:text-gray-400">Solproduktion</dt>
+                    <dd className="font-medium text-gray-900 dark:text-gray-100">
+                      {electricity.solarProductionKwh.toLocaleString('sv-SE')} kWh/ar
+                    </dd>
+                  </div>
+                  {electricity.currentSelfConsumptionKwh !== null && electricity.solarProductionKwh > 0 && (
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500 dark:text-gray-400">Egenanvandning idag</dt>
+                      <dd className="font-medium text-gray-900 dark:text-gray-100">
+                        {((electricity.currentSelfConsumptionKwh / electricity.solarProductionKwh) * 100).toFixed(0)}%
+                      </dd>
+                    </div>
+                  )}
+                  {electricity.projectedSelfConsumptionKwh !== null && electricity.solarProductionKwh > 0 && (
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500 dark:text-gray-400">Egenanvandning med batteri</dt>
+                      <dd className="font-medium text-gray-900 dark:text-gray-100">
+                        {((electricity.projectedSelfConsumptionKwh / electricity.solarProductionKwh) * 100).toFixed(0)}%
+                      </dd>
+                    </div>
+                  )}
+                </>
+              )}
+            </dl>
+          </div>
+        </details>
+      )}
 
       {/* Pricing (product cost only, NO margin per CONTEXT.md) */}
       <div className="border-t border-gray-200 dark:border-slate-700 p-6 bg-gray-50 dark:bg-slate-900/50">

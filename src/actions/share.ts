@@ -519,6 +519,16 @@ export async function getPublicCalculation(
           dayStartHour: calculation.natagare.dayStartHour,
           dayEndHour: calculation.natagare.dayEndHour,
         },
+        // Phase 15: Customer electricity data
+        electricity: {
+          customerType: calculation.customerType || 'PRIVATPERSON',
+          koptElKwh: calculation.koptElKwh ? Number(calculation.koptElKwh) : null,
+          electricityPriceOreKwh: calculation.electricityPriceOreKwh ? Number(calculation.electricityPriceOreKwh) : null,
+          hasSolar: calculation.hasSolar || false,
+          solarProductionKwh: calculation.solarProductionKwh ? Number(calculation.solarProductionKwh) : null,
+          currentSelfConsumptionKwh: calculation.currentSelfConsumptionKwh ? Number(calculation.currentSelfConsumptionKwh) : null,
+          projectedSelfConsumptionKwh: calculation.projectedSelfConsumptionKwh ? Number(calculation.projectedSelfConsumptionKwh) : null,
+        },
       },
       organization: calculation.organization,
       closer: {

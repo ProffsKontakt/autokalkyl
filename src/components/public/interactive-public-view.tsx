@@ -10,6 +10,7 @@ import { saveVariant } from '@/actions/share'
 import type {
   PublicBatteryInfo,
   CalculationResultsPublic,
+  PublicElectricityData,
 } from '@/lib/share/types'
 import type { Elomrade } from '@prisma/client'
 
@@ -31,6 +32,7 @@ interface InteractivePublicViewProps {
     avgNightPriceOre: number
   } | null
   primaryColor: string
+  electricity?: PublicElectricityData
 }
 
 export function InteractivePublicView({
@@ -43,6 +45,7 @@ export function InteractivePublicView({
   elomrade,
   quarterlyPrices,
   primaryColor,
+  electricity,
 }: InteractivePublicViewProps) {
   // Use the results passed from the server (stored when salesperson saved the calculation)
   // DO NOT recalculate - this ensures public view matches admin view exactly
@@ -97,6 +100,7 @@ export function InteractivePublicView({
         battery={batteries[selectedBatteryIndex]}
         allBatteries={batteries}
         results={currentResults}
+        electricity={electricity}
       />
 
       {/* Results view with current results */}
