@@ -627,6 +627,11 @@ const natagareConfigSchema = z.object({
   nightDiscountPercent: z.number().min(0).max(100).optional(),
   peakNightStartHour: z.number().int().min(0).max(23).optional(),
   peakNightEndHour: z.number().int().min(0).max(23).optional(),
+  // Phase 14: New fields (NATA-12, NATA-13)
+  overforingsavgiftOreKwh: z.number().min(0).max(100).optional(),
+  highLoadStartHour: z.number().int().min(0).max(23).optional(),
+  highLoadEndHour: z.number().int().min(0).max(23).optional(),
+  isWinterOnlyHighLoad: z.boolean().optional(),
 });
 
 /**
@@ -644,6 +649,11 @@ export async function updateNatagareConfig(
     nightDiscountPercent?: number;
     peakNightStartHour?: number;
     peakNightEndHour?: number;
+    // Phase 14: New fields (NATA-12, NATA-13)
+    overforingsavgiftOreKwh?: number;
+    highLoadStartHour?: number;
+    highLoadEndHour?: number;
+    isWinterOnlyHighLoad?: boolean;
   }
 ) {
   const session = await auth();
@@ -695,6 +705,19 @@ export async function updateNatagareConfig(
     }
     if (data.peakNightEndHour !== undefined) {
       updateData.peakNightEndHour = data.peakNightEndHour;
+    }
+    // Phase 14: New fields (NATA-12, NATA-13)
+    if (data.overforingsavgiftOreKwh !== undefined) {
+      updateData.overforingsavgiftOreKwh = data.overforingsavgiftOreKwh;
+    }
+    if (data.highLoadStartHour !== undefined) {
+      updateData.highLoadStartHour = data.highLoadStartHour;
+    }
+    if (data.highLoadEndHour !== undefined) {
+      updateData.highLoadEndHour = data.highLoadEndHour;
+    }
+    if (data.isWinterOnlyHighLoad !== undefined) {
+      updateData.isWinterOnlyHighLoad = data.isWinterOnlyHighLoad;
     }
 
     await prisma.natagare.update({
