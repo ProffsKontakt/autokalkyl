@@ -42,6 +42,7 @@ const saveDraftSchema = z.object({
     configId: z.string(),
     totalPriceExVat: z.number(),
     installationCost: z.number(),
+    quantity: z.number().min(1).optional(), // Phase 17: Optional for backward compatibility
   })),
   // Optional orgId for Super Admin to create calculations for any organization
   orgId: z.string().optional(),
@@ -62,6 +63,9 @@ const saveDraftSchema = z.object({
   currentSelfConsumptionKwh: z.number().min(0).nullable().optional(),
   projectedSelfConsumptionKwh: z.number().min(0).nullable().optional(),
   selfConsumptionInputMode: z.enum(['kwh', 'percent']).optional(),
+
+  // Phase 17: Multi-battery combo mode
+  comboMode: z.enum(['komboinvestering', 'jamfora']).optional(),
 }).superRefine((data, ctx) => {
   // Conditional validation: solar fields required if hasSolar is true
   if (data.hasSolar) {
@@ -182,6 +186,9 @@ export async function saveDraft(input: SaveDraftInput) {
           currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
           projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
           selfConsumptionInputMode: data.selfConsumptionInputMode ?? 'kwh',
+
+          // Phase 17: Multi-battery combo mode
+          comboMode: data.comboMode ?? 'jamfora',
         },
       })
 
@@ -197,6 +204,7 @@ export async function saveDraft(input: SaveDraftInput) {
             batteryConfigId: b.configId,
             totalPriceExVat: b.totalPriceExVat,
             installationCost: b.installationCost,
+            quantity: b.quantity ?? 1, // Phase 17: Default for backward compatibility
             sortOrder: i,
           })),
         })
@@ -254,6 +262,9 @@ export async function saveDraft(input: SaveDraftInput) {
           currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
           projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
           selfConsumptionInputMode: data.selfConsumptionInputMode ?? 'kwh',
+
+          // Phase 17: Multi-battery combo mode
+          comboMode: data.comboMode ?? 'jamfora',
         },
       })
 
@@ -264,6 +275,7 @@ export async function saveDraft(input: SaveDraftInput) {
             batteryConfigId: b.configId,
             totalPriceExVat: b.totalPriceExVat,
             installationCost: b.installationCost,
+            quantity: b.quantity ?? 1, // Phase 17: Default for backward compatibility
             sortOrder: i,
           })),
         })
@@ -476,10 +488,14 @@ export async function getCalculation(id: string) {
         projectedSelfConsumptionKwh: calculation.projectedSelfConsumptionKwh ? Number(calculation.projectedSelfConsumptionKwh) : null,
         selfConsumptionInputMode: calculation.selfConsumptionInputMode,
 
+        // Phase 17: Multi-battery combo mode
+        comboMode: calculation.comboMode ?? 'jamfora',
+
         batteries: calculation.batteries.map(b => ({
           ...b,
           totalPriceExVat: Number(b.totalPriceExVat),
           installationCost: Number(b.installationCost),
+          quantity: b.quantity ?? 1, // Phase 17: Default for backward compatibility
           batteryConfig: {
             ...b.batteryConfig,
             capacityKwh: Number(b.batteryConfig.capacityKwh),
