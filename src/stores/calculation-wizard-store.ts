@@ -133,6 +133,14 @@ interface WizardState {
     heatingType?: HeatingType | null
     consumptionProfile: ConsumptionProfile
     batteries: BatterySelection[]
+    // Phase 15: Optional electricity inputs (backward compatible)
+    customerType?: 'PRIVATPERSON' | 'FORETAG'
+    koptElKwh?: number
+    electricityPriceOreKwh?: number
+    hasSolar?: boolean
+    solarProductionKwh?: number | null
+    currentSelfConsumptionKwh?: number | null
+    projectedSelfConsumptionKwh?: number | null
   }) => void
   reset: () => void
 
@@ -430,6 +438,14 @@ export const useCalculationWizardStore = create<WizardState>()(
         targetAveragePeakKw: null,
         targetMonthlyCeilingKw: null,
         peakEstimateSource: 'auto',
+        // Phase 15: Load electricity inputs (with defaults for backward compatibility)
+        customerType: data.customerType ?? 'PRIVATPERSON',
+        koptElKwh: data.koptElKwh ?? 0,
+        electricityPriceOreKwh: data.electricityPriceOreKwh ?? 0,
+        hasSolar: data.hasSolar ?? false,
+        solarProductionKwh: data.solarProductionKwh ?? null,
+        currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
+        projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
       }),
 
       reset: () => set({
@@ -453,10 +469,25 @@ export const useCalculationWizardStore = create<WizardState>()(
         targetAveragePeakKw: null,
         targetMonthlyCeilingKw: null,
         peakEstimateSource: 'auto',
+        // Phase 15: Reset electricity inputs
+        customerType: 'PRIVATPERSON',
+        koptElKwh: 0,
+        koptElInputMode: 'annual',
+        koptElMonthly: Array(12).fill(0),
+        electricityPriceOreKwh: 0,
+        electricityPriceInputMode: 'annual',
+        electricityPriceMonthly: Array(12).fill(0),
+        hasSolar: false,
+        solarProductionKwh: null,
+        solarProductionInputMode: 'annual',
+        solarProductionMonthly: null,
+        currentSelfConsumptionKwh: null,
+        projectedSelfConsumptionKwh: null,
+        selfConsumptionInputMode: 'kwh',
       }),
     }),
     {
-      name: 'kalkyla-wizard-draft-v2', // Bumped version to reset cached values
+      name: 'kalkyla-wizard-draft-v3', // Phase 15: Bumped version to reset cached values
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         // Only persist form data, not transient UI state
@@ -478,6 +509,21 @@ export const useCalculationWizardStore = create<WizardState>()(
         targetAveragePeakKw: state.targetAveragePeakKw,
         targetMonthlyCeilingKw: state.targetMonthlyCeilingKw,
         peakEstimateSource: state.peakEstimateSource,
+        // Phase 15: Electricity inputs
+        customerType: state.customerType,
+        koptElKwh: state.koptElKwh,
+        koptElInputMode: state.koptElInputMode,
+        koptElMonthly: state.koptElMonthly,
+        electricityPriceOreKwh: state.electricityPriceOreKwh,
+        electricityPriceInputMode: state.electricityPriceInputMode,
+        electricityPriceMonthly: state.electricityPriceMonthly,
+        hasSolar: state.hasSolar,
+        solarProductionKwh: state.solarProductionKwh,
+        solarProductionInputMode: state.solarProductionInputMode,
+        solarProductionMonthly: state.solarProductionMonthly,
+        currentSelfConsumptionKwh: state.currentSelfConsumptionKwh,
+        projectedSelfConsumptionKwh: state.projectedSelfConsumptionKwh,
+        selfConsumptionInputMode: state.selfConsumptionInputMode,
       }),
     }
   )
