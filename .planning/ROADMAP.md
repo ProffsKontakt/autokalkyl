@@ -129,6 +129,13 @@ Plans:
 
 **Requirements:** FEES-01, FEES-02, FEES-03, FEES-04, FEES-05
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 16-01-PLAN.md — Fee calculation utilities (constants, fees.ts, types)
+- [ ] 16-02-PLAN.md — FeesBreakdown component and breakdown types
+- [ ] 16-03-PLAN.md — Integration into results views and share payload
+
 **Success Criteria:**
 1. Calculation breakdown shows energiskatt at 45 ore/kWh
 2. Calculation breakdown shows overforingsavgift from natagare configuration (ore/kWh)
@@ -170,11 +177,11 @@ Plans:
 | 13. Bug Fixes & Polish | v1.2 | 2/2 | Complete | 2026-02-05 |
 | 14. Schema & Natagare | v1.3 | 2/2 | Complete | 2026-02-05 |
 | 15. Customer & Electricity | v1.3 | 7/7 | Complete | 2026-02-05 |
-| 16. Fees & Taxes | v1.3 | 0/? | Ready | — |
+| 16. Fees & Taxes | v1.3 | 0/3 | Ready | — |
 | 17. Multi-Battery Combo | v1.3 | 0/? | Pending | — |
 
-**Total: 17 phases, 70 plans, 168 requirements (153 shipped, 15 pending)**
+**Total: 17 phases, 73 plans, 168 requirements (153 shipped, 15 pending)**
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 15 complete)*
+*Last updated: 2026-02-05 (Phase 16 planned)*
