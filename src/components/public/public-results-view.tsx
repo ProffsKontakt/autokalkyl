@@ -19,6 +19,7 @@ import {
 import { SpotprisBreakdown } from '@/components/calculations/breakdowns/spotpris-breakdown'
 import { EffektBreakdown } from '@/components/calculations/breakdowns/effekt-breakdown'
 import { StodtjansterBreakdown } from '@/components/calculations/breakdowns/stodtjanster-breakdown'
+import { FeesBreakdown } from '@/components/calculations/breakdowns/fees-breakdown'
 
 interface PublicResultsViewProps {
   results: CalculationResultsPublicWithBreakdown
@@ -143,6 +144,18 @@ export function PublicResultsView({ results, primaryColor }: PublicResultsViewPr
               postCampaignRatePerKwYear={results.breakdown.stodtjanster.postCampaignRatePerKwYear}
               postCampaignAnnualSek={results.breakdown.stodtjanster.postCampaignAnnualSek}
               displayedAnnualSek={results.breakdown.stodtjanster.displayedAnnualSek}
+            />
+          )}
+
+          {/* FEES-04: Fees breakdown */}
+          {results.breakdown.fees && (
+            <FeesBreakdown
+              consumptionKwh={results.breakdown.fees.consumptionKwh}
+              energiskattSek={results.breakdown.fees.energiskattSek}
+              energiskattRateOre={results.breakdown.fees.energiskattRateOre}
+              overforingsavgiftSek={results.breakdown.fees.overforingsavgiftSek}
+              overforingsavgiftRateOre={results.breakdown.fees.overforingsavgiftRateOre}
+              customerType={results.breakdown.fees.customerType}
             />
           )}
         </section>
