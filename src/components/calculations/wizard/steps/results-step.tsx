@@ -8,6 +8,7 @@ import { SummaryCards } from '@/components/calculations/results/summary-cards'
 import { SavingsBreakdown } from '@/components/calculations/results/savings-breakdown'
 import { ROITimelineChart } from '@/components/calculations/results/roi-timeline-chart'
 import { ComparisonView } from '@/components/calculations/results/comparison-view'
+import { PeakComparison } from '@/components/calculations/results/peak-comparison'
 import { CyclesSlider } from '@/components/calculations/controls/cycles-slider'
 import { PeakShavingSlider } from '@/components/calculations/controls/peak-shaving-slider'
 import { StodtjansterInput } from '@/components/calculations/controls/stodtjanster-input'
@@ -19,6 +20,11 @@ interface NatagareInfo {
   name: string
   dayRateSekKw: number
   nightRateSekKw: number
+  // Phase 11: Peak billing config
+  peakCalculationMethod?: string | null
+  nightDiscountPercent?: number | null
+  peakNightStartHour?: number | null
+  peakNightEndHour?: number | null
 }
 
 interface BatteryInfo {
@@ -69,11 +75,16 @@ export function ResultsStep({
   // Get prices for the selected elomrade
   const prices = elomrade && quarterlyPrices ? quarterlyPrices[elomrade] : null
 
-  // Look up the selected natagare to get effect tariff rates
+  // Look up the selected natagare to get effect tariff rates and peak config
   const selectedNatagare = natagareList.find(n => n.id === natagareId)
   const natagareInfo = selectedNatagare ? {
     dayRateSekKw: selectedNatagare.dayRateSekKw,
     nightRateSekKw: selectedNatagare.nightRateSekKw,
+    // Phase 11: Peak billing config
+    peakCalculationMethod: selectedNatagare.peakCalculationMethod,
+    nightDiscountPercent: selectedNatagare.nightDiscountPercent,
+    peakNightStartHour: selectedNatagare.peakNightStartHour,
+    peakNightEndHour: selectedNatagare.peakNightEndHour,
   } : null
 
   // Calculate results for each selected battery
@@ -115,6 +126,14 @@ export function ResultsStep({
         elomrade: elomrade || undefined,
         isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
         totalProjectionYears: 10,
+        // Phase 11: Peak billing config
+        natagareConfig: natagareInfo.peakCalculationMethod ? {
+          peakCalculationMethod: natagareInfo.peakCalculationMethod,
+          nightDiscountPercent: natagareInfo.nightDiscountPercent ?? null,
+          peakNightStartHour: natagareInfo.peakNightStartHour ?? null,
+          peakNightEndHour: natagareInfo.peakNightEndHour ?? null,
+          dayRateSekKw: natagareInfo.dayRateSekKw,
+        } : undefined,
       })
 
       return {
@@ -210,6 +229,21 @@ export function ResultsStep({
         results={primaryResult.results}
         batteryName={primaryResult.batteryName}
       />
+
+      {/* Peak billing comparison - Phase 11 */}
+      {primaryResult.results.peakBillingBeforeKw !== undefined && primaryResult.results.peakBillingBeforeKw > 0 && (
+        <PeakComparison
+          beforePeakKw={primaryResult.results.peakBillingBeforeKw}
+          afterPeakKw={primaryResult.results.peakBillingAfterKw ?? 0}
+          beforeMonthlyCost={primaryResult.results.peakBillingBeforeKw * (natagareInfo?.dayRateSekKw ?? 0)}
+          afterMonthlyCost={(primaryResult.results.peakBillingAfterKw ?? 0) * (natagareInfo?.dayRateSekKw ?? 0)}
+          annualSavings={primaryResult.results.peakBillingAnnualSavingsSek ?? 0}
+          methodName={primaryResult.results.peakMethodUsed ?? 'Enkel max'}
+          nightDiscountApplied={primaryResult.results.peakNightDiscountApplied ?? false}
+          isConstrained={primaryResult.results.peakWasConstrained ?? false}
+          constraintMessage={primaryResult.results.peakConstraintReason ?? null}
+        />
+      )}
 
       {/* Comparison view if multiple batteries */}
       {calculatedResults.length > 1 && (

@@ -10,6 +10,9 @@ interface EffektBreakdownProps {
   tariffRateSekKw: number      // Day rate from natagare
   annualSavingsSek: number
   isConstrained: boolean       // True if battery limited the shaving
+  // Phase 11: Peak billing method info
+  peakMethodUsed?: string
+  nightDiscountApplied?: boolean
 }
 
 export function EffektBreakdown({
@@ -20,6 +23,8 @@ export function EffektBreakdown({
   tariffRateSekKw,
   annualSavingsSek,
   isConstrained,
+  peakMethodUsed,
+  nightDiscountApplied,
 }: EffektBreakdownProps) {
   const targetKw = currentPeakKw * (peakShavingPercent / 100)
   const monthlySavings = actualPeakShavingKw * tariffRateSekKw
@@ -42,7 +47,20 @@ export function EffektBreakdown({
 
         {/* Formula breakdown */}
         <div className="space-y-2">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100">Berakning</h4>
+          <h4 className="font-medium text-gray-900 dark:text-gray-100">
+            Berakning
+            {peakMethodUsed && (
+              <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">
+                ({peakMethodUsed})
+              </span>
+            )}
+          </h4>
+
+          {nightDiscountApplied && (
+            <p className="text-xs text-indigo-600 dark:text-indigo-400">
+              Nattoppar (22:00-06:00) raknas till 50%
+            </p>
+          )}
 
           <div className="bg-gray-50 dark:bg-slate-900/50 p-3 rounded-lg space-y-2 font-mono text-xs">
             <div className="flex justify-between">
