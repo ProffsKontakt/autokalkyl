@@ -45,6 +45,55 @@ const saveDraftSchema = z.object({
   })),
   // Optional orgId for Super Admin to create calculations for any organization
   orgId: z.string().optional(),
+
+  // Phase 15: Customer Type & Electricity Inputs
+  // All fields optional for backward compatibility - defaults applied in persistence layer
+  customerType: z.enum(['PRIVATPERSON', 'FORETAG']).optional(),
+  koptElKwh: z.number().min(0).max(100000).optional(),
+  koptElInputMode: z.enum(['annual', 'monthly']).optional(),
+  koptElMonthly: z.array(z.number()).length(12).nullable().optional(),
+  electricityPriceOreKwh: z.number().min(0).max(500).optional(),
+  electricityPriceInputMode: z.enum(['annual', 'monthly']).optional(),
+  electricityPriceMonthly: z.array(z.number()).length(12).nullable().optional(),
+  hasSolar: z.boolean().optional(),
+  solarProductionKwh: z.number().min(0).max(100000).nullable().optional(),
+  solarProductionInputMode: z.enum(['annual', 'monthly']).optional(),
+  solarProductionMonthly: z.array(z.number()).length(12).nullable().optional(),
+  currentSelfConsumptionKwh: z.number().min(0).nullable().optional(),
+  projectedSelfConsumptionKwh: z.number().min(0).nullable().optional(),
+  selfConsumptionInputMode: z.enum(['kwh', 'percent']).optional(),
+}).superRefine((data, ctx) => {
+  // Conditional validation: solar fields required if hasSolar is true
+  if (data.hasSolar) {
+    if (data.solarProductionKwh === null || data.solarProductionKwh === undefined || data.solarProductionKwh <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['solarProductionKwh'],
+        message: 'Solproduktion krävs när solceller finns',
+      })
+    }
+  }
+
+  // Self-consumption cannot exceed solar production
+  if (data.solarProductionKwh && data.currentSelfConsumptionKwh) {
+    if (data.currentSelfConsumptionKwh > data.solarProductionKwh) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['currentSelfConsumptionKwh'],
+        message: 'Egenanvändning kan inte överskrida solproduktion',
+      })
+    }
+  }
+
+  if (data.solarProductionKwh && data.projectedSelfConsumptionKwh) {
+    if (data.projectedSelfConsumptionKwh > data.solarProductionKwh) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['projectedSelfConsumptionKwh'],
+        message: 'Beräknad egenanvändning kan inte överskrida solproduktion',
+      })
+    }
+  }
 })
 
 export type SaveDraftInput = z.infer<typeof saveDraftSchema>
