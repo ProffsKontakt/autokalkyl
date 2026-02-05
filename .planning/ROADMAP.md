@@ -101,6 +101,17 @@ Plans:
 
 **Requirements:** CUST-01, CUST-02, CUST-03, CUST-04, ELEC-01, ELEC-02, ELEC-03, ELEC-04, ELEC-05, ELEC-06
 
+**Plans:** 7 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Schema migration for electricity input fields
+- [ ] 15-02-PLAN.md — Unit conversion and solar utilities
+- [ ] 15-03-PLAN.md — Zustand store extension with electricity state
+- [ ] 15-04-PLAN.md — Server actions for electricity field persistence
+- [ ] 15-05-PLAN.md — ElectricityStep wizard component
+- [ ] 15-06-PLAN.md — Wizard integration and auto-save
+- [ ] 15-07-PLAN.md — Display in summary views (+ human verification)
+
 **Success Criteria:**
 1. Closer can toggle customer type between Privatperson and Foretag in calculation wizard
 2. Closer can input kopt el (purchased electricity) in kWh and electricity price (annual or monthly)
@@ -158,12 +169,12 @@ Plans:
 | 12. Analytics & Dashboard | v1.2 | 5/5 | Complete | 2026-02-05 |
 | 13. Bug Fixes & Polish | v1.2 | 2/2 | Complete | 2026-02-05 |
 | 14. Schema & Natagare | v1.3 | 2/2 | Complete | 2026-02-05 |
-| 15. Customer & Electricity | v1.3 | 0/? | Pending | — |
+| 15. Customer & Electricity | v1.3 | 0/7 | Planned | — |
 | 16. Fees & Taxes | v1.3 | 0/? | Pending | — |
 | 17. Multi-Battery Combo | v1.3 | 0/? | Pending | — |
 
-**Total: 17 phases, 56 plans, 168 requirements (143 shipped, 25 pending)**
+**Total: 17 phases, 63 plans, 168 requirements (143 shipped, 25 pending)**
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 14 complete)*
+*Last updated: 2026-02-05 (Phase 15 planned)*
