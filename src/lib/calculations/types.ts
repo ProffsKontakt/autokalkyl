@@ -7,6 +7,60 @@
 
 import type Decimal from 'decimal.js'
 
+// =============================================================================
+// PHASE 15: Customer Type & Electricity Inputs
+// =============================================================================
+
+/**
+ * Customer type for calculations.
+ * Affects VAT handling: PRIVATPERSON includes VAT, FORETAG excludes VAT.
+ */
+export type CustomerType = 'PRIVATPERSON' | 'FORETAG'
+
+/**
+ * Input mode for values that support annual or monthly breakdown.
+ */
+export type InputMode = 'annual' | 'monthly'
+
+/**
+ * Self-consumption input mode: absolute kWh or percentage of production.
+ */
+export type SelfConsumptionMode = 'kwh' | 'percent'
+
+/**
+ * Electricity input data from the wizard.
+ * Used by Zustand store and server actions.
+ */
+export interface ElectricityInputs {
+  customerType: CustomerType
+  koptElKwh: number
+  koptElInputMode: InputMode
+  koptElMonthly: number[] | null // 12 elements for Jan-Dec
+  electricityPriceOreKwh: number
+  electricityPriceInputMode: InputMode
+  electricityPriceMonthly: number[] | null // 12 elements
+  hasSolar: boolean
+  solarProductionKwh: number | null
+  solarProductionInputMode: InputMode
+  solarProductionMonthly: number[] | null // 12 elements
+  currentSelfConsumptionKwh: number | null
+  projectedSelfConsumptionKwh: number | null
+  selfConsumptionInputMode: SelfConsumptionMode
+}
+
+/**
+ * Solar self-consumption inputs for calculation utilities.
+ */
+export interface SolarInputs {
+  totalProductionKwh: number
+  currentSelfConsumptionKwh: number
+  projectedSelfConsumptionKwh: number
+}
+
+// =============================================================================
+// CONSUMPTION & BATTERY TYPES
+// =============================================================================
+
 /**
  * Consumption profile storing hourly consumption data for each month.
  * Data structure: 12 months x 24 hours matrix.
