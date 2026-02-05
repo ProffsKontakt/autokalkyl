@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 17 — Multi-battery combo
-Plan: 1/3
+Plan: 2/3
 Status: In progress
-Last activity: 2026-02-05 — Completed 17-01-PLAN.md
+Last activity: 2026-02-05 — Completed 17-03-PLAN.md
 
-Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [##########] 80%
+Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [###########] 86%
 
 ## Milestone Summary
 
@@ -33,7 +33,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 14 | Natagare fee & timing config | NATA-12, NATA-13, NATA-14 | Complete |
 | 15 | Customer type & electricity inputs | CUST-01-04, ELEC-01-06 | Complete |
 | 16 | Fees & taxes in calculations | FEES-01-05 | Complete |
-| 17 | Multi-battery combo | COMBO-01-10 | In progress (1/3) |
+| 17 | Multi-battery combo | COMBO-01-10 | In progress (2/3) |
 
 ## Accumulated Context
 
@@ -61,6 +61,10 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 17-01 | comboMode defaults to 'jamfora' in database | Backward compatible - existing calculations show comparison view |
 | 2026-02-05 | 17-01 | quantity defaults to 1 for all batteries | Backward compatible with existing single-battery calculations |
 | 2026-02-05 | 17-01 | Used prisma db push instead of migrate dev | Shadow database migration issues, manual migration file created |
+| 2026-02-05 | 17-03 | Mode toggle visible only when batteries.length > 0 | Prevents confusion with empty state |
+| 2026-02-05 | 17-03 | Max 3 batteries in Jamfora mode, 10 in Komboinvestering | Jamfora limited by comparison UI, Komboinvestering more flexible |
+| 2026-02-05 | 17-03 | Price summary adapts to quantity | Shows per-unit and total when quantity > 1 |
+| 2026-02-05 | 17-03 | Dropdown shows all batteries with disabled state | Guides users to quantity selector for same-model quantities |
 
 ### Pending Todos
 
@@ -83,8 +87,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05 23:11
-Stopped at: Completed 17-01-PLAN.md (Multi-battery combo foundation)
+Last session: 2026-02-05 22:18
+Stopped at: Completed 17-03-PLAN.md (Battery step UI with mode toggle and quantity controls)
 Resume file: None
 
-Next action: Continue Phase 17 with 17-02 (combo mode UI toggle) or 17-03 (quantity controls)
+Next action: Continue Phase 17 with remaining plans (results view, calculation logic)
