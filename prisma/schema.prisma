@@ -315,6 +315,16 @@ model Natagare {
   peakNightStartHour    Int?     @default(22)
   peakNightEndHour      Int?     @default(6)
 
+  // Phase 14: Transfer fee (NATA-12)
+  // Overforingsavgift in ore per kWh (100 ore = 1 SEK)
+  overforingsavgiftOreKwh Decimal? @db.Decimal(10, 2) @default(7.00)
+
+  // Phase 14: Effect tariff timing (NATA-13)
+  // High-load hours for effect tariff (distinct from night discount hours)
+  highLoadStartHour    Int?     @default(7)
+  highLoadEndHour      Int?     @default(20)
+  isWinterOnlyHighLoad Boolean  @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
