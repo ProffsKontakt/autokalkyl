@@ -470,7 +470,7 @@ export async function getPublicCalculation(
       // Extract input values for breakdown, applying input overrides (OVRD-02)
       const inputs = {
         capacityKwh: Number(config.capacityKwh),
-        efficiency: Number(config.chargeEfficiency) * Number(config.dischargeEfficiency),
+        efficiency: (Number(config.chargeEfficiency) / 100) * (Number(config.dischargeEfficiency) / 100),
         cyclesPerDay: overrides?.cyclesPerDay ?? r.cyclesPerDay ?? 1,
         spreadOre: overrides?.spreadOre ?? r.spreadOre ?? 100,
         currentPeakKw: r.currentPeakKw ?? DEFAULT_CURRENT_PEAK_KW,
