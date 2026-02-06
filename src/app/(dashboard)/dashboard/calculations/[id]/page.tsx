@@ -90,10 +90,30 @@ export default async function EditCalculationPage({ params }: PageProps) {
     natagareId: calculation.natagareId,
     annualConsumptionKwh: calculation.annualConsumptionKwh,
     consumptionProfile: calculation.consumptionProfile as { data: number[][] },
+    // Phase 10: Heating type
+    heatingType: calculation.heatingType,
+    // Phase 15: Customer type & electricity inputs
+    customerType: calculation.customerType,
+    koptElKwh: calculation.koptElKwh,
+    koptElInputMode: calculation.koptElInputMode,
+    koptElMonthly: calculation.koptElMonthly,
+    electricityPriceOreKwh: calculation.electricityPriceOreKwh,
+    electricityPriceInputMode: calculation.electricityPriceInputMode,
+    electricityPriceMonthly: calculation.electricityPriceMonthly,
+    hasSolar: calculation.hasSolar,
+    solarProductionKwh: calculation.solarProductionKwh,
+    solarProductionInputMode: calculation.solarProductionInputMode,
+    solarProductionMonthly: calculation.solarProductionMonthly,
+    currentSelfConsumptionKwh: calculation.currentSelfConsumptionKwh,
+    projectedSelfConsumptionKwh: calculation.projectedSelfConsumptionKwh,
+    selfConsumptionInputMode: calculation.selfConsumptionInputMode,
+    // Phase 17: Multi-battery combo mode
+    comboMode: calculation.comboMode,
     batteries: calculation.batteries.map(b => ({
       configId: b.batteryConfigId,
       totalPriceExVat: b.totalPriceExVat,
       installationCost: b.installationCost,
+      quantity: b.quantity ?? 1,
     })),
   }
 

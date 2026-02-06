@@ -459,24 +459,32 @@ export async function getPublicCalculation(
   if (calculation.results && Object.keys(calculation.results as object).length > 0) {
     const r = calculation.results as Record<string, number>
 
-    // Apply overrides to savings (OVRD-01, OVRD-04)
-    // Prospects see overridden values as if calculated
+    // Check if any savings overrides are applied
+    const hasSpotOverride = overrides?.spotprisSavingsSek != null
+    const hasEffectOverride = overrides?.effectTariffSavingsSek != null
+    const hasGridOverride = overrides?.stodtjansterIncomeSek != null
+    const hasAnyOverride = hasSpotOverride || hasEffectOverride || hasGridOverride
+
+    // Apply overrides to individual savings (OVRD-01, OVRD-04)
     const spotprisSavings = overrides?.spotprisSavingsSek ?? r.spotprisSavingsSek
     const effectTariffSavings = overrides?.effectTariffSavingsSek ?? r.effectTariffSavingsSek
     const gridServicesIncome = overrides?.stodtjansterIncomeSek ?? r.gridServicesIncomeSek
 
-    // Recalculate totals if any savings are overridden
-    const totalAnnualSavings = spotprisSavings + effectTariffSavings + gridServicesIncome
+    // Use stored totals/payback unless overrides change them
+    // This ensures public view matches admin view exactly
+    const totalAnnualSavings = hasAnyOverride
+      ? spotprisSavings + effectTariffSavings + gridServicesIncome
+      : r.totalAnnualSavingsSek
 
-    // Recalculate payback if total changed
     const costAfterGronTeknik = r.costAfterGronTeknikSek ?? batteries[0]?.costAfterGronTeknik
-    const paybackYears = totalAnnualSavings > 0
+    const costExVat = r.costExVatSek ?? 0
+
+    // Use stored payback unless overrides changed totals
+    const paybackYears = hasAnyOverride && totalAnnualSavings > 0
       ? costAfterGronTeknik / totalAnnualSavings
       : r.paybackPeriodYears
 
-    // Calculate payback ex-VAT for Foretag
-    const costExVat = r.costExVatSek ?? 0
-    const paybackYearsExVat = totalAnnualSavings > 0 && costExVat > 0
+    const paybackYearsExVat = hasAnyOverride && totalAnnualSavings > 0 && costExVat > 0
       ? costExVat / totalAnnualSavings
       : r.paybackPeriodYearsExVat
 

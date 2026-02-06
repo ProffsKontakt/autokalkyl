@@ -147,12 +147,21 @@ interface WizardState {
     }>
     // Phase 15: Optional electricity inputs (backward compatible)
     customerType?: 'PRIVATPERSON' | 'FORETAG'
-    koptElKwh?: number
-    electricityPriceOreKwh?: number
+    koptElKwh?: number | null
+    koptElInputMode?: 'annual' | 'monthly'
+    koptElMonthly?: number[] | null
+    electricityPriceOreKwh?: number | null
+    electricityPriceInputMode?: 'annual' | 'monthly'
+    electricityPriceMonthly?: number[] | null
     hasSolar?: boolean
     solarProductionKwh?: number | null
+    solarProductionInputMode?: 'annual' | 'monthly'
+    solarProductionMonthly?: number[] | null
     currentSelfConsumptionKwh?: number | null
     projectedSelfConsumptionKwh?: number | null
+    selfConsumptionInputMode?: 'kwh' | 'percent'
+    // Phase 17: Combo mode
+    comboMode?: 'komboinvestering' | 'jamfora'
   }) => void
   reset: () => void
 
@@ -478,11 +487,18 @@ export const useCalculationWizardStore = create<WizardState>()(
         // Phase 15: Load electricity inputs (with defaults for backward compatibility)
         customerType: data.customerType ?? 'PRIVATPERSON',
         koptElKwh: data.koptElKwh ?? 0,
+        koptElInputMode: data.koptElInputMode ?? 'annual',
+        koptElMonthly: data.koptElMonthly ?? Array(12).fill(0),
         electricityPriceOreKwh: data.electricityPriceOreKwh ?? 0,
+        electricityPriceInputMode: data.electricityPriceInputMode ?? 'annual',
+        electricityPriceMonthly: data.electricityPriceMonthly ?? Array(12).fill(0),
         hasSolar: data.hasSolar ?? false,
         solarProductionKwh: data.solarProductionKwh ?? null,
+        solarProductionInputMode: data.solarProductionInputMode ?? 'annual',
+        solarProductionMonthly: data.solarProductionMonthly ?? Array(12).fill(0),
         currentSelfConsumptionKwh: data.currentSelfConsumptionKwh ?? null,
         projectedSelfConsumptionKwh: data.projectedSelfConsumptionKwh ?? null,
+        selfConsumptionInputMode: data.selfConsumptionInputMode ?? 'kwh',
         // Phase 17: Load combo mode (with default for backward compatibility)
         comboMode: (data as any).comboMode ?? 'komboinvestering',
       }),
