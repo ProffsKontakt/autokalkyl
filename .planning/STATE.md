@@ -78,6 +78,7 @@ Progress: v1.0 [##########] | v1.1 [##########] | v1.2 [##########] | v1.3 [####
 | 2026-02-05 | 17-05 | Conditional render in InteractivePublicView | Keeps public page simple, logic encapsulated in view component |
 | 2026-02-05 | 17-05 | No mode toggle for prospects | Closer decides presentation mode, prospects see chosen view only (per CONTEXT.md) |
 | 2026-02-06 | 17-06 | Manual human verification for combo feature | Complex UI interactions require human judgment for comprehensive validation |
+| 2026-02-06 | quick-003 | isEmaldoBattery flag in baseInputs applies to all batteries in combo | For homogeneous combos (2x same Emaldo), single flag works. Future: per-battery detection if mixed combos needed |
 
 ### Pending Todos
 
@@ -104,11 +105,12 @@ None.
 |---|-------------|------|--------|-----------|
 | 001 | UX reorganization - fees breakdown, Grön Teknik conditional | 2026-02-06 | 20f1a6b | [001-ux-reorganize-menus-fees-breakdown-gron-](./quick/001-ux-reorganize-menus-fees-breakdown-gron-/) |
 | 002 | Emaldo grid services terminology and customization | 2026-02-06 | 6fba304 | [002-emaldo-grid-services-stacking-rename](./quick/002-emaldo-grid-services-stacking-rename/) |
+| 003 | Fix Emaldo grid services stacking and Resultat screen bugs | 2026-02-06 | 033b3b9 | [003-fix-emaldo-grid-services-stacking](./quick/003-fix-emaldo-grid-services-stacking/) |
 
 ## Session Continuity
 
-Last session: 2026-02-06 08:31
-Stopped at: Completed quick task 002 (Emaldo grid services terminology and customization)
+Last session: 2026-02-06 09:04
+Stopped at: Completed quick task 003 (Fix Emaldo grid services stacking and Resultat screen bugs)
 Resume file: None
 
 Next action: v1.3 milestone complete — all 4 phases finished. Consider planning next milestone or production deployment.
