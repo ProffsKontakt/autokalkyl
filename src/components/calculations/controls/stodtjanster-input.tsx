@@ -68,7 +68,7 @@ export function StodtjansterInput({
       {/* Guaranteed income (read-only) */}
       <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
         <div className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-          Emaldo garanterad intäkt ({EMALDO_CAMPAIGN_MONTHS} månader)
+          Emaldo garanterad stödtjänstersättning ({EMALDO_CAMPAIGN_MONTHS} månader)
         </div>
         <motion.div
           key={guaranteedMonthly}

@@ -55,7 +55,7 @@ export function StodtjansterBreakdown({
                 {/* Emaldo guaranteed income */}
                 <div className="pt-2 border-t border-gray-200 dark:border-slate-700">
                   <div className="text-green-600 dark:text-green-400 font-medium mb-1">
-                    Emaldo garanterad intakt ({EMALDO_CAMPAIGN_MONTHS} man)
+                    Emaldo garanterad stodtjanstersattning ({EMALDO_CAMPAIGN_MONTHS} man)
                   </div>
                 </div>
                 <div className="flex justify-between">
