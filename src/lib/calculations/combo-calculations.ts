@@ -118,9 +118,14 @@ export function calculateCombinedResults(
   const totalCostAfterGronTeknik = totalCostIncVat.times(d(1).minus(gronTeknikRate))
 
   // Calculate combined ROI metrics from combined totals
-  // Payback: totalCost / totalAnnualSavings
+  // Payback for Privatperson: totalCostAfterGronTeknik / totalAnnualSavings
   const combinedPaybackYears = totalAnnualSavingsSek.gt(0)
     ? totalCostAfterGronTeknik.div(totalAnnualSavingsSek)
+    : d(0)
+
+  // Payback for Foretag: totalCostExVat / totalAnnualSavings
+  const combinedPaybackYearsExVat = totalAnnualSavingsSek.gt(0)
+    ? totalCostExVat.div(totalAnnualSavingsSek)
     : d(0)
 
   // ROI 10-year: ((totalSavings * 10) - totalCost) / totalCost * 100
@@ -149,6 +154,7 @@ export function calculateCombinedResults(
     totalCostAfterGronTeknik: totalCostAfterGronTeknik.toNumber(),
     totalAnnualSavingsSek: totalAnnualSavingsSek.toNumber(),
     combinedPaybackYears: combinedPaybackYears.toNumber(),
+    combinedPaybackYearsExVat: combinedPaybackYearsExVat.toNumber(),
     combinedRoi10Year: roi10Year.toNumber(),
     combinedRoi15Year: roi15Year.toNumber(),
     unitBreakdowns,
