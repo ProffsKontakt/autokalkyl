@@ -33,7 +33,7 @@ const d = (n: number) => new Decimal(n)
  * - ROI/payback derived from combined totals
  *
  * @param selections - Array of battery selections with quantities and prices
- * @param baseInputs - Base calculation parameters (common across all batteries)
+ * @param baseInputs - Base calculation parameters (common across all batteries, including isEmaldoBattery flag)
  * @returns Combined results with aggregated metrics and per-unit breakdowns
  */
 export function calculateCombinedResults(
@@ -69,6 +69,7 @@ export function calculateCombinedResults(
     const { battery, quantity, totalPriceExVat, installationCost } = selection
 
     // Calculate per-unit results using main engine
+    // Note: isEmaldoBattery from baseInputs applies to all batteries in this combo
     const inputs: CalculationInputs = {
       ...baseInputs,
       battery,
