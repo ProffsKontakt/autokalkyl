@@ -329,6 +329,7 @@ export function ResultsStep({
           <SummaryCards
             results={primaryResult.results}
             batteryName={primaryResult.batteryName}
+            customerType={customerType}
           />
 
           {/* Peak billing comparison - Phase 11 */}
