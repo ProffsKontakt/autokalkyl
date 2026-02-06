@@ -177,6 +177,12 @@ export function ResultsStep({
     // Only calculate combined results if multiple batteries
     if (totalBatteryCount <= 1) return null
 
+    // Check if any battery in selection is Emaldo (for grid services calculation)
+    const hasEmaldoBattery = selectedBatteries.some(selection => {
+      const batteryInfo = batteryList.find(b => b.id === selection.configId)
+      return batteryInfo?.brandName.toLowerCase().includes('emaldo')
+    })
+
     // Build BatterySelection array for combo calculation
     const selections: BatterySelection[] = selectedBatteries.map(selection => {
       const batteryInfo = batteryList.find(b => b.id === selection.configId)
@@ -214,6 +220,7 @@ export function ResultsStep({
       currentPeakKw: targetAveragePeakKw ?? DEFAULT_CURRENT_PEAK_KW,
       postCampaignRatePerKwYear: postCampaignRate,
       elomrade: elomrade || undefined,
+      isEmaldoBattery: hasEmaldoBattery,
       totalProjectionYears: 10,
       // Quick task 002: Emaldo override
       emaldoGuaranteedMonthlyOverride,
