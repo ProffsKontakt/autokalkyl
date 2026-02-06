@@ -32,6 +32,7 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
     updateBatteryQuantity,
     comboMode,
     setComboMode,
+    customerType,
   } = useCalculationWizardStore()
   const [selectedBatteryId, setSelectedBatteryId] = useState<string>('')
 
@@ -289,20 +290,22 @@ export function BatteryStep({ batteryList, orgSettings }: BatteryStepProps) {
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between">
+                      <div className={`flex justify-between ${customerType !== 'FORETAG' ? '' : 'col-span-2 pt-2 border-t'}`}>
                         <span className="text-gray-600">Totalt inkl. moms (25%):</span>
                         <span className="font-medium">
                           {formatSek((selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1) * 1.25)}
                         </span>
                       </div>
-                      <div className="flex justify-between col-span-2 pt-2 border-t">
-                        <span className="text-gray-600">Efter Grön Teknik (48.5%):</span>
-                        <span className="font-medium text-green-600">
-                          {formatSek(
-                            (selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1) * 1.25 * (1 - 0.485)
-                          )}
-                        </span>
-                      </div>
+                      {customerType !== 'FORETAG' && (
+                        <div className="flex justify-between col-span-2 pt-2 border-t">
+                          <span className="text-gray-600">Efter Grön Teknik (48.5%):</span>
+                          <span className="font-medium text-green-600">
+                            {formatSek(
+                              (selected.totalPriceExVat + selected.installationCost) * (selected.quantity ?? 1) * 1.25 * (1 - 0.485)
+                            )}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Margin info for ProffsKontakt affiliates */}
