@@ -98,10 +98,16 @@ None.
 - Migration 20260205220900_add_combo_mode created manually (shadow DB issue)
 - Schema already synced via `prisma db push`, migration for production tracking only
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | UX reorganization - fees breakdown, Grön Teknik conditional | 2026-02-06 | 20f1a6b | [001-ux-reorganize-menus-fees-breakdown-gron-](./quick/001-ux-reorganize-menus-fees-breakdown-gron-/) |
+
 ## Session Continuity
 
-Last session: 2026-02-06 06:22
-Stopped at: Completed 17-06-PLAN.md (Human verification - Phase 17 complete)
+Last session: 2026-02-06 08:02
+Stopped at: Completed quick task 001 (UX reorganization)
 Resume file: None
 
 Next action: v1.3 milestone complete — all 4 phases finished. Consider planning next milestone or production deployment.
