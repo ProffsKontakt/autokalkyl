@@ -364,19 +364,19 @@ export function ResultsStep({
           {calculatedResults.length > 1 && (
             <ComparisonView batteries={calculatedResults} />
           )}
+
+          {/* Detailed breakdown for primary battery */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <SavingsBreakdown
+              results={primaryResult.results}
+              calculationId={calculationId ?? undefined}
+              initialOverrides={overrides}
+              isPublicView={false}
+            />
+            <ROITimelineChart results={primaryResult.results} batteryName={primaryResult.batteryName} />
+          </div>
         </>
       )}
-
-      {/* Detailed breakdown for primary battery */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        <SavingsBreakdown
-          results={primaryResult.results}
-          calculationId={calculationId ?? undefined}
-          initialOverrides={overrides}
-          isPublicView={false}
-        />
-        <ROITimelineChart results={primaryResult.results} batteryName={primaryResult.batteryName} />
-      </div>
 
       {/* Consumption distribution section - Phase 10 */}
       <ConsumptionDistributionSection

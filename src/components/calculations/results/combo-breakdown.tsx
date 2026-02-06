@@ -10,7 +10,7 @@ export function ComboBreakdown({ unitBreakdowns }: ComboBreakdownProps) {
   const formatSek = (n: number) =>
     Math.round(n).toLocaleString('sv-SE') + ' kr'
 
-  const formatKwh = (n: number) => n.toFixed(1) + ' kWh'
+  const formatKwh = (n: number) => n.toFixed(2) + ' kWh'
 
   const formatKw = (n: number) => n.toFixed(1) + ' kW'
 
@@ -42,7 +42,7 @@ export function ComboBreakdown({ unitBreakdowns }: ComboBreakdownProps) {
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-slate-900">
-                      {quantity}× {battery.capacityKwh} kWh
+                      {quantity}× {battery.capacityKwh.toFixed(2)} kWh
                     </div>
                     <div className="text-sm text-slate-500">
                       {formatKwh(unit.subtotalCapacityKwh)} total • {formatSek(unit.subtotalAnnualSavingsSek)}/år
