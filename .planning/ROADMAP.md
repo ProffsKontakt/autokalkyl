@@ -5,7 +5,7 @@
 - **v1.0 MVP** — Phases 1-5 (shipped 2026-01-20)
 - **v1.1 Fixed ROI Calculations** — Phases 6-7 (shipped 2026-02-01)
 - **v1.2 Realistic Consumption & Peak Tariffs** — Phases 8-13 (shipped 2026-02-05)
-- **v1.3 Combo & Avgifter** — Phases 14-17 (in progress)
+- **v1.3 Combo & Avgifter** — Phases 14-17 (shipped 2026-02-06)
 
 ## Phases
 
@@ -156,12 +156,12 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
-- [ ] 17-01-PLAN.md — Store extension (quantity + comboMode + persistence + schema)
-- [ ] 17-02-PLAN.md — TDD combo calculation aggregation
-- [ ] 17-03-PLAN.md — Battery step UI (quantity selector + mode toggle)
-- [ ] 17-04-PLAN.md — Komboinvestering results display
-- [ ] 17-05-PLAN.md — Share payload + public view integration
-- [ ] 17-06-PLAN.md — Human verification checkpoint
+- [x] 17-01-PLAN.md — Store extension (quantity + comboMode + persistence + schema)
+- [x] 17-02-PLAN.md — TDD combo calculation aggregation
+- [x] 17-03-PLAN.md — Battery step UI (quantity selector + mode toggle)
+- [x] 17-04-PLAN.md — Komboinvestering results display
+- [x] 17-05-PLAN.md — Share payload + public view integration
+- [x] 17-06-PLAN.md — Human verification checkpoint
 
 **Success Criteria:**
 1. Closer can add multiple batteries to a single calculation
@@ -188,10 +188,10 @@ Plans:
 | 14. Schema & Natagare | v1.3 | 2/2 | Complete | 2026-02-05 |
 | 15. Customer & Electricity | v1.3 | 7/7 | Complete | 2026-02-05 |
 | 16. Fees & Taxes | v1.3 | 3/3 | Complete | 2026-02-05 |
-| 17. Multi-Battery Combo | v1.3 | 0/6 | Planned | — |
+| 17. Multi-Battery Combo | v1.3 | 6/6 | Complete | 2026-02-06 |
 
-**Total: 17 phases, 82 plans, 168 requirements (158 shipped, 10 pending)**
+**Total: 17 phases, 88 plans, 168 requirements (168 shipped)**
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-05 (Phase 17 planned)*
+*Last updated: 2026-02-06 (v1.3 shipped)*
