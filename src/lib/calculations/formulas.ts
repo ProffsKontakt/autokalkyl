@@ -223,6 +223,18 @@ export function calcPaybackPeriod(costAfterGronTeknik: Decimal, annualSavings: D
 }
 
 /**
+ * Calculate payback period for Foretag using ex-VAT cost.
+ * Foretag can deduct VAT so their effective cost is totalExVat.
+ *
+ * @param costExVat - Total cost excluding VAT
+ * @param annualSavings - Annual savings
+ */
+export function calcPaybackPeriodExVat(costExVat: Decimal, annualSavings: Decimal): Decimal {
+  if (annualSavings.isZero()) return d(999)
+  return costExVat.div(annualSavings)
+}
+
+/**
  * LOGIC-08: Calculate 10-year ROI percentage.
  *
  * @param costAfterGronTeknik - Net cost after subsidies

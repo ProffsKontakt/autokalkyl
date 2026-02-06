@@ -123,6 +123,7 @@ export interface CalculationInputs {
   installationCost: number // SEK
   vatRate: number // 0.25 for 25%
   gronTeknikRate: number // 0.485 for 48.5%
+  customerType?: CustomerType // PRIVATPERSON or FORETAG, defaults to PRIVATPERSON
   // For margin calculation (ProffsKontakt affiliates only)
   installerCut?: number // SEK
   batteryCostPrice?: number // SEK
@@ -161,8 +162,10 @@ export interface CalculationResults {
   totalAnnualSavingsSek: number
   totalIncVatSek: number
   costAfterGronTeknikSek: number
+  costExVatSek: number // Total cost ex VAT (for Foretag payback base)
   marginSek?: number
-  paybackPeriodYears: number
+  paybackPeriodYears: number // Uses costAfterGronTeknik for Privatperson
+  paybackPeriodYearsExVat?: number // Uses costExVat for Foretag
   roi10YearPercent: number
   roi15YearPercent: number
   // Phase 6: Enhanced results
@@ -195,8 +198,10 @@ export interface CalculationResultsDecimal {
   totalAnnualSavingsSek: Decimal
   totalIncVatSek: Decimal
   costAfterGronTeknikSek: Decimal
+  costExVatSek: Decimal // Total cost ex VAT (for Foretag payback base)
   marginSek?: Decimal
-  paybackPeriodYears: Decimal
+  paybackPeriodYears: Decimal // Uses costAfterGronTeknik for Privatperson
+  paybackPeriodYearsExVat?: Decimal // Uses costExVat for Foretag
   roi10YearPercent: Decimal
   roi15YearPercent: Decimal
   // Phase 6: Enhanced results
@@ -267,7 +272,8 @@ export interface CombinedResults {
   totalAnnualSavingsSek: number
 
   // Derived ROI metrics (calculated from combined totals)
-  combinedPaybackYears: number
+  combinedPaybackYears: number // Uses costAfterGronTeknik for Privatperson
+  combinedPaybackYearsExVat?: number // Uses costExVat for Foretag
   combinedRoi10Year: number
   combinedRoi15Year: number
 

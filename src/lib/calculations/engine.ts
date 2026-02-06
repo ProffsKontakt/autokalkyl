@@ -22,6 +22,7 @@ import {
   calcCostAfterGronTeknik,
   calcMargin,
   calcPaybackPeriod,
+  calcPaybackPeriodExVat,
   calcRoi10Year,
   calcRoi15Year,
 } from './formulas'
@@ -217,6 +218,9 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     inputs.vatRate
   )
 
+  // Calculate cost ex VAT (for Foretag payback)
+  const costExVat = d(inputs.totalPriceExVat).plus(inputs.installationCost)
+
   // CALC-12
   const costAfterGronTeknik = calcCostAfterGronTeknik(totalIncVat, inputs.gronTeknikRate)
 
@@ -230,8 +234,11 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     )
   }
 
-  // LOGIC-07
+  // LOGIC-07: Payback for Privatperson (using Gron Teknik subsidized cost)
   const paybackPeriod = calcPaybackPeriod(costAfterGronTeknik, totalAnnualSavings)
+
+  // Payback for Foretag (using ex-VAT cost)
+  const paybackPeriodExVat = calcPaybackPeriodExVat(costExVat, totalAnnualSavings)
 
   // LOGIC-08
   const roi10Year = calcRoi10Year(costAfterGronTeknik, totalAnnualSavings)
@@ -248,8 +255,10 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
     totalAnnualSavingsSek: totalAnnualSavings,
     totalIncVatSek: totalIncVat,
     costAfterGronTeknikSek: costAfterGronTeknik,
+    costExVatSek: costExVat,
     marginSek,
     paybackPeriodYears: paybackPeriod,
+    paybackPeriodYearsExVat: paybackPeriodExVat,
     roi10YearPercent: roi10Year,
     roi15YearPercent: roi15Year,
     // Phase 6: Enhanced results
@@ -291,8 +300,10 @@ export function serializeResults(decimals: CalculationResultsDecimal): Calculati
     totalAnnualSavingsSek: decimals.totalAnnualSavingsSek.toNumber(),
     totalIncVatSek: decimals.totalIncVatSek.toNumber(),
     costAfterGronTeknikSek: decimals.costAfterGronTeknikSek.toNumber(),
+    costExVatSek: decimals.costExVatSek.toNumber(),
     marginSek: decimals.marginSek?.toNumber(),
     paybackPeriodYears: decimals.paybackPeriodYears.toNumber(),
+    paybackPeriodYearsExVat: decimals.paybackPeriodYearsExVat?.toNumber(),
     roi10YearPercent: decimals.roi10YearPercent.toNumber(),
     roi15YearPercent: decimals.roi15YearPercent.toNumber(),
     // Phase 6: Enhanced results
