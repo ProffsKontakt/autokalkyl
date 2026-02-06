@@ -226,12 +226,14 @@ export function PublicBatterySummary({
             <span className="text-gray-600 dark:text-gray-400">Pris inkl. moms</span>
             <span className="font-medium text-gray-900 dark:text-gray-100">{formatSek(currentBattery.totalPriceIncVat)}</span>
           </div>
-          <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-slate-700">
-            <span className="text-gray-900 dark:text-gray-100 font-medium">Efter Grön Teknik-avdrag (48.5%)</span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">
-              {formatSek(currentBattery.costAfterGronTeknik)}
-            </span>
-          </div>
+          {(!electricity?.customerType || electricity.customerType !== 'FORETAG') && (
+            <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-slate-700">
+              <span className="text-gray-900 dark:text-gray-100 font-medium">Efter Grön Teknik-avdrag (48.5%)</span>
+              <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                {formatSek(currentBattery.costAfterGronTeknik)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </section>
