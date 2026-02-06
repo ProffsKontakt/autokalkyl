@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { CalculationResultsPublic } from '@/lib/share/types'
+import type { CalculationResultsPublic, PublicElectricityData } from '@/lib/share/types'
 
 interface StickyResultsBarProps {
   results: CalculationResultsPublic
   primaryColor: string
   showThreshold?: number // pixels scrolled before showing
+  electricity?: PublicElectricityData | null
 }
 
 function formatSek(value: number): string {
@@ -21,7 +22,12 @@ export function StickyResultsBar({
   results,
   primaryColor,
   showThreshold = 400,
+  electricity,
 }: StickyResultsBarProps) {
+  // Use ex-VAT payback for Företag, Grön Teknik payback for Privatperson
+  const paybackYears = electricity?.customerType === 'FORETAG'
+    ? (results.paybackYearsExVat ?? results.paybackYears)
+    : results.paybackYears
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -48,7 +54,7 @@ export function StickyResultsBar({
                 className="text-lg font-bold"
                 style={{ color: primaryColor }}
               >
-                {results.paybackYears.toFixed(1)} år
+                {paybackYears.toFixed(1)} år
               </p>
             </div>
             <div className="hidden sm:block">

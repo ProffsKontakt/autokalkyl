@@ -179,6 +179,7 @@ export function PublicConsumptionSimulator({
         gridServicesIncome: engineResults.gridServicesIncomeSek,
         totalAnnualSavings: engineResults.totalAnnualSavingsSek,
         paybackYears: engineResults.paybackPeriodYears,
+        paybackYearsExVat: engineResults.paybackPeriodYearsExVat,
         roi10Year: engineResults.roi10YearPercent,
         roi15Year: engineResults.roi15YearPercent,
       }

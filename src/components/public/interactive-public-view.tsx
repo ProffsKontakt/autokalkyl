@@ -84,6 +84,7 @@ export function InteractivePublicView({
           selectedIndex={selectedBatteryIndex}
           onSelect={setSelectedBatteryIndex}
           primaryColor={primaryColor}
+          electricity={electricity}
         />
       )}
 
@@ -127,6 +128,7 @@ export function InteractivePublicView({
       <StickyResultsBar
         results={currentResults}
         primaryColor={primaryColor}
+        electricity={electricity}
       />
     </>
   )

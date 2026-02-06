@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { PublicBatteryInfo, CalculationResultsPublic } from '@/lib/share/types'
+import type { PublicBatteryInfo, CalculationResultsPublic, PublicElectricityData } from '@/lib/share/types'
 
 interface MobileBatteryCarouselProps {
   batteries: PublicBatteryInfo[]
@@ -9,6 +9,7 @@ interface MobileBatteryCarouselProps {
   onSelect: (index: number) => void
   selectedIndex: number
   primaryColor: string
+  electricity?: PublicElectricityData | null
 }
 
 function formatSek(value: number): string {
@@ -25,7 +26,12 @@ export function MobileBatteryCarousel({
   onSelect,
   selectedIndex,
   primaryColor,
+  electricity,
 }: MobileBatteryCarouselProps) {
+  // Use ex-VAT payback for Företag, Grön Teknik payback for Privatperson
+  const paybackYears = electricity?.customerType === 'FORETAG'
+    ? (results.paybackYearsExVat ?? results.paybackYears)
+    : results.paybackYears
   const containerRef = useRef<HTMLDivElement>(null)
   const [touchStart, setTouchStart] = useState<number | null>(null)
 
@@ -100,7 +106,7 @@ export function MobileBatteryCarousel({
               <div>
                 <p className="text-gray-500">Återbetalningstid</p>
                 <p className="font-bold" style={{ color: primaryColor }}>
-                  {results.paybackYears.toFixed(1)} år
+                  {paybackYears.toFixed(1)} år
                 </p>
               </div>
               <div>
