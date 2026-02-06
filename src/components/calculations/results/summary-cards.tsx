@@ -5,9 +5,10 @@ import type { CalculationResults } from '@/lib/calculations/types'
 interface SummaryCardsProps {
   results: CalculationResults
   batteryName: string
+  customerType?: 'PRIVATPERSON' | 'FORETAG'
 }
 
-export function SummaryCards({ results, batteryName }: SummaryCardsProps) {
+export function SummaryCards({ results, batteryName, customerType = 'PRIVATPERSON' }: SummaryCardsProps) {
   const formatSek = (n: number) =>
     Math.round(n).toLocaleString('sv-SE') + ' kr'
 
@@ -29,7 +30,9 @@ export function SummaryCards({ results, batteryName }: SummaryCardsProps) {
         <p className="text-2xl font-bold text-gray-900">
           {formatYears(results.paybackPeriodYears)}
         </p>
-        <p className="text-xs text-gray-400 mt-1">efter Grön Teknik</p>
+        {customerType !== 'FORETAG' && (
+          <p className="text-xs text-gray-400 mt-1">efter Grön Teknik</p>
+        )}
       </div>
 
       {/* Annual savings */}
