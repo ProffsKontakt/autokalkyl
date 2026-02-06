@@ -4,9 +4,10 @@ import type { CombinedResults } from '@/lib/calculations/types'
 
 interface ComboSummaryProps {
   combinedResults: CombinedResults
+  customerType?: 'PRIVATPERSON' | 'FORETAG'
 }
 
-export function ComboSummary({ combinedResults }: ComboSummaryProps) {
+export function ComboSummary({ combinedResults, customerType = 'PRIVATPERSON' }: ComboSummaryProps) {
   const formatSek = (n: number) =>
     Math.round(n).toLocaleString('sv-SE') + ' kr'
 
@@ -24,6 +25,11 @@ export function ComboSummary({ combinedResults }: ComboSummaryProps) {
     (sum, unit) => sum + unit.quantity,
     0
   )
+
+  // Use appropriate payback value based on customer type
+  const combinedPaybackYears = customerType === 'FORETAG'
+    ? (combinedResults.combinedPaybackYearsExVat ?? combinedResults.combinedPaybackYears)
+    : combinedResults.combinedPaybackYears
 
   // Calculate total savings breakdown from unit breakdowns
   const totalSpotprisSavings = combinedResults.unitBreakdowns.reduce(
@@ -66,9 +72,11 @@ export function ComboSummary({ combinedResults }: ComboSummaryProps) {
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-sm text-gray-500 mb-1">Återbetalningstid</h3>
           <p className="text-2xl font-bold text-gray-900">
-            {formatYears(combinedResults.combinedPaybackYears)}
+            {formatYears(combinedPaybackYears)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">efter Grön Teknik</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {customerType === 'FORETAG' ? 'efter avdragen moms' : 'efter Grön Teknik'}
+          </p>
         </div>
 
         {/* Annual savings */}

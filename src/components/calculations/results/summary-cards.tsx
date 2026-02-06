@@ -22,17 +22,22 @@ export function SummaryCards({ results, batteryName, customerType = 'PRIVATPERSO
   const formatPercent = (n: number) =>
     n.toLocaleString('sv-SE', { maximumFractionDigits: 1 }) + '%'
 
+  // Use appropriate payback value based on customer type
+  const paybackYears = customerType === 'FORETAG'
+    ? (results.paybackPeriodYearsExVat ?? results.paybackPeriodYears)
+    : results.paybackPeriodYears
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Payback period */}
       <div className="bg-white border rounded-lg p-4">
         <h3 className="text-sm text-gray-500 mb-1">Återbetalningstid</h3>
         <p className="text-2xl font-bold text-gray-900">
-          {formatYears(results.paybackPeriodYears)}
+          {formatYears(paybackYears)}
         </p>
-        {customerType !== 'FORETAG' && (
-          <p className="text-xs text-gray-400 mt-1">efter Grön Teknik</p>
-        )}
+        <p className="text-xs text-gray-400 mt-1">
+          {customerType === 'FORETAG' ? 'efter avdragen moms' : 'efter Grön Teknik'}
+        </p>
       </div>
 
       {/* Annual savings */}

@@ -333,7 +333,7 @@ export function ResultsStep({
       {comboMode === 'komboinvestering' && combinedResults ? (
         <>
           {/* Combined investment summary and breakdown */}
-          <ComboSummary combinedResults={combinedResults} />
+          <ComboSummary combinedResults={combinedResults} customerType={customerType} />
           <ComboBreakdown unitBreakdowns={combinedResults.unitBreakdowns} />
         </>
       ) : (
