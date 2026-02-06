@@ -106,11 +106,12 @@ None.
 | 001 | UX reorganization - fees breakdown, Grön Teknik conditional | 2026-02-06 | 20f1a6b | [001-ux-reorganize-menus-fees-breakdown-gron-](./quick/001-ux-reorganize-menus-fees-breakdown-gron-/) |
 | 002 | Emaldo grid services terminology and customization | 2026-02-06 | 6fba304 | [002-emaldo-grid-services-stacking-rename](./quick/002-emaldo-grid-services-stacking-rename/) |
 | 003 | Fix Emaldo grid services stacking and Resultat screen bugs | 2026-02-06 | 033b3b9 | [003-fix-emaldo-grid-services-stacking](./quick/003-fix-emaldo-grid-services-stacking/) |
+| 004 | Fix payback calculation and label for Foretag customers | 2026-02-06 | 58e9973 | [004-fix-payback-foretag-moms](./quick/004-fix-payback-foretag-moms/) |
 
 ## Session Continuity
 
-Last session: 2026-02-06 09:04
-Stopped at: Completed quick task 003 (Fix Emaldo grid services stacking and Resultat screen bugs)
+Last session: 2026-02-06 09:12
+Stopped at: Completed quick task 004 (Fix payback calculation and label for Foretag customers)
 Resume file: None
 
 Next action: v1.3 milestone complete — all 4 phases finished. Consider planning next milestone or production deployment.
