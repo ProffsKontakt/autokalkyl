@@ -81,7 +81,13 @@ export function PublicBatterySummary({
         <div className="p-4 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">Återbetalningstid</p>
           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            {results.paybackYears.toFixed(1)} år
+            {(electricity?.customerType === 'FORETAG'
+              ? (results.paybackYearsExVat ?? results.paybackYears)
+              : results.paybackYears
+            ).toFixed(1)} år
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            {electricity?.customerType === 'FORETAG' ? 'efter avdragen moms' : 'efter Grön Teknik'}
           </p>
         </div>
         <div className="p-4 text-center">

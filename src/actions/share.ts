@@ -474,6 +474,12 @@ export async function getPublicCalculation(
       ? costAfterGronTeknik / totalAnnualSavings
       : r.paybackPeriodYears
 
+    // Calculate payback ex-VAT for Foretag
+    const costExVat = r.costExVatSek ?? 0
+    const paybackYearsExVat = totalAnnualSavings > 0 && costExVat > 0
+      ? costExVat / totalAnnualSavings
+      : r.paybackPeriodYearsExVat
+
     resultsPublic = {
       totalPriceExVat: r.totalPriceExVat ?? batteries[0]?.totalPriceExVat,
       totalPriceIncVat: r.totalIncVatSek ?? batteries[0]?.totalPriceIncVat,
@@ -485,6 +491,7 @@ export async function getPublicCalculation(
       gridServicesIncome,
       totalAnnualSavings,
       paybackYears,
+      paybackYearsExVat,
       roi10Year: r.roi10YearPercent,
       roi15Year: r.roi15YearPercent,
       // Exclude sensitive fields: marginSek, costPriceTotal, installerCut
@@ -598,6 +605,7 @@ export async function getPublicCalculation(
           gridServicesIncome: batteryResults.gridServicesIncomeSek || 0,
           totalAnnualSavings: batteryResults.totalAnnualSavingsSek || 0,
           paybackYears: batteryResults.paybackPeriodYears || 0,
+          paybackYearsExVat: batteryResults.paybackPeriodYearsExVat,
           roi10Year: batteryResults.roi10YearPercent || 0,
           roi15Year: batteryResults.roi15YearPercent || 0,
         },
@@ -626,6 +634,9 @@ export async function getPublicCalculation(
     const combinedPaybackYears = totalAnnualSavingsSek > 0
       ? totalCostAfterGronTeknik / totalAnnualSavingsSek
       : 0
+    const combinedPaybackYearsExVat = totalAnnualSavingsSek > 0
+      ? totalCostExVat / totalAnnualSavingsSek
+      : 0
     const combinedRoi10Year = totalCostAfterGronTeknik > 0
       ? ((totalAnnualSavingsSek * 10 - totalCostAfterGronTeknik) / totalCostAfterGronTeknik) * 100
       : 0
@@ -641,6 +652,7 @@ export async function getPublicCalculation(
       totalCostAfterGronTeknik,
       totalAnnualSavingsSek,
       combinedPaybackYears,
+      combinedPaybackYearsExVat,
       combinedRoi10Year,
       combinedRoi15Year,
       unitBreakdowns,

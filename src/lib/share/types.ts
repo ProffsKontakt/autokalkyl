@@ -114,7 +114,8 @@ export interface CalculationResultsPublic {
   effectTariffSavings: number
   gridServicesIncome: number
   totalAnnualSavings: number
-  paybackYears: number
+  paybackYears: number // Uses costAfterGronTeknik for Privatperson
+  paybackYearsExVat?: number // Uses costExVat for Foretag
   roi10Year: number
   roi15Year: number
 }
@@ -151,7 +152,8 @@ export interface PublicCombinedResults {
   totalCostIncVat: number
   totalCostAfterGronTeknik: number
   totalAnnualSavingsSek: number
-  combinedPaybackYears: number
+  combinedPaybackYears: number // Uses costAfterGronTeknik for Privatperson
+  combinedPaybackYearsExVat?: number // Uses costExVat for Foretag
   combinedRoi10Year: number
   combinedRoi15Year: number
   unitBreakdowns: PublicUnitBreakdown[]
@@ -176,6 +178,7 @@ export interface PublicUnitBreakdown {
     gridServicesIncome: number
     totalAnnualSavings: number
     paybackYears: number
+    paybackYearsExVat?: number
     roi10Year: number
     roi15Year: number
   }

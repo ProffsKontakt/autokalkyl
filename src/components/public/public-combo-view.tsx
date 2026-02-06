@@ -5,6 +5,7 @@ import type { PublicCombinedResults } from '@/lib/share/types'
 interface PublicComboViewProps {
   combinedResults: PublicCombinedResults
   primaryColor: string
+  customerType?: string
 }
 
 function formatSek(value: number): string {
@@ -26,11 +27,16 @@ function formatPercent(n: number): string {
   return n.toLocaleString('sv-SE', { maximumFractionDigits: 1 }) + '%'
 }
 
-export function PublicComboView({ combinedResults, primaryColor }: PublicComboViewProps) {
+export function PublicComboView({ combinedResults, primaryColor, customerType }: PublicComboViewProps) {
   const totalUnits = combinedResults.unitBreakdowns.reduce(
     (sum, unit) => sum + unit.quantity,
     0
   )
+
+  // Use appropriate payback value based on customer type
+  const combinedPaybackYears = customerType === 'FORETAG'
+    ? (combinedResults.combinedPaybackYearsExVat ?? combinedResults.combinedPaybackYears)
+    : combinedResults.combinedPaybackYears
 
   // Calculate total savings breakdown from unit breakdowns
   const totalSpotprisSavings = combinedResults.unitBreakdowns.reduce(
@@ -84,9 +90,11 @@ export function PublicComboView({ combinedResults, primaryColor }: PublicComboVi
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 shadow-sm">
           <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Återbetalningstid</h3>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {formatYears(combinedResults.combinedPaybackYears)}
+            {formatYears(combinedPaybackYears)}
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">efter Grön Teknik</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            {customerType === 'FORETAG' ? 'efter avdragen moms' : 'efter Grön Teknik'}
+          </p>
         </div>
 
         {/* Annual savings */}
@@ -353,7 +361,14 @@ export function PublicComboView({ combinedResults, primaryColor }: PublicComboVi
                     <div className="text-center p-2 bg-slate-50 dark:bg-slate-700/50 rounded">
                       <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Återbetalningstid</div>
                       <div className="font-semibold text-slate-900 dark:text-slate-100">
-                        {formatYears(unit.perUnitResults.paybackYears)}
+                        {formatYears(
+                          customerType === 'FORETAG'
+                            ? (unit.perUnitResults.paybackYearsExVat ?? unit.perUnitResults.paybackYears)
+                            : unit.perUnitResults.paybackYears
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                        {customerType === 'FORETAG' ? 'ex moms' : 'efter Grön Teknik'}
                       </div>
                     </div>
                     <div className="text-center p-2 bg-slate-50 dark:bg-slate-700/50 rounded">

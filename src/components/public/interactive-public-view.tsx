@@ -114,6 +114,7 @@ export function InteractivePublicView({
         <PublicComboView
           combinedResults={combinedResults}
           primaryColor={primaryColor}
+          customerType={electricity?.customerType}
         />
       ) : (
         <PublicResultsView
