@@ -89,6 +89,8 @@ export function ResultsStep({
     projectedSelfConsumptionKwh,
     // Phase 17: Combo mode
     comboMode,
+    // Quick task 002: Emaldo override
+    emaldoGuaranteedMonthlyOverride,
   } = useCalculationWizardStore()
 
   // Get prices for the selected elomrade
@@ -145,6 +147,8 @@ export function ResultsStep({
         elomrade: elomrade || undefined,
         isEmaldoBattery: batteryInfo.brandName.toLowerCase().includes('emaldo'),
         totalProjectionYears: 10,
+        // Quick task 002: Emaldo override
+        emaldoGuaranteedMonthlyOverride,
         // Phase 11: Peak billing config
         natagareConfig: natagareInfo.peakCalculationMethod ? {
           peakCalculationMethod: natagareInfo.peakCalculationMethod,
@@ -161,7 +165,7 @@ export function ResultsStep({
         results,
       }
     }).filter(Boolean) as { batteryName: string; batteryInfo: BatteryInfo; results: CalculationResults }[]
-  }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
+  }, [selectedBatteries, batteryList, prices, natagareInfo, orgSettings, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw, emaldoGuaranteedMonthlyOverride])
 
   // Phase 17: Calculate combined results for komboinvestering mode
   const combinedResults = useMemo(() => {
@@ -211,10 +215,12 @@ export function ResultsStep({
       postCampaignRatePerKwYear: postCampaignRate,
       elomrade: elomrade || undefined,
       totalProjectionYears: 10,
+      // Quick task 002: Emaldo override
+      emaldoGuaranteedMonthlyOverride,
     }
 
     return calculateCombinedResults(selections, baseInputs)
-  }, [comboMode, selectedBatteries, batteryList, prices, natagareInfo, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw])
+  }, [comboMode, selectedBatteries, batteryList, prices, natagareInfo, cyclesPerDay, peakShavingPercent, postCampaignRate, elomrade, targetAveragePeakKw, emaldoGuaranteedMonthlyOverride])
 
   // Phase 16: Calculate fees for display
   const feesData = useMemo(() => {

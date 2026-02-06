@@ -101,6 +101,9 @@ interface WizardState {
   // Phase 17: Multi-battery combo mode
   comboMode: 'komboinvestering' | 'jamfora'
 
+  // Quick task 002: Emaldo guaranteed monthly override
+  emaldoGuaranteedMonthlyOverride: number | null
+
   // Actions
   setStep: (step: number) => void
   updateCustomerInfo: (data: Partial<{
@@ -177,6 +180,9 @@ interface WizardState {
   // Phase 17: Multi-battery combo actions
   updateBatteryQuantity: (index: number, quantity: number) => void
   setComboMode: (mode: 'komboinvestering' | 'jamfora') => void
+
+  // Quick task 002: Emaldo guaranteed monthly override
+  updateEmaldoGuaranteedMonthlyOverride: (rate: number | null) => void
 }
 
 /**
@@ -232,6 +238,9 @@ const initialState = {
 
   // Phase 17: Multi-battery combo mode
   comboMode: 'komboinvestering' as const,
+
+  // Quick task 002: Emaldo guaranteed monthly override
+  emaldoGuaranteedMonthlyOverride: null as number | null,
 }
 
 /**
@@ -417,6 +426,9 @@ export const useCalculationWizardStore = create<WizardState>()(
 
       setComboMode: (mode) => set({ comboMode: mode }),
 
+      // Quick task 002: Emaldo guaranteed monthly override
+      updateEmaldoGuaranteedMonthlyOverride: (rate) => set({ emaldoGuaranteedMonthlyOverride: rate }),
+
       setOverride: (key, value) => set((state) => ({
         overrides: { ...state.overrides, [key]: value }
       })),
@@ -513,6 +525,8 @@ export const useCalculationWizardStore = create<WizardState>()(
         selfConsumptionInputMode: 'kwh',
         // Phase 17: Reset combo mode
         comboMode: 'komboinvestering',
+        // Quick task 002: Reset Emaldo override
+        emaldoGuaranteedMonthlyOverride: null,
       }),
     }),
     {
@@ -555,6 +569,8 @@ export const useCalculationWizardStore = create<WizardState>()(
         selfConsumptionInputMode: state.selfConsumptionInputMode,
         // Phase 17: Combo mode
         comboMode: state.comboMode,
+        // Quick task 002: Emaldo override
+        emaldoGuaranteedMonthlyOverride: state.emaldoGuaranteedMonthlyOverride,
       }),
     }
   )

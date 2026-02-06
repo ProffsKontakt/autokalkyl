@@ -176,8 +176,9 @@ export function calculateBatteryROI(inputs: CalculationInputs): {
   let stodtjansterAnnualYear4Plus = d(0) // Actual annual value for year 4+
 
   if (inputs.isEmaldoBattery && inputs.elomrade) {
-    // Emaldo: Zone-based guaranteed income
-    const monthlyRate = EMALDO_STODTJANSTER_RATES[inputs.elomrade]
+    // Emaldo: Zone-based guaranteed income (with optional override)
+    const defaultMonthlyRate = EMALDO_STODTJANSTER_RATES[inputs.elomrade]
+    const monthlyRate = inputs.emaldoGuaranteedMonthlyOverride ?? defaultMonthlyRate
     // Year 1-3: Guaranteed monthly rate × 12 = annual
     stodtjansterAnnualYear1to3 = d(monthlyRate).times(12) // e.g., 1110 × 12 = 13,320 SEK/year
     stodtjansterGuaranteed = d(monthlyRate).times(EMALDO_CAMPAIGN_MONTHS) // Total for 36 months

@@ -21,7 +21,11 @@ export function StodtjansterInput({
 }: StodtjansterInputProps) {
   const postCampaignRate = useCalculationWizardStore((state) => state.postCampaignRate)
   const updatePostCampaignRate = useCalculationWizardStore((state) => state.updatePostCampaignRate)
+  const emaldoGuaranteedMonthlyOverride = useCalculationWizardStore((state) => state.emaldoGuaranteedMonthlyOverride)
+  const updateEmaldoGuaranteedMonthlyOverride = useCalculationWizardStore((state) => state.updateEmaldoGuaranteedMonthlyOverride)
   const [showDetails, setShowDetails] = useState(false)
+  const [isEditingGuaranteed, setIsEditingGuaranteed] = useState(false)
+  const [tempGuaranteedRate, setTempGuaranteedRate] = useState<string>('')
 
   // Non-Emaldo: Manual entry only
   if (!isEmaldoBattery) {
@@ -49,9 +53,11 @@ export function StodtjansterInput({
   }
 
   // Emaldo: Zone-based guaranteed income + configurable post-campaign
-  const guaranteedMonthly = EMALDO_STODTJANSTER_RATES[elomrade]
+  const defaultGuaranteedMonthly = EMALDO_STODTJANSTER_RATES[elomrade]
+  const guaranteedMonthly = emaldoGuaranteedMonthlyOverride ?? defaultGuaranteedMonthly
   const guaranteedAnnual = guaranteedMonthly * 12
   const guaranteedTotal = guaranteedMonthly * EMALDO_CAMPAIGN_MONTHS
+  const isCustomRate = emaldoGuaranteedMonthlyOverride !== null
 
   // Post-campaign calculation
   const campaignYears = EMALDO_CAMPAIGN_MONTHS / 12 // 3 years
@@ -65,26 +71,88 @@ export function StodtjansterInput({
 
   return (
     <div className="space-y-4">
-      {/* Guaranteed income (read-only) */}
+      {/* Guaranteed income (customizable) */}
       <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-        <div className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-          Emaldo garanterad stödtjänstersättning ({EMALDO_CAMPAIGN_MONTHS} månader)
+        <div className="flex items-start justify-between mb-1">
+          <div className="text-sm text-green-700 dark:text-green-400 font-medium">
+            Emaldo garanterad stödtjänstersättning ({EMALDO_CAMPAIGN_MONTHS} månader)
+          </div>
+          {!isEditingGuaranteed && (
+            <button
+              type="button"
+              onClick={() => {
+                setTempGuaranteedRate(guaranteedMonthly.toString())
+                setIsEditingGuaranteed(true)
+              }}
+              className="text-xs text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 underline"
+            >
+              Justera
+            </button>
+          )}
         </div>
-        <motion.div
-          key={guaranteedMonthly}
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          className="text-2xl font-bold text-green-900 dark:text-green-300"
-        >
-          {guaranteedMonthly.toLocaleString('sv-SE')} kr/mån
-        </motion.div>
-        <div className="text-xs text-green-600 dark:text-green-500 mt-1 space-y-0.5">
-          <div>= {guaranteedAnnual.toLocaleString('sv-SE')} kr/år</div>
-          <div>= {guaranteedTotal.toLocaleString('sv-SE')} kr totalt ({campaignYears} år)</div>
-        </div>
-        <div className="mt-2 px-2 py-1 bg-green-100 dark:bg-green-800/30 rounded text-xs text-green-700 dark:text-green-400">
-          Elområde {elomrade}
-        </div>
+
+        {isEditingGuaranteed ? (
+          <div className="space-y-2">
+            <input
+              type="number"
+              value={tempGuaranteedRate}
+              onChange={(e) => setTempGuaranteedRate(e.target.value)}
+              className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              placeholder="kr/månad"
+              min="0"
+              step="10"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const rate = parseFloat(tempGuaranteedRate)
+                  if (!isNaN(rate) && rate >= 0) {
+                    updateEmaldoGuaranteedMonthlyOverride(rate)
+                  }
+                  setIsEditingGuaranteed(false)
+                }}
+                className="flex-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+              >
+                Spara
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  updateEmaldoGuaranteedMonthlyOverride(null)
+                  setIsEditingGuaranteed(false)
+                }}
+                className="flex-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded"
+              >
+                Återställ
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <motion.div
+              key={guaranteedMonthly}
+              initial={{ scale: 1.1 }}
+              animate={{ scale: 1 }}
+              className="text-2xl font-bold text-green-900 dark:text-green-300 flex items-center gap-2"
+            >
+              {guaranteedMonthly.toLocaleString('sv-SE')} kr/mån
+              {isCustomRate && (
+                <span className="text-xs font-normal px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded">
+                  Anpassad
+                </span>
+              )}
+            </motion.div>
+            <div className="text-xs text-green-600 dark:text-green-500 mt-1 space-y-0.5">
+              <div>= {guaranteedAnnual.toLocaleString('sv-SE')} kr/år</div>
+              <div>= {guaranteedTotal.toLocaleString('sv-SE')} kr totalt ({campaignYears} år)</div>
+            </div>
+            <div className="mt-2 px-2 py-1 bg-green-100 dark:bg-green-800/30 rounded text-xs text-green-700 dark:text-green-400">
+              Elområde {elomrade} {!isCustomRate && `(Standard: ${defaultGuaranteedMonthly.toLocaleString('sv-SE')} kr/mån)`}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Post-campaign rate (configurable) */}

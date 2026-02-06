@@ -144,6 +144,8 @@ export interface CalculationInputs {
   targetAveragePeakKw?: number | null
   targetMonthlyCeilingKw?: number | null
   monthlyConsumptionKwh?: number[] // From Phase 10 distribution
+  // Quick task 002: Emaldo guaranteed monthly override
+  emaldoGuaranteedMonthlyOverride?: number | null
 }
 
 /**
