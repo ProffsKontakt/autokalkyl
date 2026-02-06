@@ -12,10 +12,11 @@
  * Phase 15: Customer Type & Electricity Inputs
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useCalculationWizardStore } from '@/stores/calculation-wizard-store'
 import { suggestSelfConsumption, validateSolarInputs } from '@/lib/calculations/solar-consumption'
 import { oreToSek, sekToOre } from '@/lib/calculations/unit-conversions'
+import { calcTotalElectricityFees } from '@/lib/calculations/fees'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
 
@@ -99,6 +100,14 @@ export function ElectricityStep() {
         projectedSelfConsumptionKwh: projectedSelfConsumptionKwh,
       })
     : null
+
+  // Calculate fees breakdown preview
+  const feesBreakdown = useMemo(() => {
+    if (koptElKwh <= 0) return null
+    // Call with null for overforingsavgift since we don't have natagare selected yet
+    const { result } = calcTotalElectricityFees(koptElKwh, customerType, null)
+    return result
+  }, [koptElKwh, customerType])
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -236,6 +245,47 @@ export function ElectricityStep() {
             Totalpris per kWh inklusive alla avgifter. Typiskt intervall: 50-200 ore/kWh
           </p>
         </div>
+
+        {/* Fees Breakdown Preview */}
+        {feesBreakdown && (
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+              Fasta avgifter
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Baserat på {koptElKwh.toLocaleString('sv-SE')} kWh/år
+            </p>
+            <dl className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-gray-600 dark:text-gray-400">
+                  Energiskatt ({feesBreakdown.energiskattRateOre} öre/kWh):
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white">
+                  {feesBreakdown.energiskattSek.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} kr/år
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-gray-600 dark:text-gray-400">
+                  Överföringsavgift ({feesBreakdown.overforingsavgiftRateOre} öre/kWh):
+                </dt>
+                <dd className="font-medium text-gray-900 dark:text-white">
+                  {feesBreakdown.overforingsavgiftSek.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} kr/år
+                </dd>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <dt className="font-medium text-gray-900 dark:text-white">Totalt:</dt>
+                <dd className="font-bold text-gray-900 dark:text-white">
+                  {feesBreakdown.totalFeesSek.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} kr/år
+                </dd>
+              </div>
+            </dl>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+              {customerType === 'PRIVATPERSON'
+                ? 'Priser inklusive moms (25%)'
+                : 'Priser exklusive moms'}
+            </p>
+          </div>
+        )}
 
         {/* Solar Toggle */}
         <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
