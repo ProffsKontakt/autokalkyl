@@ -1,62 +1,51 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { MinimalProviders } from "./providers-minimal";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { brand } from "@/lib/brand";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-inter",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Kalkyla.se - Batterikalkyl & Solcellskalkyl",
-  description: "Jämför offerter på solceller och batterilager. Få gratis kalkyl och bli kontaktad av upp till 6 företag i ditt område. Beräkna ROI och besparingar.",
-  keywords: ["batterikalkyl", "solcellskalkyl", "batteri ROI", "solceller pris", "batterilagring kostnad", "grön teknik avdrag"],
+  metadataBase: new URL(brand.url),
+  title: {
+    default: `${brand.name} – Trygg digital kvittohantering`,
+    template: `%s · ${brand.name}`,
+  },
+  description: brand.description,
+  applicationName: brand.name,
+  keywords: ["kvitton", "digitala kvitton", "kvittohantering", "garanti", "reklamationsrätt", "spara kvitton", "kvittoapp"],
   openGraph: {
-    title: "Kalkyla.se - Jämför offerter på solceller & batterier",
-    description: "Få gratis kalkyl och bli kontaktad av upp till 6 företag i ditt område. Beräkna besparingar och återbetalningstid.",
     type: "website",
     locale: "sv_SE",
-    siteName: "Kalkyla.se",
+    siteName: brand.name,
+    title: `${brand.name} – Alla dina kvitton. Alltid till hands.`,
+    description: brand.description,
+    images: [{ url: "/images/hero-kitchen.jpg", width: 1800, height: 1207, alt: `${brand.name}` }],
   },
+  twitter: { card: "summary_large_image" },
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+  robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: "#1c6f61",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="sv" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('kalkyla-theme');
-                  var resolved = theme;
-                  if (!theme || theme === 'system') {
-                    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  }
-                  document.documentElement.classList.add(resolved);
-                } catch (e) {
-                  document.documentElement.classList.add('dark');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body
-        className={`${geistSans.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}
-      >
-        <MinimalProviders>{children}</MinimalProviders>
-        <Toaster richColors closeButton position="top-right" />
-        <SpeedInsights />
+    <html lang="sv" className={inter.variable}>
+      <body className="min-h-dvh font-sans antialiased">
+        {children}
+        <Toaster />
       </body>
     </html>
   );

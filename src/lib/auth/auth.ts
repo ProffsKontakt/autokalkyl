@@ -1,39 +1,38 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { authConfig } from './auth.config';
-import { validateCredentials, loginSchema } from './credentials';
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { compare } from "bcryptjs";
+import { z } from "zod";
+import { authConfig } from "./auth.config";
+import { prisma } from "@/lib/db/client";
 
-/**
- * Main Auth.js configuration with credentials provider.
- *
- * Uses JWT strategy (not database sessions) for:
- * - Stateless authentication (works well with serverless)
- * - Custom claims (role, orgId, orgSlug) in token
- *
- * Note: PrismaAdapter is intentionally not used. The adapter is for OAuth
- * providers that need to link/store accounts. With credentials-only auth,
- * we handle user lookup in validateCredentials() and store claims in JWT.
- *
- * The JWT token contains:
- * - sub: user id
- * - role: user role (SUPER_ADMIN, ORG_ADMIN, CLOSER)
- * - orgId: organization id (null for SUPER_ADMIN)
- * - orgSlug: organization slug for URL routing
- */
+const loginSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+  password: z.string().min(1).max(128),
+});
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  session: { strategy: 'jwt' },
-  debug: process.env.NODE_ENV === 'development',
   providers: [
     Credentials({
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "E-post", type: "email" },
+        password: { label: "Lösenord", type: "password" },
       },
       async authorize(credentials) {
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
-        return validateCredentials(parsed.data.email, parsed.data.password);
+        const user = await prisma.user.findUnique({
+          where: { email: parsed.data.email },
+          select: { id: true, email: true, name: true, passwordHash: true, accountType: true },
+        });
+        if (!user) {
+          // Constant-time-ish: still hash-compare against a dummy to reduce timing leaks
+          await compare(parsed.data.password, "$2a$10$CwTycUXWue0Thq9StjUM0uJ8i0Zl1Y0j5Q0G5Y7vUJ6f9M6d1Q0Xy");
+          return null;
+        }
+        const ok = await compare(parsed.data.password, user.passwordHash);
+        if (!ok) return null;
+        return { id: user.id, email: user.email, name: user.name, accountType: user.accountType };
       },
     }),
   ],
@@ -41,21 +40,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
-        // First-time login: copy user data to token
-        token.role = user.role;
-        token.orgId = user.orgId;
-        token.orgSlug = user.orgSlug;
+        token.accountType = user.accountType;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub!;
-        session.user.role = token.role as string;
-        session.user.orgId = token.orgId as string | null;
-        session.user.orgSlug = token.orgSlug as string | null;
+        session.user.accountType = (token.accountType as "PRIVATE" | "BUSINESS") ?? "PRIVATE";
       }
       return session;
     },
   },
 });
+
+/** Returns the current user id or throws – use in Server Actions / Route Handlers. */
+export async function requireUserId(): Promise<string> {
+  const session = await auth();
+  const id = session?.user?.id;
+  if (!id) throw new Error("UNAUTHORIZED");
+  return id;
+}

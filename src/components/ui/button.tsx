@@ -1,40 +1,53 @@
-import { forwardRef, ButtonHTMLAttributes } from 'react';
+import * as React from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'outline' | 'ghost' | 'destructive' | 'gradient';
-  size?: 'default' | 'sm' | 'lg';
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "dark";
+export type ButtonSize = "sm" | "md" | "lg" | "icon";
+
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 select-none disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] whitespace-nowrap";
+
+const variants: Record<ButtonVariant, string> = {
+  primary: "bg-brand-600 text-white hover:bg-brand-700 shadow-soft",
+  secondary: "bg-brand-100 text-brand-800 hover:bg-brand-200",
+  outline: "border border-ink-200 bg-white text-ink-900 hover:border-ink-300 hover:bg-ink-50",
+  ghost: "text-ink-700 hover:bg-ink-100",
+  danger: "bg-danger text-white hover:bg-red-700",
+  dark: "bg-ink-900 text-white hover:bg-ink-800",
+};
+
+const sizes: Record<ButtonSize, string> = {
+  sm: "h-9 px-3.5 text-sm",
+  md: "h-11 px-5 text-sm",
+  lg: "h-13 px-7 text-base",
+  icon: "h-10 w-10",
+};
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  loading?: boolean;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = '', variant = 'default', size = 'default', ...props }, ref) => {
-    const baseStyles =
-      'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]';
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant = "primary", size = "md", loading = false, children, disabled, ...props },
+  ref,
+) {
+  return (
+    <button ref={ref} className={cn(base, variants[variant], sizes[size], className)} disabled={disabled || loading} {...props}>
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+      {children}
+    </button>
+  );
+});
 
-    const variants = {
-      default: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30',
-      gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 focus-visible:ring-blue-500 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/40',
-      outline: 'border border-slate-200 bg-white/80 backdrop-blur-sm hover:bg-slate-50 focus-visible:ring-slate-500 dark:bg-slate-800/80 dark:border-slate-700 dark:text-white dark:hover:bg-slate-700/80 text-slate-700',
-      ghost: 'hover:bg-slate-100 focus-visible:ring-slate-500 dark:hover:bg-slate-800 dark:text-slate-200 text-slate-700',
-      destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30',
-    };
+export interface ButtonLinkProps extends React.ComponentProps<typeof Link> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+}
 
-    const sizes = {
-      default: 'h-10 px-4 py-2 text-sm',
-      sm: 'h-8 px-3 text-xs',
-      lg: 'h-12 px-6 text-base',
-    };
-
-    return (
-      <button
-        className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-
-Button.displayName = 'Button';
-
-export { Button };
-export type { ButtonProps };
+export function ButtonLink({ className, variant = "primary", size = "md", ...props }: ButtonLinkProps) {
+  return <Link className={cn(base, variants[variant], sizes[size], className)} {...props} />;
+}
