@@ -26,7 +26,13 @@ function run(args, { input } = {}) {
 }
 
 if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL is not set – skipping migrations.");
+  if (process.env.VERCEL) {
+    // Preview builds without a database configured should still build; the app will report the
+    // missing DATABASE_URL at runtime instead of failing the deployment.
+    console.warn("[migrate] DATABASE_URL is not set in this Vercel environment – skipping migrations.");
+    process.exit(0);
+  }
+  console.error("[migrate] DATABASE_URL is not set.");
   process.exit(1);
 }
 
