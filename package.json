@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "db:migrate": "node scripts/migrate.mjs",
     "db:generate": "prisma generate",
-    "db:reset-legacy": "tsx scripts/reset-legacy-db.ts"
+    "db:reset-legacy": "tsx scripts/reset-legacy-db.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
