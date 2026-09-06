@@ -26,8 +26,8 @@ const proseClass = cn(
 export function LegalSummary({ title = "Kort version", children }: { title?: string; children: ReactNode }) {
   return (
     <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5 sm:p-6">
-      <h2 className="!mt-0 text-base font-semibold text-brand-900">{title}</h2>
-      <div className="mt-2 text-[15px] leading-relaxed text-ink-700 [&_p]:mt-2 [&_p:first-child]:mt-0">{children}</div>
+      <h2 className="mt-0! text-base! font-semibold text-brand-900">{title}</h2>
+      <div className="mt-2 text-[15px] leading-relaxed text-ink-700 [&_p]:mt-2! [&_p:first-child]:mt-0!">{children}</div>
     </div>
   );
 }
