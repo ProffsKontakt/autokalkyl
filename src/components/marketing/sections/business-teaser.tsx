@@ -26,7 +26,7 @@ export function BusinessTeaser() {
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                <ButtonLink href="/foretag" size="lg" className="bg-white text-brand-800 shadow-none hover:bg-brand-50">
+                <ButtonLink href="/foretag" size="lg" className="bg-white text-brand-800 hover:bg-brand-50">
                   Gå med i väntelistan
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </ButtonLink>

@@ -5,7 +5,7 @@ export const SECTION_IDS = {
   film: "reklamfilm",
   useCases: "anvandning",
   security: "sakerhet",
-  business: "foretag",
+  business: "for-foretag",
   faq: "faq",
 } as const;
 
