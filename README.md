@@ -43,6 +43,14 @@ Utan `ANTHROPIC_API_KEY` fungerar allt utom AI-tolkning och assistenten: kvitton
 2. `vercel-build` kör `prisma generate && prisma migrate deploy && next build` – databasen migreras automatiskt vid deploy. **Första deployen tar bort alla tabeller från den gamla batterikalkylatorn** (se `prisma/migrations/20260906000000_init_kvittera`).
 3. `vercel.json` sätter region `arn1` (Stockholm) och Fluid compute; `/api/chat` har `maxDuration = 300`.
 
+## Sätta miljövariabler i Vercel
+
+`scripts/vercel-env.sh` sätter alla variabler för Production och Preview med Vercel CLI (`npx vercel login && npx vercel link` först). Befintliga `DATABASE_URL` och `NEXTAUTH_SECRET` från kalkyla-deployen återanvänds – appen accepterar både `AUTH_SECRET` och `NEXTAUTH_SECRET`.
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... ./scripts/vercel-env.sh
+```
+
 ## Inkommande kvitton via e-post
 
 Varje användare får en unik adress `kvitto-xxxxxxxxxx@<INBOUND_EMAIL_DOMAIN>`. Peka domänens MX till valfri leverantör och låt den POST:a till `https://<din-domän>/api/inbound/email` med hemligheten i headern `x-inbound-secret` (eller `?secret=`, Basic-auth-lösenord eller `Authorization: Bearer`). Endpointen förstår:
@@ -53,6 +61,12 @@ Varje användare får en unik adress `kvitto-xxxxxxxxxx@<INBOUND_EMAIL_DOMAIN>`.
 - generisk JSON `{ to, from, subject, text, html, attachments: [{ filename, contentType, content }] }` (t.ex. från n8n)
 
 Bilder (≥ 12 kB) och PDF:er blir kvittofiler; saknas bilagor tolkas mailets HTML/text (e-kvitton och orderbekräftelser).
+
+Enklaste vägen (gratis): Cloudflare Email Routing med catch-all till workern i `infra/cloudflare-email-worker/worker.js` – instruktioner står i filen.
+
+## Demo- och testläge för AI
+
+`AI_MOCK=1` (ignoreras på Vercel) gör att kvittotolkning och assistenten svarar med inbyggda exempel utan Anthropic-anrop. `npm run seed:demo` skapar demoanvändaren `demo@kvittera.se` / `Demo1234!` med åtta kvitton. Används för produktfilmen, skärmdumpar och e2e-tester.
 
 ## Skript
 

@@ -12,6 +12,8 @@ const loginSchema = z.object({
 
 export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
+  // Accept the legacy variable name from the kalkyla.se deployment as well as AUTH_SECRET.
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       credentials: {

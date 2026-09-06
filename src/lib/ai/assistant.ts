@@ -5,6 +5,7 @@ import { brand } from "@/lib/brand";
 import { AI_BETAS, AI_MODEL, AiRefusalError, getAnthropic } from "./client";
 import { CONSUMER_RIGHTS_SV } from "./knowledge";
 import { searchReceiptsForAssistant, getReceiptForAssistant } from "@/lib/receipts/assistant-context";
+import { isAiMock, runMockAssistant } from "./mock";
 
 type BetaMessageParam = Anthropic.Beta.BetaMessageParam;
 type BetaContentBlock = Anthropic.Beta.BetaContentBlock;
@@ -146,6 +147,7 @@ async function runTool(userId: string, accountType: "PRIVATE" | "BUSINESS", name
  * The conversation must belong to the user.
  */
 export async function runAssistant(options: RunAssistantOptions): Promise<void> {
+  if (isAiMock()) return runMockAssistant(options);
   const { userId, accountType, conversationId, userText, attachments = [], emit, signal } = options;
   const client = getAnthropic();
 

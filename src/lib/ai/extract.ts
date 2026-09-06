@@ -3,6 +3,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type Anthropic from "@anthropic-ai/sdk";
 import { AI_BETAS, AI_MODEL, AiRefusalError, getAnthropic } from "./client";
 import { CONSUMER_RIGHTS_SV, RECEIPT_CATEGORIES } from "./knowledge";
+import { isAiMock, mockExtractReceipt } from "./mock";
 
 /** One input document for extraction. */
 export type ExtractionInput =
@@ -97,6 +98,7 @@ function buildContent(inputs: ExtractionInput[]): Anthropic.Beta.BetaContentBloc
  */
 export async function extractReceipt(inputs: ExtractionInput[]): Promise<ExtractedReceipt> {
   if (inputs.length === 0) throw new Error("Inga dokument att tolka.");
+  if (isAiMock()) return normalize(await mockExtractReceipt());
   const client = getAnthropic();
   const format = betaZodOutputFormat(extractionSchema);
 

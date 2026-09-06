@@ -9,6 +9,7 @@ export const AI_BETAS = ["server-side-fallback-2026-07-01"] as const;
 let client: Anthropic | null = null;
 
 export function isAiConfigured(): boolean {
+  if (process.env.AI_MOCK === "1" && !process.env.VERCEL) return true; // demo/test mode, see ./mock.ts
   return Boolean(process.env.ANTHROPIC_API_KEY?.trim());
 }
 
