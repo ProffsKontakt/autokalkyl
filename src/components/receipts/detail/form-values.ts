@@ -1,4 +1,4 @@
-import type { ReceiptUpdateInput } from "@/actions/receipts";
+import type { ReceiptUpdateInput } from "@/lib/receipts/schema";
 import { RECEIPT_CATEGORIES, type ReceiptCategory } from "@/lib/ai/knowledge";
 
 /**

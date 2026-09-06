@@ -13,7 +13,6 @@ import { dbRateLimit } from "@/lib/rate-limit";
 import { PROCESSING_STALE_MS } from "@/lib/receipts/pipeline";
 import type { ActionResult } from "./auth";
 
-export type { ReceiptUpdateInput };
 
 async function requireUser() {
   const session = await auth();

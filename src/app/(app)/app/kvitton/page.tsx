@@ -6,15 +6,15 @@ import { listCategories, listReceipts } from "@/lib/receipts/queries";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState, PageHeader } from "@/components/ui/container";
 import { EmptyReceipts } from "@/components/dashboard";
+import { ReceiptFilters } from "@/components/receipts/receipt-filters";
 import {
   RECEIPT_SORTS,
-  ReceiptFilters,
   countActiveFilters,
   filtersToParams,
   type ReceiptFilterValues,
   type ReceiptListStatus,
   type ReceiptSort,
-} from "@/components/receipts/receipt-filters";
+} from "@/components/receipts/filter-options";
 import { Pagination, ReceiptGrid } from "@/components/receipts/receipt-grid";
 
 export const metadata: Metadata = { title: "Kvitton" };

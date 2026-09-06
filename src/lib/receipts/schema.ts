@@ -5,7 +5,7 @@ import { RECEIPT_CATEGORIES } from "@/lib/ai/knowledge";
  * Validation schema for receipt create/update input.
  *
  * Lives outside src/actions because a "use server" module may only export async functions;
- * the actions file re-exports the `ReceiptUpdateInput` type (type exports are erased).
+ * consumers import `ReceiptUpdateInput` from here (a 'use server' module may only export async functions).
  *
  * Field semantics: `undefined` = leave unchanged, `null`/"" = clear.
  */
