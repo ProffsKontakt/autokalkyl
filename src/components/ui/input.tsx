@@ -32,10 +32,10 @@ export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLab
   return <label className={cn("mb-1.5 block text-sm font-medium text-ink-800", className)} {...props} />;
 }
 
-export function FieldError({ children }: { children?: React.ReactNode }) {
+export function FieldError({ id, children }: { id?: string; children?: React.ReactNode }) {
   if (!children) return null;
   return (
-    <p role="alert" className="mt-1.5 text-sm text-danger">
+    <p id={id} role="alert" className="mt-1.5 text-sm text-danger">
       {children}
     </p>
   );

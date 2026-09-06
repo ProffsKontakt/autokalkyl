@@ -10,7 +10,7 @@ const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
@@ -38,9 +38,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.accountType = user.accountType;
+      }
+      // `unstable_update()` (e.g. after a profile rename) re-reads the user so the token – and
+      // therefore the sidebar/avatar – reflects the change without a new login.
+      if (trigger === "update" && token.sub) {
+        const fresh = await prisma.user.findUnique({ where: { id: token.sub }, select: { name: true, accountType: true } });
+        if (fresh) {
+          token.name = fresh.name;
+          token.accountType = fresh.accountType;
+        }
       }
       return token;
     },

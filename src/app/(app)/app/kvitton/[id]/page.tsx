@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db/client";
 import { auth } from "@/lib/auth/auth";
 import { audit } from "@/lib/audit";
+import { isAiConfigured } from "@/lib/ai/client";
 import { formatDate, formatMoney } from "@/lib/utils";
 import { Badge } from "@/components/ui";
 import { ReceiptChat } from "@/components/chat/receipt-chat";
@@ -124,7 +125,7 @@ export default async function ReceiptPage({ params, searchParams }: { params: Pa
               Fråga AI om det här kvittot
             </h2>
             <p className="mb-4 text-sm text-ink-500">Till exempel ”Hur länge har jag garanti?”, ”Var hittar jag bruksanvisningen?” eller ”Vad gör jag om varan går sönder?”.</p>
-            <ReceiptChat receiptId={receipt.id} receiptTitle={receipt.title} />
+            <ReceiptChat receiptId={receipt.id} receiptTitle={receipt.title} aiEnabled={isAiConfigured()} />
           </section>
         ) : null}
 

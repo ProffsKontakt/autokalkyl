@@ -9,7 +9,7 @@ import { Prisma } from "@prisma/client";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { prisma } from "@/lib/db/client";
-import { auth, signIn, signOut } from "@/lib/auth/auth";
+import { auth, signIn, signOut, unstable_update } from "@/lib/auth/auth";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/auth/password";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
@@ -253,6 +253,8 @@ export async function updateProfileAction(_prev: ActionResult | null, formData: 
   const parsed = nameSchema.safeParse(formData.get("name"));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ogiltigt namn." };
   await prisma.user.update({ where: { id: session.user.id }, data: { name: parsed.data } });
+  // Refresh the JWT so AppShell (which reads session.user.name) shows the new name immediately.
+  await unstable_update({ user: { name: parsed.data } });
   return { ok: true };
 }
 
