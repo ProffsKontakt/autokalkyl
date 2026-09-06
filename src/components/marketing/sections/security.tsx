@@ -41,6 +41,7 @@ const facts: { icon: LucideIcon; title: string; text: string; badge?: string; wi
     text: "Ladda ner allt som CSV när du vill. Vill du sluta raderar du kontot själv – då försvinner allt.",
   },
   {
+    wide: true,
     icon: ScrollText,
     title: "Spårbarhet",
     text: "Varje ändring loggas, så att du kan se vad som hänt med ett kvitto och när.",
