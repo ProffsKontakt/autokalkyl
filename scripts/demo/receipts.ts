@@ -19,6 +19,7 @@ export interface DemoItem {
   quantity: number;
   /** "st" (default) or "kg" – only affects how the quantity line is printed. */
   unit?: "st" | "kg";
+  /** Negative amounts are deductions (e.g. skattereduktion) – shown in the invoice totals, not the item table. */
   unitPrice: number;
   totalPrice: number;
   articleNumber?: string;
@@ -446,6 +447,7 @@ export const DEMO_RECEIPTS: DemoReceipt[] = [
       { name: "Installation och driftsättning (elektriker och montörer)", quantity: 1, unitPrice: 121000, totalPrice: 121000, warrantyMonths: 60, category: "Tjänster & hantverk" },
       { name: "Byggställning, hyra 1 vecka", quantity: 1, unitPrice: 8000, totalPrice: 8000 },
       { name: "Föranmälan nätägare, dokumentation och administration", quantity: 1, unitPrice: 2500, totalPrice: 2500 },
+      { name: "Skattereduktion grön teknik 15 % (underlag 210 000,00)", quantity: 1, unitPrice: -31500, totalPrice: -31500 },
     ],
     aiSummary:
       "Faktura från Solkraft Sverige AB för solcellsanläggning 10,4 kWp (26 st Jinko Tiger Neo 400 W, Huawei SUN2000-10KTL växelriktare, installation). 189 000 kr inkl. moms efter grönt avdrag 31 500 kr.",
@@ -756,6 +758,7 @@ function invoiceHtml(r: DemoReceipt): string {
   const m = r.merchant;
   const vat = r.vat[0];
   const rows = r.items
+    .filter((item) => item.totalPrice >= 0)
     .map((item) => {
       const deductible = !inv.nonDeductibleItemNames.includes(item.name);
       const meta = [item.articleNumber ? `Art.nr ${item.articleNumber}` : null, item.serialNumber ? `S/N ${item.serialNumber}` : null].filter(Boolean).join(" · ");
@@ -765,38 +768,39 @@ function invoiceHtml(r: DemoReceipt): string {
   return `<!doctype html><html lang="sv"><head><meta charset="utf-8"><title>Faktura ${esc(inv.number)}</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 11pt; color: #1b1b1b; }
-  .page { padding: 18mm 18mm 16mm; }
-  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14mm; }
-  .brand { font-size: 30pt; font-weight: 700; letter-spacing: .04em; color: #1c6f61; }
+  @page { size: A4; margin: 0; }
+  body { margin: 0; font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10pt; color: #1b1b1b; }
+  .page { padding: 14mm 16mm 12mm; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8mm; }
+  .brand { font-size: 28pt; font-weight: 700; letter-spacing: .04em; color: #1c6f61; }
   .brand small { display: block; font-size: 9pt; font-weight: 400; letter-spacing: .18em; color: #555; margin-top: 2pt; }
-  .addr { font-size: 9.5pt; color: #444; margin-top: 8pt; line-height: 1.4; }
-  h1 { margin: 0 0 6pt; font-size: 22pt; text-align: right; }
-  table.meta { border-collapse: collapse; font-size: 10pt; margin-left: auto; }
-  table.meta td { padding: 1.5pt 0 1.5pt 14pt; }
+  .addr { font-size: 9pt; color: #444; margin-top: 6pt; line-height: 1.4; }
+  h1 { margin: 0 0 4pt; font-size: 20pt; text-align: right; }
+  table.meta { border-collapse: collapse; font-size: 9.5pt; margin-left: auto; }
+  table.meta td { padding: 1pt 0 1pt 14pt; }
   table.meta td:first-child { color: #666; }
-  .parties { display: flex; gap: 40pt; margin-bottom: 10mm; font-size: 10.5pt; line-height: 1.45; }
+  .parties { display: flex; gap: 40pt; margin-bottom: 6mm; font-size: 10pt; line-height: 1.4; }
   .parties h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .1em; color: #666; }
-  .intro { margin: 0 0 6mm; font-size: 11pt; }
-  table.items { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  .intro { margin: 0 0 4mm; font-size: 10pt; }
+  table.items { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
   table.items th { text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em; color: #666; border-bottom: 1.5pt solid #1c6f61; padding: 4pt 4pt; }
-  table.items td { padding: 5pt 4pt; border-bottom: .5pt solid #ddd; vertical-align: top; }
+  table.items td { padding: 3.5pt 4pt; border-bottom: .5pt solid #ddd; vertical-align: top; }
   .num { text-align: right; white-space: nowrap; }
   .meta { font-size: 8.5pt; color: #666; margin-top: 1pt; }
-  table.totals { border-collapse: collapse; margin: 6mm 0 0 auto; font-size: 10.5pt; min-width: 300pt; }
-  table.totals td { padding: 2.5pt 4pt; }
+  table.totals { border-collapse: collapse; margin: 4mm 0 0 auto; font-size: 10pt; min-width: 300pt; }
+  table.totals td { padding: 2pt 4pt; }
   table.totals td:first-child { color: #444; }
-  table.totals tr.grand td { font-size: 14pt; font-weight: 700; border-top: 1.5pt solid #1c6f61; padding-top: 6pt; }
-  .pay { margin-top: 8mm; padding: 10pt 12pt; background: #eef6f4; border-radius: 6pt; font-size: 10pt; line-height: 1.5; }
+  table.totals tr.grand td { font-size: 13pt; font-weight: 700; border-top: 1.5pt solid #1c6f61; padding-top: 5pt; }
+  .pay { margin-top: 5mm; padding: 8pt 11pt; background: #eef6f4; border-radius: 6pt; font-size: 9.5pt; line-height: 1.45; }
   .pay strong { color: #1c6f61; }
-  .warranty { margin-top: 6mm; font-size: 9.5pt; line-height: 1.5; color: #333; }
+  .warranty { margin-top: 4mm; font-size: 9pt; line-height: 1.45; color: #333; }
   .warranty h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .1em; color: #666; }
-  .foot { margin-top: 10mm; padding-top: 6pt; border-top: .5pt solid #bbb; font-size: 8.5pt; color: #666; line-height: 1.5; }
+  .foot { margin-top: 6mm; padding-top: 5pt; border-top: .5pt solid #bbb; font-size: 8pt; color: #666; line-height: 1.5; }
 </style></head><body><div class="page">
   <div class="head">
     <div>
       <div class="brand">SOLKRAFT<small>SVERIGE AB</small></div>
-      <div class="addr">${esc(m.address.replace(", ", "<br>"))}<br>${esc(m.phone ?? "")} · ${esc(r.email?.from ?? "")}<br>${esc(m.web ?? "")}</div>
+      <div class="addr">${esc(m.address).replace(", ", "<br>")}<br>${esc(m.phone ?? "")} · ${esc(r.email?.from ?? "")}<br>${esc(m.web ?? "")}</div>
     </div>
     <div>
       <h1>FAKTURA</h1>
@@ -864,7 +868,7 @@ function invoiceText(r: DemoReceipt): string {
     "",
     "Beskrivning | Antal | À-pris inkl. moms | Belopp inkl. moms",
   ];
-  for (const item of r.items) {
+  for (const item of r.items.filter((i) => i.totalPrice >= 0)) {
     const meta = [item.articleNumber ? `Art.nr ${item.articleNumber}` : null, item.serialNumber ? `S/N ${item.serialNumber}` : null].filter(Boolean).join(", ");
     out.push(`${item.name}${meta ? ` (${meta})` : ""} | ${item.quantity} st | ${sek(item.unitPrice)} | ${sek(item.totalPrice)}`);
     if (inv.nonDeductibleItemNames.includes(item.name)) out.push("  Ingår ej i underlag för skattereduktion");
