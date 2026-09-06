@@ -55,21 +55,52 @@ enum InboundStatus {
 // =============================================================================
 
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
-  passwordHash String
-  name         String
-  accountType  AccountType @default(PRIVATE)
+  id            String      @id @default(cuid())
+  email         String      @unique
+  // Set when the address was proven (Google sign-in, one-time code). Null for password-only accounts.
+  emailVerified DateTime?
+  // Null for accounts created through Google that have not chosen a password yet.
+  passwordHash  String?
+  name          String
+  accountType   AccountType @default(PRIVATE)
   // Unique local-part for the user's inbound receipt address, e.g. kvitto-a1b2c3d4@in.kvittera.se
-  inboundToken String      @unique
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  inboundToken  String      @unique
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   receipts            Receipt[]
   conversations       Conversation[]
   auditEvents         AuditEvent[]
   passwordResetTokens PasswordResetToken[]
   inboundEmails       InboundEmail[]
+  accounts            Account[]
+}
+
+/// External sign-in identities linked to a user (currently Google).
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+/// One-time login codes mailed to an address ("engångskod"). Only the hash is stored.
+model LoginCode {
+  id         String    @id @default(cuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email, createdAt])
 }
 
 model PasswordResetToken {

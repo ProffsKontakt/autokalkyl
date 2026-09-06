@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import { SettingsSection } from "./settings-section";
 import { DeleteAccountDialog } from "./delete-account-dialog";
 
-export function DangerZoneCard({ email }: { email: string }) {
+export function DangerZoneCard({ email, hasPassword }: { email: string; hasPassword: boolean }) {
   return (
     <SettingsSection id="farozon" icon={TriangleAlert} tone="danger" title="Farozon" description="Det som inte går att ångra.">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -28,7 +28,7 @@ export function DangerZoneCard({ email }: { email: string }) {
             innan du raderar.
           </p>
         </div>
-        <DeleteAccountDialog email={email} />
+        <DeleteAccountDialog email={email} hasPassword={hasPassword} />
       </div>
     </SettingsSection>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Check, UserPlus } from "lucide-react";
-import { AuthCard, AuthLink, RegisterForm, type AccountType } from "@/components/auth";
+import { AuthCard, AuthDivider, AuthLink, GoogleButton, RegisterForm, type AccountType } from "@/components/auth";
+import { isGoogleLoginEnabled } from "@/lib/auth/google";
 import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ function initialAccountType(value: string | string[] | undefined): AccountType {
 
 export default async function RegisterPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  const googleEnabled = isGoogleLoginEnabled();
 
   return (
     <AuthCard
@@ -41,6 +43,23 @@ export default async function RegisterPage({ searchParams }: { searchParams: Sea
           </li>
         ))}
       </ul>
+      {googleEnabled ? (
+        <div className="mb-6 space-y-4">
+          <GoogleButton label="Skapa konto med Google" />
+          <p className="text-center text-xs leading-relaxed text-ink-500">
+            Genom att fortsätta med Google godkänner du{" "}
+            <AuthLink href="/villkor" target="_blank" rel="noopener noreferrer">
+              villkoren
+            </AuthLink>{" "}
+            och{" "}
+            <AuthLink href="/integritet" target="_blank" rel="noopener noreferrer">
+              integritetspolicyn
+            </AuthLink>
+            .
+          </p>
+          <AuthDivider>eller med e-post</AuthDivider>
+        </div>
+      ) : null}
       <RegisterForm initialAccountType={initialAccountType(params.accountType)} />
     </AuthCard>
   );

@@ -8,7 +8,7 @@ import { FormNotice } from "@/components/auth/form-notice";
 import { PasswordInput } from "@/components/auth/password-input";
 import { PASSWORD_MIN_LENGTH, PasswordHint } from "@/components/auth/password-hint";
 
-export function PasswordForm() {
+export function PasswordForm({ hasPassword = true }: { hasPassword?: boolean }) {
   const id = useId();
   // Controlled so a typo in one field doesn't wipe the others on a failed submit.
   const [current, setCurrent] = useState("");
@@ -21,19 +21,20 @@ export function PasswordForm() {
       setCurrent("");
       setPassword("");
       setConfirm("");
-      toast.success("Lösenordet är ändrat");
+      toast.success(hasPassword ? "Lösenordet är ändrat" : "Lösenordet är skapat");
     }
     return result;
   }, null);
 
   const error = state && !state.ok ? state.error : null;
   const mismatch = confirm.length > 0 && confirm !== password;
-  const canSubmit = current.length > 0 && password.length >= PASSWORD_MIN_LENGTH && confirm === password;
+  const canSubmit = (!hasPassword || current.length > 0) && password.length >= PASSWORD_MIN_LENGTH && confirm === password;
 
   return (
     <form action={formAction} className="space-y-4" aria-busy={pending}>
       {error ? <FormNotice tone="error">{error}</FormNotice> : null}
 
+      {hasPassword ? (
       <div className="sm:max-w-sm">
         <Label htmlFor={`${id}-current`}>Nuvarande lösenord</Label>
         <PasswordInput
@@ -47,6 +48,7 @@ export function PasswordForm() {
           aria-invalid={error ? true : undefined}
         />
       </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -81,9 +83,9 @@ export function PasswordForm() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Hint className="mt-0">Du förblir inloggad på den här enheten efter bytet.</Hint>
+        <Hint className="mt-0">Du förblir inloggad på den här enheten efteråt.</Hint>
         <Button type="submit" loading={pending} disabled={!canSubmit} className="w-full sm:w-auto">
-          {pending ? "Byter…" : "Byt lösenord"}
+          {pending ? "Sparar…" : hasPassword ? "Byt lösenord" : "Skapa lösenord"}
         </Button>
       </div>
     </form>

@@ -4,6 +4,7 @@ export * from "./anchor-button";
 export * from "./copy-button";
 export * from "./profile-form";
 export * from "./profile-card";
+export * from "./login-methods-card";
 export * from "./inbound-address-card";
 export * from "./export-card";
 export * from "./password-form";

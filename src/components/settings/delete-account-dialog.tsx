@@ -10,7 +10,7 @@ import { PasswordInput } from "@/components/auth/password-input";
 
 const CONFIRM_WORD = "RADERA";
 
-export function DeleteAccountDialog({ email }: { email: string }) {
+export function DeleteAccountDialog({ email, hasPassword = true }: { email: string; hasPassword?: boolean }) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
@@ -40,7 +40,7 @@ export function DeleteAccountDialog({ email }: { email: string }) {
     setOpen(false);
   }
 
-  const ready = password.length > 0 && confirm.trim().toUpperCase() === CONFIRM_WORD;
+  const ready = (!hasPassword || password.length > 0) && confirm.trim().toUpperCase() === CONFIRM_WORD;
 
   return (
     <>
@@ -63,6 +63,7 @@ export function DeleteAccountDialog({ email }: { email: string }) {
 
           {error ? <FormNotice tone="error">{error}</FormNotice> : null}
 
+          {hasPassword ? (
           <div>
             <Label htmlFor={`${id}-password`}>Ditt lösenord</Label>
             <PasswordInput
@@ -75,6 +76,7 @@ export function DeleteAccountDialog({ email }: { email: string }) {
               onChange={(event) => setPassword(event.target.value)}
             />
           </div>
+          ) : null}
 
           <div>
             <Label htmlFor={`${id}-confirm`}>

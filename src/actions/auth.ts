@@ -6,11 +6,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { Prisma } from "@prisma/client";
-import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { prisma } from "@/lib/db/client";
-import { auth, signIn, signOut, unstable_update } from "@/lib/auth/auth";
+import { auth, loginCodeFailure, signIn, signOut, unstable_update } from "@/lib/auth/auth";
 import { emailSchema, nameSchema, passwordSchema } from "@/lib/auth/password";
+import { newInboundToken } from "@/lib/auth/inbound-token";
+import { DEMO_ACCOUNT_LOCKED, isDemoUserId } from "@/lib/auth/demo";
+import { LOGIN_CODE_MESSAGES, LOGIN_CODE_TTL_MS, formatLoginCode, normalizeLoginCode } from "@/lib/auth/login-code";
+import { issueLoginCode } from "@/lib/auth/login-code-store";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { sendEmail, emailLayout } from "@/lib/email/send";
@@ -19,8 +22,6 @@ import { brand } from "@/lib/brand";
 export type ActionResult<T = undefined> =
   | { ok: true; data?: T }
   | { ok: false; error: string; fieldErrors?: Record<string, string> };
-
-const inboundId = customAlphabet("abcdefghjkmnpqrstuvwxyz23456789", 10);
 
 async function clientIp(): Promise<string> {
   try {
@@ -91,7 +92,7 @@ export async function registerAction(_prev: ActionResult | null, formData: FormD
   for (let attempt = 0; attempt < 3 && !user; attempt++) {
     try {
       user = await prisma.user.create({
-        data: { name, email, passwordHash, accountType, inboundToken: `kvitto-${inboundId()}` },
+        data: { name, email, passwordHash, accountType, inboundToken: newInboundToken() },
         select: { id: true },
       });
     } catch (error) {
@@ -156,7 +157,91 @@ export async function loginAction(_prev: ActionResult | null, formData: FormData
   }
 
   const session = await auth();
-  if (session?.user?.id) await audit(session.user.id, "auth.login");
+  if (session?.user?.id) await audit(session.user.id, "auth.login", { details: { method: "password" } });
+  redirect(next);
+}
+
+// -----------------------------------------------------------------------------
+// One-time code via e-mail ("engångskod") – lets people reach their receipts from a new device
+// without remembering a password. Codes are only issued for existing accounts; the response
+// is identical either way so the form never reveals whether an address is registered.
+// -----------------------------------------------------------------------------
+
+export type LoginCodeRequestResult = ActionResult<{ email: string }>;
+
+export async function requestLoginCodeAction(_prev: LoginCodeRequestResult | null, formData: FormData): Promise<LoginCodeRequestResult> {
+  const ip = await clientIp();
+  const parsed = emailSchema.safeParse(formData.get("email"));
+  if (!parsed.success) return { ok: false, error: "Ange en giltig e-postadress." };
+  const email = parsed.data;
+
+  // Per address: 5 codes / 15 min (also enforced in the database). Per IP: generous, because offices and
+  // mobile carriers put many people behind one address.
+  const ipLimit = rateLimit(`code-request:${ip}`, 30, 15 * 60 * 1000);
+  const emailLimit = rateLimit(`code-request-email:${email}`, 5, 15 * 60 * 1000);
+  if (!ipLimit.ok || !emailLimit.ok) {
+    return { ok: false, error: "Du har begärt för många koder. Vänta en stund och försök igen." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true } });
+  const minutes = Math.round(LOGIN_CODE_TTL_MS / 60_000);
+
+  if (user) {
+    const issued = await issueLoginCode(email);
+    // The database limit (per address, across instances) is a silent backstop – no hint to the caller.
+    if (issued.ok) {
+      const pretty = formatLoginCode(issued.code);
+      await sendEmail({
+        to: email,
+        subject: `${pretty} är din inloggningskod – ${brand.name}`,
+        text: `Hej ${user.name}!\n\nDin engångskod för att logga in på ${brand.name} är:\n\n${pretty}\n\nKoden gäller i ${minutes} minuter och kan bara användas en gång.\n\nHar du inte försökt logga in kan du ignorera mailet – ingen kommer in utan koden.`,
+        html: emailLayout(
+          "Din inloggningskod",
+          `<p>Hej ${escapeHtml(user.name)}! Skriv in koden på inloggningssidan för att fortsätta.</p><p style="font-size:32px;font-weight:700;letter-spacing:6px;color:#1c6f61;margin:20px 0">${pretty}</p><p>Koden gäller i ${minutes} minuter och kan bara användas en gång.</p><p style="color:#6b7280;font-size:13px">Har du inte försökt logga in kan du ignorera mailet – ingen kommer in utan koden.</p>`,
+        ),
+      }).catch((error) => console.error("[auth] login code mail failed", error));
+      await audit(user.id, "auth.login_code_requested");
+    }
+  } else {
+    // Same timing and reply as above, but the mail says what to do instead of leaving the person waiting.
+    await sendEmail({
+      to: email,
+      subject: `Inget konto hittades – ${brand.name}`,
+      text: `Hej!\n\nNågon (troligen du) försökte logga in på ${brand.name} med den här adressen, men det finns inget konto kopplat till ${email}.\n\nSkapa ett gratis konto på ${brand.url}/registrera, eller logga in med den adress du registrerade dig med.\n\nVar det inte du kan du ignorera mailet.`,
+      html: emailLayout(
+        "Inget konto med den här adressen",
+        `<p>Någon (troligen du) försökte logga in på ${brand.name} med <strong>${escapeHtml(email)}</strong>, men det finns inget konto kopplat till adressen.</p><p><a href="${brand.url}/registrera" style="display:inline-block;background:#1c6f61;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:600">Skapa ett gratis konto</a></p><p style="color:#6b7280;font-size:13px">Har du redan ett konto? Logga in med adressen du registrerade dig med. Var det inte du kan du ignorera mailet.</p>`,
+      ),
+    }).catch((error) => console.error("[auth] no-account mail failed", error));
+  }
+
+  return { ok: true, data: { email } };
+}
+
+export async function verifyLoginCodeAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  const ip = await clientIp();
+  const parsed = emailSchema.safeParse(formData.get("email"));
+  if (!parsed.success) return { ok: false, error: "Ange en giltig e-postadress." };
+  const email = parsed.data;
+  const next = safeNext(formData.get("next"));
+
+  const rl = rateLimit(`code-verify:${ip}:${email}`, 10, 15 * 60 * 1000);
+  if (!rl.ok) return { ok: false, error: `För många försök. Försök igen om ${Math.ceil(rl.retryAfterSeconds / 60)} min.` };
+
+  const code = normalizeLoginCode(formData.get("code"));
+  if (!code) return { ok: false, error: "Skriv in de sex siffrorna från mailet." };
+
+  try {
+    await signIn("email-code", { email, code, redirect: false });
+  } catch (error) {
+    const failure = loginCodeFailure(error);
+    if (failure) return { ok: false, error: LOGIN_CODE_MESSAGES[failure] };
+    if (error instanceof AuthError) return { ok: false, error: LOGIN_CODE_MESSAGES.invalid };
+    throw error;
+  }
+
+  const session = await auth();
+  if (session?.user?.id) await audit(session.user.id, "auth.login", { details: { method: "code" } });
   redirect(next);
 }
 
@@ -184,8 +269,9 @@ export async function requestPasswordResetAction(_prev: ActionResult | null, for
   const email = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true } });
-  // Always respond the same way to avoid leaking whether an account exists.
-  if (user) {
+  // Always respond the same way to avoid leaking whether an account exists. The shared demo account is
+  // reset on every deploy and its password must stay known, so it never gets a reset link.
+  if (user && !isDemoUserId(user.id)) {
     const token = randomBytes(32).toString("base64url");
     await prisma.passwordResetToken.create({
       data: { userId: user.id, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 60 * 60 * 1000) },
@@ -231,25 +317,29 @@ export async function resetPasswordAction(_prev: ActionResult | null, formData: 
 // Account settings
 // -----------------------------------------------------------------------------
 
+/** Changes the password – or sets the first one for an account created through Google. */
 export async function changePasswordAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Du måste vara inloggad." };
+  if (isDemoUserId(session.user.id)) return { ok: false, error: DEMO_ACCOUNT_LOCKED };
   const current = String(formData.get("current") ?? "");
   const parsed = passwordSchema.safeParse(formData.get("password"));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ogiltigt lösenord." };
   if (formData.get("password") !== formData.get("confirm")) return { ok: false, error: "Lösenorden matchar inte." };
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { passwordHash: true } });
-  if (!user || !(await compare(current, user.passwordHash))) return { ok: false, error: "Nuvarande lösenord är fel." };
+  if (!user) return { ok: false, error: "Kontot hittades inte." };
+  if (user.passwordHash && !(await compare(current, user.passwordHash))) return { ok: false, error: "Nuvarande lösenord är fel." };
 
   await prisma.user.update({ where: { id: session.user.id }, data: { passwordHash: await hash(parsed.data, 12) } });
-  await audit(session.user.id, "auth.password_changed");
+  await audit(session.user.id, "auth.password_changed", { details: { first: !user.passwordHash } });
   return { ok: true };
 }
 
 export async function updateProfileAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Du måste vara inloggad." };
+  if (isDemoUserId(session.user.id)) return { ok: false, error: DEMO_ACCOUNT_LOCKED };
   const parsed = nameSchema.safeParse(formData.get("name"));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ogiltigt namn." };
   await prisma.user.update({ where: { id: session.user.id }, data: { name: parsed.data } });
@@ -261,9 +351,12 @@ export async function updateProfileAction(_prev: ActionResult | null, formData: 
 export async function deleteAccountAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: "Du måste vara inloggad." };
+  if (isDemoUserId(session.user.id)) return { ok: false, error: DEMO_ACCOUNT_LOCKED };
   const password = String(formData.get("password") ?? "");
   const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { passwordHash: true, email: true } });
-  if (!user || !(await compare(password, user.passwordHash))) return { ok: false, error: "Fel lösenord." };
+  if (!user) return { ok: false, error: "Kontot hittades inte." };
+  // Accounts without a password (Google sign-in) confirm with the word only – they are already authenticated.
+  if (user.passwordHash && !(await compare(password, user.passwordHash))) return { ok: false, error: "Fel lösenord." };
   if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "RADERA") return { ok: false, error: 'Skriv "RADERA" för att bekräfta.' };
 
   // Cascades remove receipts, files, conversations and the user's audit events – keep an anonymous tombstone.

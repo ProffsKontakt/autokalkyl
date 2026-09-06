@@ -7,6 +7,7 @@
  * the OCR text always agree.
  */
 import type { ReceiptCategory } from "@/lib/ai/knowledge";
+import { DEMO_DEFAULT_EMAIL, DEMO_DEFAULT_PASSWORD, DEMO_INBOUND_TOKEN } from "@/lib/auth/demo";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -110,11 +111,12 @@ export interface DemoChatMessage {
 // -----------------------------------------------------------------------------
 
 export const DEMO_USER = {
-  email: "demo@kvittera.se",
-  password: "Demo1234!",
+  /** Defaults – the seeder honours DEMO_ACCOUNT_EMAIL / DEMO_ACCOUNT_PASSWORD. */
+  email: DEMO_DEFAULT_EMAIL,
+  password: DEMO_DEFAULT_PASSWORD,
   name: "Anna Andersson",
   accountType: "PRIVATE" as const,
-  inboundToken: "kvitto-demo7k2m4p",
+  inboundToken: DEMO_INBOUND_TOKEN,
   createdAt: "2024-03-10T09:15:00.000Z",
 };
 

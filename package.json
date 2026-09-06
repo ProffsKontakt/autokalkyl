@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && node scripts/migrate.mjs && next build",
+    "vercel-build": "prisma generate && node scripts/migrate.mjs && node scripts/seed-demo-on-deploy.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -14,7 +14,8 @@
     "db:migrate": "node scripts/migrate.mjs",
     "db:generate": "prisma generate",
     "db:reset-legacy": "tsx scripts/reset-legacy-db.ts",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "demo:render": "tsx scripts/seed-demo.ts --render"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

@@ -1,59 +1,105 @@
 /**
- * Demo-data seeder (product videos, screenshots, manual testing).
+ * Demo/test account seeder (the shared "Anna Andersson" account, product videos, screenshots, e2e).
  *
- * Creates the demo user "Anna Andersson" (demo@kvittera.se / Demo1234!) with 8 realistic Swedish
- * receipts – rendered as receipt images / an invoice PDF / an HTML e-receipt with headless Chromium –
- * plus one assistant conversation and audit events.
+ * Creates the demo user (default demo@kvittera.se / Demo1234!, override with DEMO_ACCOUNT_EMAIL /
+ * DEMO_ACCOUNT_PASSWORD) with 8 realistic Swedish receipts – receipt photos, an invoice PDF and an HTML
+ * e-receipt – plus one assistant conversation and audit events.
+ *
+ * The receipt files are pre-rendered fixtures in scripts/demo/fixtures (committed), so seeding needs no
+ * browser and runs during `vercel-build` (scripts/seed-demo-on-deploy.mjs). Regenerate the fixtures
+ * after editing scripts/demo/receipts.ts with `npm run demo:render` (headless Chromium).
  *
  * Idempotent: an existing demo user is deleted (cascades to receipts, files, conversations) and
- * recreated. All demo data is deterministic (see scripts/demo/receipts.ts).
+ * recreated with the same fixed id, so open sessions on the demo account survive a redeploy.
  *
- *   DATABASE_URL=... npx tsx scripts/seed-demo.ts        (or: npm run seed:demo)
+ *   DATABASE_URL=... npx tsx scripts/seed-demo.ts             (or: npm run seed:demo)
+ *   npx tsx scripts/seed-demo.ts --render                     (or: npm run demo:render)
  *
- * Chromium: uses /opt/pw-browsers/chromium by default; override with PLAYWRIGHT_CHROMIUM_PATH.
+ * Chromium (render only): /opt/pw-browsers/chromium by default; override with PLAYWRIGHT_CHROMIUM_PATH.
  */
 import "dotenv/config";
 import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { hash } from "bcryptjs";
-import { chromium, type Browser, type Page } from "playwright-core";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/client";
+import { DEMO_USER_ID, demoAccountEmail, demoAccountPassword } from "@/lib/auth/demo";
 import { prepareFile } from "@/lib/receipts/files";
 import type { CreateReceiptOptions, IncomingFile } from "@/lib/receipts/pipeline";
 import { retentionUntil, returnDeadline, warrantyExpiry } from "@/lib/receipts/warranty";
 import { DEMO_CONVERSATION, DEMO_RECEIPTS, DEMO_USER, renderHtml, renderText, vatTotal, type DemoReceipt } from "./demo/receipts";
 
 const DEFAULT_CHROMIUM = "/opt/pw-browsers/chromium";
+const FIXTURE_DIR = path.resolve("scripts/demo/fixtures");
 
 type CreateReceiptFn = (options: CreateReceiptOptions) => Promise<{ id: string }>;
 
 // -----------------------------------------------------------------------------
-// Rendering
+// Fixtures (pre-rendered receipt files)
 // -----------------------------------------------------------------------------
 
-async function launchBrowser(): Promise<Browser> {
-  const configured = process.env.PLAYWRIGHT_CHROMIUM_PATH?.trim() || DEFAULT_CHROMIUM;
-  const executablePath = existsSync(configured) ? configured : chromium.executablePath();
-  return chromium.launch({ executablePath, args: ["--no-sandbox"] });
+interface FixtureFile {
+  /** File name inside scripts/demo/fixtures. */
+  name: string;
+  mimeType: string;
+  /** Name the "user" uploaded/received the file under. */
+  originalName: string;
 }
 
-/** Renders the files for one receipt: PNG (thermal/e-mail), PDF (invoice), plus the raw HTML for e-mails. */
-async function renderFiles(page: Page, r: DemoReceipt): Promise<IncomingFile[]> {
-  const html = renderHtml(r);
+/** PNG for thermal receipts, PDF for the invoice, PNG + the raw HTML for the e-receipt. */
+function fixtureFiles(r: DemoReceipt): FixtureFile[] {
   const base = `${r.purchaseDate}-${r.key}`;
-  await page.setContent(html, { waitUntil: "load" });
-
   if (r.layout === "invoice") {
-    const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: false });
-    return [{ data: Buffer.from(pdf), mimeType: "application/pdf", originalName: `faktura-${r.receiptNumber}.pdf` }];
+    return [{ name: `${r.key}.pdf`, mimeType: "application/pdf", originalName: `faktura-${r.receiptNumber}.pdf` }];
   }
+  const files: FixtureFile[] = [{ name: `${r.key}.png`, mimeType: "image/png", originalName: `${base}.png` }];
+  if (r.layout === "email") files.push({ name: `${r.key}.html`, mimeType: "text/html", originalName: `${base}.html` });
+  return files;
+}
 
-  const png = await page.screenshot({ fullPage: true, type: "png" });
-  const files: IncomingFile[] = [{ data: Buffer.from(png), mimeType: "image/png", originalName: `${base}.png` }];
-  if (r.layout === "email") {
-    files.push({ data: Buffer.from(html, "utf8"), mimeType: "text/html", originalName: `${base}.html` });
+async function loadFixtures(r: DemoReceipt): Promise<IncomingFile[]> {
+  const files: IncomingFile[] = [];
+  for (const f of fixtureFiles(r)) {
+    let data: Buffer;
+    try {
+      data = await readFile(path.join(FIXTURE_DIR, f.name));
+    } catch {
+      throw new Error(`Missing demo fixture ${f.name}. Run "npm run demo:render" (needs Chromium) and commit scripts/demo/fixtures.`);
+    }
+    files.push({ data, mimeType: f.mimeType, originalName: f.originalName });
   }
   return files;
+}
+
+/** Renders every receipt with headless Chromium and writes the fixtures. Only needed after editing the demo data. */
+async function renderFixtures(): Promise<void> {
+  const { chromium } = await import("playwright-core");
+  const configured = process.env.PLAYWRIGHT_CHROMIUM_PATH?.trim() || DEFAULT_CHROMIUM;
+  const executablePath = existsSync(configured) ? configured : chromium.executablePath();
+  const browser = await chromium.launch({ executablePath, args: ["--no-sandbox"] });
+  try {
+    const page = await browser.newPage({ viewport: { width: 800, height: 1400 }, deviceScaleFactor: 1 });
+    await mkdir(FIXTURE_DIR, { recursive: true });
+    for (const r of DEMO_RECEIPTS) {
+      const html = renderHtml(r);
+      await page.setContent(html, { waitUntil: "load" });
+      for (const f of fixtureFiles(r)) {
+        let data: Buffer;
+        if (f.mimeType === "application/pdf") {
+          data = Buffer.from(await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: false }));
+        } else if (f.mimeType === "text/html") {
+          data = Buffer.from(html, "utf8");
+        } else {
+          data = Buffer.from(await page.screenshot({ fullPage: true, type: "png" }));
+        }
+        await writeFile(path.join(FIXTURE_DIR, f.name), data);
+        console.log(`[render] ${f.name}  ${(data.byteLength / 1024).toFixed(0)} kB`);
+      }
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -166,11 +212,18 @@ async function finishReceipt(id: string, r: DemoReceipt): Promise<void> {
 // -----------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  if (process.argv.includes("--render")) {
+    await renderFixtures();
+    return;
+  }
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
+
+  const email = demoAccountEmail();
+  const password = demoAccountPassword();
 
   // 1. Remove any previous demo user (cascades). Audit rows only null out userId, so delete them explicitly.
   const previous = await prisma.user.findMany({
-    where: { OR: [{ email: DEMO_USER.email }, { inboundToken: DEMO_USER.inboundToken }] },
+    where: { OR: [{ id: DEMO_USER_ID }, { email }, { inboundToken: DEMO_USER.inboundToken }] },
     select: { id: true, email: true },
   });
   for (const u of previous) {
@@ -181,9 +234,11 @@ async function main(): Promise<void> {
 
   const user = await prisma.user.create({
     data: {
-      email: DEMO_USER.email,
+      id: DEMO_USER_ID,
+      email,
+      emailVerified: new Date(DEMO_USER.createdAt),
       name: DEMO_USER.name,
-      passwordHash: await hash(DEMO_USER.password, 12),
+      passwordHash: await hash(password, 12),
       accountType: DEMO_USER.accountType,
       inboundToken: DEMO_USER.inboundToken,
       createdAt: new Date(DEMO_USER.createdAt),
@@ -192,26 +247,20 @@ async function main(): Promise<void> {
   });
   console.log(`[seed] Created user ${user.email} (${user.id})`);
 
-  // 2. Render + store receipts.
+  // 2. Store the pre-rendered receipts through the normal pipeline (normalised images + thumbnails).
   const createReceipt = await loadCreateReceipt();
   const receiptIds = new Map<string, string>();
-  const browser = await launchBrowser();
-  try {
-    const page = await browser.newPage({ viewport: { width: 800, height: 1400 }, deviceScaleFactor: 1 });
-    for (const r of DEMO_RECEIPTS) {
-      const files = await renderFiles(page, r);
-      const { id } = await createReceipt({
-        userId: user.id,
-        source: r.source,
-        files,
-        email: r.email ? { from: r.email.from, subject: r.email.subject } : null,
-      });
-      await finishReceipt(id, r);
-      receiptIds.set(r.key, id);
-      console.log(`[seed] Receipt ${id}  ${r.title}  (${files.map((f) => f.mimeType).join(", ")})`);
-    }
-  } finally {
-    await browser.close();
+  for (const r of DEMO_RECEIPTS) {
+    const files = await loadFixtures(r);
+    const { id } = await createReceipt({
+      userId: user.id,
+      source: r.source,
+      files,
+      email: r.email ? { from: r.email.from, subject: r.email.subject } : null,
+    });
+    await finishReceipt(id, r);
+    receiptIds.set(r.key, id);
+    console.log(`[seed] Receipt ${id}  ${r.title}  (${files.map((f) => f.mimeType).join(", ")})`);
   }
 
   // 3. Conversation about the TV receipt.
@@ -269,7 +318,7 @@ async function main(): Promise<void> {
     select: { id: true, title: true, status: true, source: true, purchaseDate: true, totalAmount: true, _count: { select: { files: true, items: true } } },
   });
   console.log("\nDemo data ready");
-  console.log(`  User:       ${DEMO_USER.email}  (password: ${DEMO_USER.password})`);
+  console.log(`  User:       ${email}  (password: ${password})`);
   console.log(`  Inbound:    ${DEMO_USER.inboundToken}@…`);
   console.log(`  Chat:       ${conversation.id}  "${DEMO_CONVERSATION.title}"`);
   console.log(`  Receipts (${rows.length}):`);
@@ -289,5 +338,5 @@ main()
     process.exitCode = 1;
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    if (process.env.DATABASE_URL) await prisma.$disconnect();
   });

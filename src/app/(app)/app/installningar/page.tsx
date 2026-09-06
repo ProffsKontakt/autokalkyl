@@ -4,7 +4,17 @@ import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/client";
 import { inboundAddressFor } from "@/lib/brand";
 import { PageHeader } from "@/components/ui";
-import { DangerZoneCard, ExportCard, InboundAddressCard, InstallAppCard, PasswordCard, ProfileCard, SettingsNav } from "@/components/settings";
+import { isGoogleLoginEnabled } from "@/lib/auth/google";
+import {
+  DangerZoneCard,
+  ExportCard,
+  InboundAddressCard,
+  InstallAppCard,
+  LoginMethodsCard,
+  PasswordCard,
+  ProfileCard,
+  SettingsNav,
+} from "@/components/settings";
 
 export const metadata: Metadata = { title: "Inställningar" };
 
@@ -18,7 +28,15 @@ export default async function SettingsPage() {
   const [user, receiptCount, recentInbound] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { name: true, email: true, accountType: true, inboundToken: true, createdAt: true },
+      select: {
+        name: true,
+        email: true,
+        accountType: true,
+        inboundToken: true,
+        createdAt: true,
+        passwordHash: true,
+        accounts: { where: { provider: "google" }, select: { id: true }, take: 1 },
+      },
     }),
     prisma.receipt.count({ where: { userId, deletedAt: null } }),
     prisma.inboundEmail.findMany({
@@ -32,6 +50,8 @@ export default async function SettingsPage() {
   if (!user) redirect(LOGIN_REDIRECT);
 
   const address = inboundAddressFor(user.inboundToken);
+  const hasPassword = user.passwordHash !== null;
+  const googleLinked = user.accounts.length > 0;
 
   return (
     <div className="space-y-6">
@@ -42,11 +62,12 @@ export default async function SettingsPage() {
         user={{ name: user.name, email: user.email, accountType: user.accountType, createdAt: user.createdAt }}
         receiptCount={receiptCount}
       />
+      <LoginMethodsCard email={user.email} hasPassword={hasPassword} googleEnabled={isGoogleLoginEnabled()} googleLinked={googleLinked} />
       <InboundAddressCard address={address} recent={recentInbound} />
       <ExportCard receiptCount={receiptCount} />
-      <PasswordCard />
+      <PasswordCard hasPassword={hasPassword} />
       <InstallAppCard />
-      <DangerZoneCard email={user.email} />
+      <DangerZoneCard email={user.email} hasPassword={hasPassword} />
     </div>
   );
 }

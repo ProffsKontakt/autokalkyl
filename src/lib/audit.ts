@@ -9,6 +9,8 @@ export type AuditAction =
   | "auth.password_reset_requested"
   | "auth.password_reset"
   | "auth.password_changed"
+  | "auth.login_code_requested"
+  | "auth.google_linked"
   | "receipt.created"
   | "receipt.processed"
   | "receipt.viewed"

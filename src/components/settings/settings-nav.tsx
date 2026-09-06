@@ -1,5 +1,6 @@
 const SECTIONS: { id: string; label: string }[] = [
   { id: "profil", label: "Profil" },
+  { id: "inloggning", label: "Inloggning" },
   { id: "kvittoadress", label: "Kvittoadress" },
   { id: "export", label: "Export" },
   { id: "losenord", label: "Lösenord" },

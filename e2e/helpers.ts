@@ -29,7 +29,7 @@ export async function registerUser(page: Page, overrides: Partial<TestUser> = {}
   await page.getByLabel("E-post", { exact: true }).fill(user.email);
   await page.getByLabel("Lösenord", { exact: true }).fill(user.password);
   await page.getByRole("checkbox", { name: /Jag godkänner/ }).check();
-  await page.getByRole("button", { name: "Skapa konto" }).click();
+  await page.getByRole("button", { name: "Skapa konto", exact: true }).click();
   await page.waitForURL(/\/app(?:\?.*)?$/);
   return user;
 }
