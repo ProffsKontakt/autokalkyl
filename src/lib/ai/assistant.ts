@@ -174,10 +174,18 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
     },
   });
 
-  const history: BetaMessageParam[] = conversation.messages.map((m) => ({
-    role: m.role === "USER" ? "user" : "assistant",
-    content: m.content as unknown as Anthropic.Beta.BetaContentBlockParam[],
-  }));
+  // Replay earlier turns as plain text. The stored `content` keeps the full blocks (tool use, citations)
+  // for display, but tool_use blocks need matching tool_result blocks to be replayable and images would
+  // bloat every later request – so history is text-only. Attached images are noted so the model knows.
+  const history: BetaMessageParam[] = conversation.messages.map((m) => {
+    const blocks = Array.isArray(m.content) ? (m.content as unknown as Array<{ type?: string }>) : [];
+    const hadImages = blocks.some((b) => b?.type === "image");
+    const text = m.text.trim() || "(tomt meddelande)";
+    return {
+      role: m.role === "USER" ? "user" : "assistant",
+      content: [{ type: "text", text: hadImages ? `[Användaren bifogade en bild]\n${text}` : text }],
+    };
+  });
   const messages: BetaMessageParam[] = [...history, { role: "user", content: userContent }];
 
   const collectedContent: BetaContentBlock[] = [];
