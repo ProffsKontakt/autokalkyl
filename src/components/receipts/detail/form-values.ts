@@ -110,16 +110,14 @@ export interface ParsedNumber {
 }
 
 const AMOUNT_ERROR = "Ange ett belopp, t.ex. 1 299,50";
+const QUANTITY_ERROR = "Ange ett antal, t.ex. 2 eller 0,5";
 
 /**
- * Parses Swedish-style amounts: "1 299,50", "1299.50", "1.299,50", "299 kr".
- * Empty input → null (not an error).
+ * Parses a Swedish-style decimal: "1 299,50", "1299.50", "1.299,50".
+ * Whitespace (including non-breaking spaces) is ignored. Empty → null.
  */
-export function parseAmount(raw: string): ParsedNumber {
-  const cleaned = raw
-    .replace(/[\s  ]/g, "")
-    .replace(/(kr|sek|:-)$/i, "")
-    .trim();
+function parseDecimal(raw: string, decimals: number, error: string): ParsedNumber {
+  const cleaned = raw.replace(/\s/g, "");
   if (!cleaned) return { value: null };
   const hasComma = cleaned.includes(",");
   const hasDot = cleaned.includes(".");
@@ -130,25 +128,28 @@ export function parseAmount(raw: string): ParsedNumber {
   } else if (hasComma) {
     normalized = cleaned.replace(",", ".");
   }
-  if (!/^-?\d+(\.\d+)?$/.test(normalized)) return { value: null, error: AMOUNT_ERROR };
+  if (!/^-?\d+(\.\d+)?$/.test(normalized)) return { value: null, error };
   const n = Number(normalized);
-  if (!Number.isFinite(n) || Math.abs(n) >= 1e10) return { value: null, error: AMOUNT_ERROR };
-  return { value: Math.round(n * 100) / 100 };
+  if (!Number.isFinite(n) || Math.abs(n) >= 1e10) return { value: null, error };
+  const factor = 10 ** decimals;
+  return { value: Math.round(n * factor) / factor };
 }
 
-/** Quantities allow three decimals (e.g. 0,455 kg). */
+/** Amounts in currency ("299 kr", "1 299,50"). Two decimals. */
+export function parseAmount(raw: string): ParsedNumber {
+  return parseDecimal(raw.trim().replace(/(kr|sek|:-)$/i, ""), 2, AMOUNT_ERROR);
+}
+
+/** Quantities allow three decimals (e.g. 0,455 kg) and cannot be negative. */
 export function parseQuantity(raw: string): ParsedNumber {
-  const parsed = parseAmount(raw.replace(/(st|kg|l|m)$/i, ""));
-  if (parsed.error) return { value: null, error: "Ange ett antal, t.ex. 2 eller 0,5" };
-  if (parsed.value === null) return { value: null };
-  const n = Number(raw.replace(/[\s  ]/g, "").replace(/(st|kg|l|m)$/i, "").replace(",", "."));
-  if (!Number.isFinite(n) || n < 0) return { value: null, error: "Ange ett antal, t.ex. 2 eller 0,5" };
-  return { value: Math.round(n * 1000) / 1000 };
+  const parsed = parseDecimal(raw.trim().replace(/(st|kg|l|m)$/i, ""), 3, QUANTITY_ERROR);
+  if (parsed.value !== null && parsed.value < 0) return { value: null, error: QUANTITY_ERROR };
+  return parsed;
 }
 
 /** Whole non-negative numbers (months, days). Empty → null. */
 export function parseInteger(raw: string, label: string): ParsedNumber {
-  const cleaned = raw.replace(/[\s  ]/g, "").replace(/(mån|månader|dagar|dgr)$/i, "");
+  const cleaned = raw.replace(/\s/g, "").replace(/(mån|månader|dagar|dgr)$/i, "");
   if (!cleaned) return { value: null };
   if (!/^\d{1,4}$/.test(cleaned)) return { value: null, error: `Ange ${label} som ett heltal` };
   return { value: Number(cleaned) };

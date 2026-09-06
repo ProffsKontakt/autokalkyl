@@ -42,6 +42,7 @@ export function ProcessingWarning({
       const next = result.data?.status;
       if (next === "READY") toast.success("Kvittot är tolkat.");
       else if (next === "NEEDS_REVIEW") toast.warning("Kvittot är tolkat men behöver en titt.");
+      else if (next === "PROCESSING") toast.info("Kvittot tolkas redan – vi uppdaterar sidan strax.");
       else toast.error("Det gick tyvärr inte att tolka kvittot den här gången heller.");
       router.refresh();
     });

@@ -262,9 +262,7 @@ export function ReceiptForm({ mode, receiptId, initialValues, cancelHref, classN
       <Card>
         <CardHeader>
           <CardTitle>Garanti och öppet köp</CardTitle>
-          <CardDescription>
-            Reklamationsrätten på {values.currency === "SEK" ? "tre år" : "tre år"} räknar vi ut automatiskt. Fyll i om butiken lovat mer.
-          </CardDescription>
+          <CardDescription>Reklamationsrätten räknar vi ut automatiskt från inköpsdatumet. Fyll i om butiken eller tillverkaren lovat mer.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <Field id={fid("warrantyMonths")} label="Garanti (månader)" error={errors.warrantyMonths} hint="T.ex. 24 för två års garanti.">
