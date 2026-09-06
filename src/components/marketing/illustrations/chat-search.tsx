@@ -4,7 +4,7 @@ import { circle, line, rrect } from "./shapes";
 /* A chat bubble with a typing reply below it, and a magnifying glass over the
    corner with a green check in the lens: "ask, and it finds the receipt". */
 
-const strokes: Stroke[] = [
+export const strokes: Stroke[] = [
   // Main bubble
   { d: rrect(18, 16, 120, 74, 16), filled: true },
   { d: "M38 86 L32 108 L60 86", filled: true },

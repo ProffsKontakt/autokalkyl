@@ -13,7 +13,7 @@ const RH = 72;
 const RCX = RX + RW / 2;
 const RCY = RY + RH / 2;
 
-const strokes: Stroke[] = [
+export const strokes: Stroke[] = [
   // Physical receipt on the table (drawn first, so the phone can occlude it)
   { d: receipt(RX, RY, RW, RH, { teeth: 5, depth: 4, rotateDeg: TILT }), filled: true },
   { d: rotatedLine(RX + 10, RY + 16, RX + 42, RY + 16, TILT, RCX, RCY), width: 2 },

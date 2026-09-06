@@ -4,7 +4,7 @@ import { line, poly, receiptPoints, rrect } from "./shapes";
 /* A shield standing on an archive box, with a receipt inside the shield and a
    green check on its corner: "stored, protected, verified". */
 
-const strokes: Stroke[] = [
+export const strokes: Stroke[] = [
   // Archive box
   { d: rrect(28, 108, 144, 16, 4) },
   { d: "M36 124 V142 A6 6 0 0 0 42 148 H158 A6 6 0 0 0 164 142 V124" },

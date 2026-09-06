@@ -4,7 +4,7 @@ import { line, poly, receiptPoints, rrect } from "./shapes";
 /* An envelope on the left, a dashed arrow, and a receipt on the right:
    "forward the email and it becomes a stored receipt". */
 
-const strokes: Stroke[] = [
+export const strokes: Stroke[] = [
   // Envelope
   { d: rrect(14, 52, 70, 50, 6), filled: true },
   { d: "M14 58 L49 84 L84 58" },

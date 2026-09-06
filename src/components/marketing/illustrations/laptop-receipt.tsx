@@ -4,7 +4,7 @@ import { line, poly, receiptPoints, rrect } from "./shapes";
 /* A laptop whose screen shows the archive: a receipt in the middle, rows of
    stored documents on either side, and a green check on the receipt. */
 
-const strokes: Stroke[] = [
+export const strokes: Stroke[] = [
   // Screen
   { d: rrect(44, 18, 112, 80, 6), filled: true },
   { d: rrect(50, 24, 100, 68, 3), width: 1.5, opacity: 0.5 },
