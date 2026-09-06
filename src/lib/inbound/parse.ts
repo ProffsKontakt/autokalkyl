@@ -1,4 +1,5 @@
 import PostalMime from "postal-mime";
+import { kindForMime } from "@/lib/receipts/files";
 
 /** Provider-agnostic representation of an inbound email. */
 export interface InboundMessage {
@@ -31,6 +32,10 @@ function addrList(value: unknown): string[] {
       return (m ? m[1] : s).trim().toLowerCase();
     })
     .filter((s) => s.includes("@"));
+}
+
+function str(value: unknown): string | null {
+  return typeof value === "string" && value.length ? value : null;
 }
 
 function base64ToBuffer(content: unknown): Buffer | null {
@@ -68,9 +73,9 @@ export function parseJsonInbound(body: Record<string, unknown>): InboundMessage 
   return {
     recipients: [...recipients],
     from: addrList(body.From ?? body.from ?? body.sender ?? body.FromFull)[0] ?? "unknown@unknown",
-    subject: (body.Subject ?? body.subject ?? null) as string | null,
-    text: (body.TextBody ?? body.text ?? body["body-plain"] ?? body.plain ?? null) as string | null,
-    html: (body.HtmlBody ?? body.html ?? body["body-html"] ?? null) as string | null,
+    subject: str(body.Subject ?? body.subject),
+    text: str(body.TextBody ?? body.text ?? body["body-plain"] ?? body.plain),
+    html: str(body.HtmlBody ?? body.html ?? body["body-html"]),
     attachments,
   };
 }
@@ -150,39 +155,34 @@ export async function parseRawMime(raw: Buffer | string): Promise<InboundMessage
   };
 }
 
-/** Extracts the inbound token (local part without +suffix) from candidate recipient addresses. */
+/**
+ * Extracts inbound tokens (local part without +suffix) from candidate recipient addresses.
+ * Addresses on the configured inbound domain come first; other domains are still accepted because
+ * forwarding aliases often rewrite the domain. Order is significant – the first matching user wins.
+ */
 export function extractInboundTokens(recipients: string[], domain: string | null): string[] {
-  const tokens: string[] = [];
+  const onDomain: string[] = [];
+  const offDomain: string[] = [];
   for (const r of recipients) {
     const [local, host] = r.toLowerCase().split("@");
     if (!local || !host) continue;
-    if (domain && host !== domain.toLowerCase()) {
-      // Allow any domain when strict matching finds nothing – forwarding aliases often rewrite the domain.
-    }
     const token = local.split("+")[0];
-    if (token.startsWith("kvitto-")) tokens.push(token);
+    if (!token.startsWith("kvitto-")) continue;
+    (domain && host === domain.toLowerCase() ? onDomain : offDomain).push(token);
   }
-  // Prefer exact-domain matches first
-  if (domain) {
-    tokens.sort((a, b) => {
-      const ad = recipients.some((r) => r.toLowerCase() === `${a}@${domain.toLowerCase()}`) ? 0 : 1;
-      const bd = recipients.some((r) => r.toLowerCase() === `${b}@${domain.toLowerCase()}`) ? 0 : 1;
-      return ad - bd;
-    });
-  }
-  return [...new Set(tokens)];
+  return [...new Set([...onDomain, ...offDomain])];
 }
 
 /** Picks which parts of the email become receipt files. */
 export function selectReceiptParts(msg: InboundMessage): { files: { data: Buffer; mimeType: string; originalName: string | null }[]; extraText: string | null } {
   const files: { data: Buffer; mimeType: string; originalName: string | null }[] = [];
   for (const a of msg.attachments) {
-    const isImage = a.mimeType.startsWith("image/");
     const isPdf = a.mimeType === "application/pdf" || (a.filename?.toLowerCase().endsWith(".pdf") ?? false);
-    if (!isImage && !isPdf) continue;
+    const isImage = !isPdf && kindForMime(a.mimeType) === "IMAGE";
+    if (!isImage && !isPdf) continue; // svg/ico/eps logos, calendar invites, etc. are ignored
     // Skip tiny images (signatures, tracking pixels, logos)
     if (isImage && a.data.byteLength < 12 * 1024) continue;
-    files.push({ data: a.data, mimeType: isPdf ? "application/pdf" : a.mimeType, originalName: a.filename });
+    files.push({ data: a.data, mimeType: isPdf ? "application/pdf" : a.mimeType.split(";")[0].trim(), originalName: a.filename });
     if (files.length >= 8) break;
   }
   if (!files.length) {

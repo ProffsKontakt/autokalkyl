@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/db/client";
 import { toNumber } from "@/lib/utils";
 
+/** Excel-safe CSV cell: quotes when needed and neutralises formula injection (=, +, -, @, tab, CR). */
 function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const s = value instanceof Date ? value.toISOString().slice(0, 10) : String(value);
-  if (/[";\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  let s = value instanceof Date ? value.toISOString().slice(0, 10) : String(value);
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/[";\n\r']/.test(s) || s.startsWith("'")) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }
 

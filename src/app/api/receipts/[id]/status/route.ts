@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/client";
-import { processReceipt } from "@/lib/receipts/pipeline";
+import { processReceipt, PROCESSING_STALE_MS } from "@/lib/receipts/pipeline";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -17,8 +17,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   });
   if (!receipt) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Self-heal: if a receipt has been stuck in PROCESSING for > 3 minutes (function died), run it again inline.
-  if (receipt.status === "PROCESSING" && Date.now() - receipt.updatedAt.getTime() > 3 * 60 * 1000) {
+  // Self-heal: if a receipt has been stuck in PROCESSING for too long (function died), claim it and run again.
+  if (receipt.status === "PROCESSING" && Date.now() - receipt.updatedAt.getTime() > PROCESSING_STALE_MS) {
     const { status } = await processReceipt(id);
     return NextResponse.json({ id, status, title: receipt.title, processingError: null });
   }

@@ -122,7 +122,7 @@ function sourcesOf(content: BetaContentBlock[]): { title: string; url: string }[
   return out;
 }
 
-async function runTool(userId: string, name: string, input: unknown): Promise<string> {
+async function runTool(userId: string, accountType: "PRIVATE" | "BUSINESS", name: string, input: unknown): Promise<string> {
   const args = (input ?? {}) as Record<string, unknown>;
   if (name === "search_receipts") {
     const results = await searchReceiptsForAssistant(userId, {
@@ -134,7 +134,7 @@ async function runTool(userId: string, name: string, input: unknown): Promise<st
     return JSON.stringify(results, null, 1);
   }
   if (name === "get_receipt") {
-    const receipt = await getReceiptForAssistant(userId, String(args.receipt_id ?? ""));
+    const receipt = await getReceiptForAssistant(userId, String(args.receipt_id ?? ""), accountType);
     if (!receipt) return "Inget kvitto med det id:t hittades för användaren.";
     return receipt;
   }
@@ -151,12 +151,13 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
 
   const conversation = await prisma.conversation.findFirst({
     where: { id: conversationId, userId },
-    include: { messages: { orderBy: { createdAt: "asc" }, take: 60 } },
+    include: { messages: { orderBy: { createdAt: "desc" }, take: 60, select: { role: true, text: true, content: true } } },
   });
   if (!conversation) throw new Error("Konversationen hittades inte.");
+  conversation.messages.reverse();
 
   const receiptId = options.receiptId ?? conversation.receiptId ?? null;
-  const receiptContext = receiptId ? await getReceiptForAssistant(userId, receiptId) : null;
+  const receiptContext = receiptId ? await getReceiptForAssistant(userId, receiptId, accountType) : null;
 
   // Build user content (text + optional images)
   const userContent: Anthropic.Beta.BetaContentBlockParam[] = [];
@@ -165,12 +166,16 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
   }
   userContent.push({ type: "text", text: userText });
 
+  // Persist the user turn without the image bytes (they would bloat the row and every later request).
+  const storedUserContent = userContent.map((block) =>
+    block.type === "image" ? { type: "image", omitted: true } : block,
+  );
   const userMessage = await prisma.chatMessage.create({
     data: {
       conversationId,
       role: "USER",
       text: userText,
-      content: userContent as unknown as Prisma.InputJsonValue,
+      content: storedUserContent as unknown as Prisma.InputJsonValue,
     },
   });
 
@@ -179,7 +184,7 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
   // bloat every later request – so history is text-only. Attached images are noted so the model knows.
   const history: BetaMessageParam[] = conversation.messages.map((m) => {
     const blocks = Array.isArray(m.content) ? (m.content as unknown as Array<{ type?: string }>) : [];
-    const hadImages = blocks.some((b) => b?.type === "image");
+    const hadImages = blocks.some((b) => b?.type === "image" || b?.type === "image_omitted");
     const text = m.text.trim() || "(tomt meddelande)";
     return {
       role: m.role === "USER" ? "user" : "assistant",
@@ -247,7 +252,7 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
       const results: Anthropic.Beta.BetaToolResultBlockParam[] = [];
       for (const tu of toolUses) {
         try {
-          const result = await runTool(userId, tu.name, tu.input);
+          const result = await runTool(userId, accountType, tu.name, tu.input);
           results.push({ type: "tool_result", tool_use_id: tu.id, content: result });
         } catch (error) {
           results.push({ type: "tool_result", tool_use_id: tu.id, content: `Fel: ${String(error)}`, is_error: true });
@@ -265,12 +270,15 @@ export async function runAssistant(options: RunAssistantOptions): Promise<void> 
   const sources = sourcesOf(collectedContent);
   if (sources.length) emit({ type: "sources", items: sources });
 
+  // Store text + sources for display; thinking/tool blocks are not needed for replay (history is text-only).
+  const storedAssistantContent: Array<Record<string, unknown>> = [{ type: "text", text }];
+  if (sources.length) storedAssistantContent.push({ type: "sources", items: sources });
   const assistantMessage = await prisma.chatMessage.create({
     data: {
       conversationId,
       role: "ASSISTANT",
       text,
-      content: collectedContent as unknown as Prisma.InputJsonValue,
+      content: storedAssistantContent as unknown as Prisma.InputJsonValue,
     },
   });
 

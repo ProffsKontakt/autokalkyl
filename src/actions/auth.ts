@@ -5,6 +5,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
+import { Prisma } from "@prisma/client";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { prisma } from "@/lib/db/client";
@@ -31,8 +32,13 @@ async function clientIp(): Promise<string> {
 }
 
 function safeNext(next: unknown): string {
-  if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//")) return "/app";
+  // Only same-origin absolute paths: "/app/...", never "//evil", "/\\evil" or schemes.
+  if (typeof next !== "string" || next.length > 500 || !/^\/(?![\/\\])/.test(next)) return "/app";
   return next;
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
 }
 
 // -----------------------------------------------------------------------------
@@ -89,8 +95,15 @@ export async function registerAction(_prev: ActionResult | null, formData: FormD
         select: { id: true },
       });
     } catch (error) {
-      // Unique collision on inboundToken is astronomically unlikely; retry once or twice.
-      if (attempt === 2) throw error;
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        const target = String((error.meta as { target?: unknown } | undefined)?.target ?? "");
+        if (target.includes("email")) {
+          return { ok: false, error: "Det finns redan ett konto med den e-postadressen.", fieldErrors: { email: "E-postadressen används redan" } };
+        }
+        // Unique collision on inboundToken is astronomically unlikely; retry once or twice.
+        if (attempt < 2) continue;
+      }
+      throw error;
     }
   }
   if (!user) return { ok: false, error: "Kunde inte skapa kontot. Försök igen." };
@@ -102,7 +115,7 @@ export async function registerAction(_prev: ActionResult | null, formData: FormD
     subject: `Välkommen till ${brand.name}`,
     text: `Hej ${name}!\n\nDitt konto är klart. Logga in på ${brand.url}/logga-in och skanna ditt första kvitto.\n\n${brand.name}`,
     html: emailLayout(
-      `Välkommen, ${name}!`,
+      `Välkommen, ${escapeHtml(name)}!`,
       `<p>Ditt konto är klart. Fota ditt första kvitto i appen eller maila det till din personliga kvittoadress som du hittar under Inställningar.</p><p><a href="${brand.url}/app" style="display:inline-block;background:#1c6f61;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:600">Öppna ${brand.name}</a></p>`,
     ),
   }).catch(() => undefined);
@@ -178,15 +191,16 @@ export async function requestPasswordResetAction(_prev: ActionResult | null, for
       data: { userId: user.id, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 60 * 60 * 1000) },
     });
     const link = `${brand.url}/aterstall-losenord?token=${token}`;
-    await sendEmail({
+    // Not awaited: keeps the response time identical whether or not the account exists.
+    void sendEmail({
       to: email,
       subject: `Återställ ditt lösenord – ${brand.name}`,
       text: `Hej ${user.name}!\n\nKlicka på länken för att välja ett nytt lösenord (giltig i 60 minuter):\n${link}\n\nHar du inte begärt detta kan du ignorera mailet.`,
       html: emailLayout(
         "Återställ ditt lösenord",
-        `<p>Hej ${user.name}! Klicka på knappen för att välja ett nytt lösenord. Länken är giltig i 60 minuter.</p><p><a href="${link}" style="display:inline-block;background:#1c6f61;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:600">Välj nytt lösenord</a></p><p style="color:#6b7280;font-size:13px">Har du inte begärt detta kan du ignorera mailet.</p>`,
+        `<p>Hej ${escapeHtml(user.name)}! Klicka på knappen för att välja ett nytt lösenord. Länken är giltig i 60 minuter.</p><p><a href="${link}" style="display:inline-block;background:#1c6f61;color:#fff;padding:12px 20px;border-radius:12px;text-decoration:none;font-weight:600">Välj nytt lösenord</a></p><p style="color:#6b7280;font-size:13px">Har du inte begärt detta kan du ignorera mailet.</p>`,
       ),
-    });
+    }).catch((error) => console.error("[auth] reset mail failed", error));
     await audit(user.id, "auth.password_reset_requested");
   }
   return { ok: true };
@@ -250,9 +264,9 @@ export async function deleteAccountAction(_prev: ActionResult | null, formData: 
   if (!user || !(await compare(password, user.passwordHash))) return { ok: false, error: "Fel lösenord." };
   if (String(formData.get("confirm") ?? "").trim().toUpperCase() !== "RADERA") return { ok: false, error: 'Skriv "RADERA" för att bekräfta.' };
 
-  await audit(session.user.id, "account.deleted");
-  // Cascades remove receipts, files, conversations, audit events.
+  // Cascades remove receipts, files, conversations and the user's audit events – keep an anonymous tombstone.
   await prisma.user.delete({ where: { id: session.user.id } });
+  await audit(null, "account.deleted", { details: { emailHash: createHash("sha256").update(user.email).digest("hex").slice(0, 32) } });
   await signOut({ redirectTo: "/?deleted=1" });
   return { ok: true };
 }

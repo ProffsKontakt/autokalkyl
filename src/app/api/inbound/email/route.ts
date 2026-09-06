@@ -64,9 +64,11 @@ export async function POST(request: Request) {
   if (toParam) message.recipients.unshift(toParam.toLowerCase());
 
   const tokens = extractInboundTokens(message.recipients, inboundEmailDomain());
-  const user = tokens.length
-    ? await prisma.user.findFirst({ where: { inboundToken: { in: tokens } }, select: { id: true, inboundToken: true } })
-    : null;
+  let user: { id: string; inboundToken: string } | null = null;
+  for (const token of tokens) {
+    user = await prisma.user.findUnique({ where: { inboundToken: token }, select: { id: true, inboundToken: true } });
+    if (user) break;
+  }
 
   const toAddress = message.recipients[0] ?? "";
   if (!user) {

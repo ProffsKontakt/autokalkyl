@@ -41,7 +41,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   });
   if (file.kind === "EMAIL_HTML") {
     // Never execute scripts from stored e-mails
-    headers.set("Content-Security-Policy", "default-src 'none'; img-src data: https:; style-src 'unsafe-inline'");
+    headers.set("Content-Security-Policy", "sandbox; default-src 'none'; img-src data: https:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'");
     headers.set("Content-Type", "text/html; charset=utf-8");
   }
   if (request.headers.get("if-none-match") === headers.get("ETag")) {

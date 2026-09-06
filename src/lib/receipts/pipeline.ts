@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
 import { AiNotConfiguredError, AiRefusalError, describeAiError, isAiConfigured } from "@/lib/ai/client";
 import { extractReceipt, type ExtractionInput } from "@/lib/ai/extract";
-import { htmlToText, prepareFile, MAX_FILES_PER_RECEIPT } from "./files";
+import { htmlToText, prepareFile, MAX_FILES_PER_RECEIPT, MAX_PDF_BYTES_PER_EXTRACTION } from "./files";
 import { retentionUntil, returnDeadline, warrantyExpiry } from "./warranty";
 
 export interface IncomingFile {
@@ -30,9 +30,16 @@ export async function createReceipt(options: CreateReceiptOptions): Promise<{ id
   if (files.length > MAX_FILES_PER_RECEIPT) throw new Error(`Max ${MAX_FILES_PER_RECEIPT} filer per kvitto.`);
 
   const prepared = [];
+  const failures: string[] = [];
   for (const f of files) {
-    prepared.push(await prepareFile(f));
+    try {
+      prepared.push(await prepareFile(f));
+    } catch (error) {
+      failures.push(`${f.originalName ?? f.mimeType}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
+  if (!prepared.length) throw new Error(failures[0] ?? "Ingen fil kunde läsas.");
+  if (failures.length) console.warn("[receipt] skipped files", failures);
 
   const receipt = await prisma.receipt.create({
     data: {
@@ -76,11 +83,27 @@ export async function createReceipt(options: CreateReceiptOptions): Promise<{ id
   return receipt;
 }
 
+/** A receipt stuck in PROCESSING longer than this is considered abandoned and may be claimed again. */
+export const PROCESSING_STALE_MS = 10 * 60 * 1000;
+
 /**
- * Runs AI extraction for a receipt and stores the result. Safe to re-run (idempotent overwrite of AI fields).
- * Never throws for AI failures – the receipt ends up NEEDS_REVIEW / FAILED with processingError set.
+ * Runs AI extraction for a receipt and stores the result. Never throws for AI failures – the receipt
+ * ends up NEEDS_REVIEW / FAILED with processingError set.
+ *
+ * Concurrency: unless `owned` is true (caller just created the receipt), the run first claims the
+ * receipt atomically – a receipt already PROCESSING (and not stale) is left to the running job.
  */
-export async function processReceipt(receiptId: string): Promise<{ status: string }> {
+export async function processReceipt(receiptId: string, options: { owned?: boolean } = {}): Promise<{ status: string }> {
+  if (!options.owned) {
+    const claimed = await prisma.receipt.updateMany({
+      where: {
+        id: receiptId,
+        OR: [{ status: { not: "PROCESSING" } }, { updatedAt: { lt: new Date(Date.now() - PROCESSING_STALE_MS) } }],
+      },
+      data: { status: "PROCESSING", processingError: null },
+    });
+    if (!claimed.count) return { status: "PROCESSING" };
+  }
   const receipt = await prisma.receipt.findUnique({
     where: { id: receiptId },
     include: { files: { orderBy: { position: "asc" } } },
@@ -102,10 +125,13 @@ export async function processReceipt(receiptId: string): Promise<{ status: strin
   await prisma.receipt.update({ where: { id: receiptId }, data: { status: "PROCESSING", processingError: null } });
 
   const inputs: ExtractionInput[] = [];
+  let pdfBytes = 0;
   for (const f of receipt.files) {
     if (f.kind === "IMAGE") {
       inputs.push({ kind: "image", data: Buffer.from(f.data), mimeType: "image/jpeg" });
     } else if (f.kind === "PDF") {
+      pdfBytes += f.byteSize;
+      if (pdfBytes > MAX_PDF_BYTES_PER_EXTRACTION) continue;
       inputs.push({ kind: "pdf", data: Buffer.from(f.data) });
     } else if (f.kind === "EMAIL_HTML") {
       inputs.push({ kind: "text", text: htmlToText(Buffer.from(f.data).toString("utf8")).slice(0, 30000), label: "E-post (HTML)" });
@@ -125,13 +151,19 @@ export async function processReceipt(receiptId: string): Promise<{ status: strin
     const result = await extractReceipt(inputs);
     const purchaseDate = result.purchase_date ? new Date(result.purchase_date) : null;
     const warrantyMonths = result.warranty_months && result.warranty_months > 0 ? Math.round(result.warranty_months) : null;
+    const finalStatus = result.is_receipt && result.confidence >= 0.5 ? "READY" : "NEEDS_REVIEW";
+
+    // If the user edited the receipt while we were working (status no longer PROCESSING), keep their version.
+    const current = await prisma.receipt.findUnique({ where: { id: receiptId }, select: { status: true } });
+    if (!current) return { status: "MISSING" };
+    if (current.status !== "PROCESSING") return { status: current.status };
 
     await prisma.$transaction([
       prisma.receiptItem.deleteMany({ where: { receiptId } }),
       prisma.receipt.update({
         where: { id: receiptId },
         data: {
-          status: result.is_receipt && result.confidence >= 0.5 ? "READY" : "NEEDS_REVIEW",
+          status: finalStatus,
           processingError: result.is_receipt ? null : "Dokumentet ser inte ut som ett kvitto. Kontrollera uppgifterna.",
           title: result.title?.slice(0, 140) || receipt.title || fallbackTitle(receipt.source, receipt.createdAt),
           merchantName: result.merchant_name,
@@ -175,10 +207,11 @@ export async function processReceipt(receiptId: string): Promise<{ status: strin
       receiptId,
       details: { confidence: result.confidence, items: result.items.length, isReceipt: result.is_receipt },
     });
-    return { status: result.is_receipt ? "READY" : "NEEDS_REVIEW" };
+    return { status: finalStatus };
   } catch (error) {
     const message = describeAiError(error);
-    const status = error instanceof AiNotConfiguredError || error instanceof AiRefusalError ? "NEEDS_REVIEW" : "NEEDS_REVIEW";
+    // AI-side problems (not configured, refusal, quota, parse) → user can fill in manually; anything else → FAILED.
+    const status = error instanceof AiNotConfiguredError || error instanceof AiRefusalError || error instanceof Error ? "NEEDS_REVIEW" : "FAILED";
     console.error("[receipt] processing failed", receiptId, error);
     await prisma.receipt.update({
       where: { id: receiptId },
@@ -207,6 +240,6 @@ function fallbackTitle(source: ReceiptSource, createdAt: Date): string {
  */
 export async function createAndProcessReceipt(options: CreateReceiptOptions): Promise<{ id: string; status: string }> {
   const { id } = await createReceipt(options);
-  const { status } = await processReceipt(id);
+  const { status } = await processReceipt(id, { owned: true });
   return { id, status };
 }

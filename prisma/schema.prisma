@@ -195,7 +195,7 @@ model ReceiptFile {
 
 model AuditEvent {
   id        String   @id @default(cuid())
-  userId    String
+  userId    String? // null = anonymous tombstone (e.g. account.deleted)
   receiptId String?
   action    String // e.g. receipt.created, receipt.updated, receipt.viewed, receipt.deleted, export.csv, auth.login
   details   Json?
@@ -203,7 +203,7 @@ model AuditEvent {
   userAgent String?
   createdAt DateTime @default(now())
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   receipt Receipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])

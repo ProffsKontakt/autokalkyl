@@ -27,7 +27,7 @@ export type AuditAction =
  * Safe to call from Server Actions and Route Handlers (reads request headers when available).
  */
 export async function audit(
-  userId: string,
+  userId: string | null,
   action: AuditAction,
   options: { receiptId?: string | null; details?: Prisma.InputJsonValue } = {},
 ): Promise<void> {

@@ -69,7 +69,7 @@ export async function searchReceiptsForAssistant(
 }
 
 /** Full receipt details as readable text for the assistant (and for the "current receipt" context). */
-export async function getReceiptForAssistant(userId: string, receiptId: string): Promise<string | null> {
+export async function getReceiptForAssistant(userId: string, receiptId: string, accountType: "PRIVATE" | "BUSINESS" = "PRIVATE"): Promise<string | null> {
   if (!receiptId) return null;
   const r = await prisma.receipt.findFirst({
     where: { id: receiptId, userId, deletedAt: null },
@@ -91,8 +91,8 @@ export async function getReceiptForAssistant(userId: string, receiptId: string):
   if (r.warrantyMonths) lines.push(`Garanti enligt kvittot: ${r.warrantyMonths} månader${r.warrantyExpiresAt ? `, till ${formatDate(r.warrantyExpiresAt)}` : ""}`);
   if (r.warrantyNotes) lines.push(`Garanti-/villkorstext på kvittot: ${r.warrantyNotes}`);
   if (r.returnDeadline) lines.push(`Öppet köp/bytesrätt till: ${formatDate(r.returnDeadline)}`);
-  const claim = legalClaimDeadline(r.purchaseDate);
-  if (claim) lines.push(`Lagstadgad reklamationsrätt (3 år, privatperson): till ${formatDate(claim)}`);
+  const claim = legalClaimDeadline(r.purchaseDate, accountType);
+  if (claim) lines.push(accountType === "BUSINESS" ? `Reklamationstid enligt köplagen (2 år, näringsidkare): till ${formatDate(claim)}` : `Lagstadgad reklamationsrätt (3 år, privatperson): till ${formatDate(claim)}`);
   if (r.notes) lines.push(`Användarens anteckningar: ${r.notes}`);
   if (r.tags.length) lines.push(`Taggar: ${r.tags.join(", ")}`);
 

@@ -1,7 +1,8 @@
 import { NextResponse, after } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { createReceipt, processReceipt } from "@/lib/receipts/pipeline";
-import { ALLOWED_TYPES, MAX_FILES_PER_RECEIPT, MAX_FILE_BYTES } from "@/lib/receipts/files";
+import { UPLOAD_TYPES, MAX_FILES_PER_RECEIPT, MAX_FILE_BYTES, MAX_REQUEST_BYTES } from "@/lib/receipts/files";
+import { dbRateLimit } from "@/lib/rate-limit";
 import type { ReceiptSource } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -16,6 +17,9 @@ export const maxDuration = 120;
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Du måste vara inloggad." }, { status: 401 });
+
+  const rl = await dbRateLimit(session.user.id, "receipt.created", 120, 60 * 60 * 1000);
+  if (!rl.ok) return NextResponse.json({ error: "Du har laddat upp många kvitton på kort tid. Försök igen om en stund." }, { status: 429 });
 
   let form: FormData;
   try {
@@ -32,12 +36,15 @@ export async function POST(request: Request) {
   if (entries.length > MAX_FILES_PER_RECEIPT) return NextResponse.json({ error: `Max ${MAX_FILES_PER_RECEIPT} filer per kvitto.` }, { status: 400 });
 
   const files = [];
+  let total = 0;
   for (const file of entries) {
     const mimeType = (file.type || "application/octet-stream").toLowerCase();
-    if (!ALLOWED_TYPES.includes(mimeType)) {
+    if (!UPLOAD_TYPES.includes(mimeType)) {
       return NextResponse.json({ error: `Filtypen stöds inte (${mimeType}). Använd JPG, PNG, HEIC, WebP eller PDF.` }, { status: 415 });
     }
-    if (file.size > MAX_FILE_BYTES) return NextResponse.json({ error: "Filen är för stor (max 15 MB)." }, { status: 413 });
+    if (file.size > MAX_FILE_BYTES) return NextResponse.json({ error: "Filen är för stor (max 4 MB per fil)." }, { status: 413 });
+    total += file.size;
+    if (total > MAX_REQUEST_BYTES) return NextResponse.json({ error: "Filerna är för stora tillsammans (max 4 MB per uppladdning). Spara kvittot i flera omgångar." }, { status: 413 });
     files.push({ data: Buffer.from(await file.arrayBuffer()), mimeType, originalName: file.name || null });
   }
 
@@ -45,7 +52,7 @@ export async function POST(request: Request) {
     const { id } = await createReceipt({ userId: session.user.id, source, files });
     after(async () => {
       try {
-        await processReceipt(id);
+        await processReceipt(id, { owned: true });
       } catch (error) {
         console.error("[upload] background processing failed", id, error);
       }
@@ -53,6 +60,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ id, status: "PROCESSING" }, { status: 201 });
   } catch (error) {
     console.error("[upload] failed", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Uppladdningen misslyckades." }, { status: 400 });
+    const message = error instanceof Error && /för stor|stöds inte|är tom|kunde läsas|Max /.test(error.message) ? error.message : "Uppladdningen misslyckades. Försök igen.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

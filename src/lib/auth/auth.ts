@@ -27,7 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (!user) {
           // Constant-time-ish: still hash-compare against a dummy to reduce timing leaks
-          await compare(parsed.data.password, "$2a$10$CwTycUXWue0Thq9StjUM0uJ8i0Zl1Y0j5Q0G5Y7vUJ6f9M6d1Q0Xy");
+          await compare(parsed.data.password, "$2b$12$DqZISiMRf2q9cNfVGbGCsezLiuz4kd9ahISBMAVH5JtGUzQeYTqny");
           return null;
         }
         const ok = await compare(parsed.data.password, user.passwordHash);

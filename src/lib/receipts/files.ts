@@ -2,10 +2,16 @@ import sharp from "sharp";
 import { createHash } from "node:crypto";
 import type { FileKind } from "@prisma/client";
 
-export const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15 MB per file
+/** Vercel rejects request bodies over 4.5 MB before the handler runs – keep uploads under that. */
+export const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4 MB per file
+export const MAX_REQUEST_BYTES = 4.2 * 1024 * 1024; // total per upload request
 export const MAX_FILES_PER_RECEIPT = 8;
+/** Total bytes of PDF documents sent to the AI in one extraction (API limit is 32 MB). */
+export const MAX_PDF_BYTES_PER_EXTRACTION = 28 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif", "image/avif", "image/tiff", "image/bmp"];
-export const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, "application/pdf", "text/html", "text/plain"];
+/** Types accepted from users via the upload route (e-mail HTML/text only arrive through the inbound webhook). */
+export const UPLOAD_TYPES = [...ALLOWED_IMAGE_TYPES, "application/pdf"];
+export const ALLOWED_TYPES = [...UPLOAD_TYPES, "text/html", "text/plain"];
 
 export interface PreparedFile {
   kind: FileKind;
@@ -41,7 +47,7 @@ export async function prepareFile(input: { data: Buffer; mimeType: string; origi
   const kind = kindForMime(input.mimeType);
   if (!kind) throw new Error(`Filtypen stöds inte: ${input.mimeType}`);
   if (input.data.byteLength === 0) throw new Error("Filen är tom.");
-  if (input.data.byteLength > MAX_FILE_BYTES) throw new Error("Filen är för stor (max 15 MB).");
+  if (input.data.byteLength > MAX_FILE_BYTES) throw new Error("Filen är för stor (max 4 MB).");
 
   if (kind === "IMAGE") {
     const pipeline = sharp(input.data, { failOn: "none", limitInputPixels: 80_000_000 }).rotate();
