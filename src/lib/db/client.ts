@@ -1,52 +1,42 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { neonConfig } from '@neondatabase/serverless';
-
-// Enable WebSocket support for Node.js environments
-// This must be synchronous to ensure ws is available before any DB calls
-if (typeof globalThis.WebSocket === 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ws = require('ws');
-  neonConfig.webSocketConstructor = ws;
-}
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 /**
- * Prisma client singleton for global database access.
+ * Prisma client singleton (lazy).
  *
- * Uses Neon's serverless driver which works over HTTPS/WebSocket,
- * bypassing port 5432 which may be blocked by some networks.
+ * The client is created on first use, not at import time, so that `next build` (which imports
+ * route modules while collecting page data) works without DATABASE_URL – e.g. on preview builds.
  *
- * This is the base client used for:
- * - SUPER_ADMIN operations (cross-org access)
- * - Database operations that don't require tenant scoping
- * - Initial setup and migrations
- *
- * For tenant-scoped operations (most of the app), use createTenantClient() instead.
- *
- * @see ./tenant-client.ts
+ * Uses the standard PostgreSQL driver adapter, which works against Neon (use the pooled
+ * connection string in production), any hosted Postgres, and a local Postgres for tests.
  */
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL!;
-  // Prisma 7 pattern: pass connectionString directly to adapter
-  const adapter = new PrismaNeon({ connectionString });
-
+function createPrismaClient(): PrismaClient {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set");
+  }
+  const adapter = new PrismaPg({ connectionString, max: 5 });
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === 'development'
-      ? ['query', 'error', 'warn']
-      : ['error'],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+function getClient(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  return globalForPrisma.prisma;
 }
+
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getClient();
+    const value = Reflect.get(client, prop, client);
+    return typeof value === "function" ? (value as (...args: unknown[]) => unknown).bind(client) : value;
+  },
+});
 
 export type { PrismaClient };

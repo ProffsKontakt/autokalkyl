@@ -1,35 +1,35 @@
-import type { NextAuthConfig } from 'next-auth';
+import type { NextAuthConfig } from "next-auth";
 
 /**
- * Edge-compatible Auth.js configuration.
- *
- * This config is used by middleware (runs on Edge runtime) for route protection.
- * Credentials provider and database operations are in auth.ts (Node.js runtime only).
+ * Edge-safe Auth.js configuration used by proxy.ts for route protection.
+ * The credentials provider (needs bcrypt + database) lives in auth.ts.
  */
 export const authConfig = {
-  // Trust the host header from Vercel's proxy
   trustHost: true,
   pages: {
-    signIn: '/login',
-    error: '/login',
+    signIn: "/logga-in",
+    error: "/logga-in",
   },
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-      const isOnAdmin = nextUrl.pathname.startsWith('/admin');
-      const isOnAuth =
-        nextUrl.pathname.startsWith('/login') ||
-        nextUrl.pathname.startsWith('/forgot-password');
+      const path = nextUrl.pathname;
+      const isApp = path.startsWith("/app");
+      const isAuthPage =
+        path.startsWith("/logga-in") || path.startsWith("/registrera") || path.startsWith("/glomt-losenord");
 
-      if (isOnDashboard || isOnAdmin) {
-        return isLoggedIn;
+      if (isApp) {
+        if (isLoggedIn) return true;
+        const loginUrl = new URL("/logga-in", nextUrl);
+        loginUrl.searchParams.set("next", path + nextUrl.search);
+        return Response.redirect(loginUrl);
       }
-      if (isLoggedIn && isOnAuth) {
-        return Response.redirect(new URL('/dashboard', nextUrl));
+      if (isLoggedIn && isAuthPage) {
+        return Response.redirect(new URL("/app", nextUrl));
       }
       return true;
     },
   },
-  providers: [], // Added in auth.ts (credentials not edge-compatible)
+  providers: [],
 } satisfies NextAuthConfig;

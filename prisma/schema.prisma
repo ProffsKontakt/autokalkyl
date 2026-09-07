@@ -1,6 +1,5 @@
-// Kalkyla.se - Multi-tenant Battery ROI Calculator
-// Prisma schema for Phase 1: Foundation
-// https://pris.ly/d/prisma-schema
+// Kvittera – digital kvittohantering
+// Prisma schema. Run `npx prisma migrate deploy` (see prisma/migrations).
 
 generator client {
   provider = "prisma-client-js"
@@ -14,584 +13,293 @@ datasource db {
 // ENUMS
 // =============================================================================
 
-enum Role {
-  SUPER_ADMIN // Platform-level admin, can access all organizations
-  ORG_ADMIN // Organization admin, can manage users and settings
-  CLOSER // Sales closer, can create and manage own calculations
+enum AccountType {
+  PRIVATE // Privatperson
+  BUSINESS // Företag (waitlist only for now)
 }
 
-enum Elomrade {
-  SE1 // Northern Sweden (Lulea)
-  SE2 // Northern Central Sweden (Sundsvall)
-  SE3 // Southern Central Sweden (Stockholm)
-  SE4 // Southern Sweden (Malmo)
+enum ReceiptStatus {
+  PROCESSING // Uploaded, AI extraction in progress
+  READY // Extracted and stored
+  NEEDS_REVIEW // Stored but extraction was incomplete/failed – user should verify fields
+  FAILED // Could not be processed at all
 }
 
-enum CalculationStatus {
-  DRAFT // Auto-saved draft, not complete
-  COMPLETE // Finalized calculation
-  ARCHIVED // Soft-deleted
+enum ReceiptSource {
+  SCAN // Camera capture in the app
+  UPLOAD // Picked from photo library / files
+  EMAIL // Forwarded to the user's unique inbound address
+  MANUAL // Entered by hand
 }
 
-// =============================================================================
-// LEAD CAPTURE ENUMS
-// =============================================================================
-
-enum PropertyType {
-  VILLA
-  BOSTADSRATT
-  LAGENHET
-  FORETAG
+enum FileKind {
+  IMAGE
+  PDF
+  EMAIL_HTML
+  EMAIL_TEXT
 }
 
-enum InterestType {
-  BATTERY
-  SOLAR
-  BOTH
+enum MessageRole {
+  USER
+  ASSISTANT
 }
 
-enum BudgetRange {
-  UNDER_100K
-  RANGE_100K_200K
-  OVER_200K
-  UNKNOWN
-}
-
-enum Timeline {
-  ASAP
-  WITHIN_3_MONTHS
-  WITHIN_6_MONTHS
-  JUST_RESEARCHING
-}
-
-enum LeadStatus {
-  NEW
-  MATCHED
-  CONTACTED
-  CONVERTED
-  CLOSED
+enum InboundStatus {
+  ACCEPTED
+  REJECTED
+  FAILED
 }
 
 // =============================================================================
-// HEATING TYPE (Phase 8 - v1.2 Consumption Profiles)
-// =============================================================================
-
-enum HeatingType {
-  BERGVARME       // Ground source heat pump (bergvarme)
-  FJARRVARME      // District heating (fjarrvarme)
-  DIREKTVERKANDE  // Direct electric heating
-  LUFT_LUFT_VP    // Air-to-air heat pump
-  LUFT_VATTEN_VP  // Air-to-water heat pump
-}
-
-// =============================================================================
-// APPROVAL STATUS (Phase 9 - Natagare Global Scope)
-// =============================================================================
-
-enum ApprovalStatus {
-  APPROVED          // Global, visible to all orgs
-  PENDING           // Org-only, awaiting Super Admin approval
-  REJECTED          // Org-only, rejected by Super Admin
-  DUPLICATE_REVIEW  // Migration flagged as duplicate, needs manual resolution
-}
-
-// =============================================================================
-// ORGANIZATION (Tenant)
-// =============================================================================
-
-model Organization {
-  id             String  @id @default(cuid())
-  name           String
-  slug           String  @unique // URL-friendly identifier: /acme-solar/calc123
-  logoUrl        String?
-  primaryColor   String  @default("#3B82F6") // Brand primary color
-  secondaryColor String  @default("#1E40AF") // Brand secondary color
-
-  // ProffsKontakt affiliation
-  // When affiliated: ProffsKontakt administers sales for this org
-  // Margin calc: Sale Price (ex VAT) - Battery Cost - Installer Cut = ProffsKontakt Margin
-  isProffsKontaktAffiliated Boolean  @default(false)
-  installerFixedCut         Decimal? @db.Decimal(10, 2) // Fixed SEK amount to installer (e.g., 23000)
-  marginAlertThreshold      Decimal? @db.Decimal(10, 2) // Min margin in SEK before alert (e.g., 24000)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  users          User[]
-  batteryBrands  BatteryBrand[]
-  batteryConfigs BatteryConfig[]
-  natagare       Natagare[]
-  calculations   Calculation[]
-
-  @@index([slug])
-}
-
-// =============================================================================
-// USER
+// USER & AUTH
 // =============================================================================
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         Role     @default(CLOSER)
-  orgId        String? // Null for SUPER_ADMIN (platform-level access)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String      @id @default(cuid())
+  email         String      @unique
+  // Set when the address was proven (Google sign-in, one-time code). Null for password-only accounts.
+  emailVerified DateTime?
+  // Null for accounts created through Google that have not chosen a password yet.
+  passwordHash  String?
+  name          String
+  accountType   AccountType @default(PRIVATE)
+  // Unique local-part for the user's inbound receipt address, e.g. kvitto-a1b2c3d4@in.kvittera.se
+  inboundToken  String      @unique
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  // Relations
-  organization        Organization?        @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  sessions            Session[]
-  accounts            Account[]
+  receipts            Receipt[]
+  conversations       Conversation[]
+  auditEvents         AuditEvent[]
   passwordResetTokens PasswordResetToken[]
-  approvedNatagare    Natagare[]           @relation("NatagareApprovedBy")
-
-  @@index([orgId])
-  @@index([email])
+  inboundEmails       InboundEmail[]
+  accounts            Account[]
 }
 
-// =============================================================================
-// AUTH.JS (NextAuth v5) ADAPTER MODELS
-// =============================================================================
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
+/// External sign-in identities linked to a user (currently Google).
 model Account {
-  id                String  @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
-  type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  createdAt         DateTime @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
-// Verification token for email verification (Auth.js pattern)
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+/// One-time login codes mailed to an address ("engångskod"). Only the hash is stored.
+model LoginCode {
+  id         String    @id @default(cuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
 
-  @@unique([identifier, token])
+  @@index([email, createdAt])
 }
-
-// =============================================================================
-// PASSWORD RESET
-// =============================================================================
 
 model PasswordResetToken {
   id        String    @id @default(cuid())
-  token     String    @unique
   userId    String
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
   @@index([userId])
 }
 
 // =============================================================================
-// BATTERY REFERENCE DATA (Tenant-scoped)
+// RECEIPTS
 // =============================================================================
 
-model BatteryBrand {
+model Receipt {
+  id     String        @id @default(cuid())
+  userId String
+  status ReceiptStatus @default(PROCESSING)
+  source ReceiptSource
+
+  // Extracted / editable fields
+  title             String? // Short display title, e.g. "Elgiganten – Samsung TV"
+  merchantName      String?
+  merchantOrgNumber String?
+  merchantAddress   String?
+  purchaseDate      DateTime? @db.Date
+  totalAmount       Decimal?  @db.Decimal(12, 2)
+  vatAmount         Decimal?  @db.Decimal(12, 2)
+  currency          String    @default("SEK")
+  category          String?
+  paymentMethod     String?
+  receiptNumber     String?
+  notes             String?
+  tags              String[]  @default([])
+
+  // AI output
+  ocrText         String?
+  aiSummary       String?
+  aiConfidence    Float?
+  processingError String?
+
+  // Warranty / consumer rights
+  warrantyMonths    Int?
+  warrantyExpiresAt DateTime? @db.Date
+  warrantyNotes     String?
+  returnDeadline    DateTime? @db.Date // Öppet köp / ångerrätt
+
+  // Email metadata when source = EMAIL
+  emailFrom    String?
+  emailSubject String?
+
+  // Retention (bokföringslagen: 7 år) and soft delete
+  retentionUntil DateTime? @db.Date
+  deletedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         ReceiptItem[]
+  files         ReceiptFile[]
+  conversations Conversation[]
+  auditEvents   AuditEvent[]
+  inboundEmails InboundEmail[]
+
+  @@index([userId, deletedAt, purchaseDate])
+  @@index([userId, createdAt])
+  @@index([userId, warrantyExpiresAt])
+  @@index([userId, merchantName])
+}
+
+model ReceiptItem {
+  id        String @id @default(cuid())
+  receiptId String
+  position  Int    @default(0)
+
+  name          String
+  quantity      Decimal  @default(1) @db.Decimal(12, 3)
+  unitPrice     Decimal? @db.Decimal(12, 2)
+  totalPrice    Decimal? @db.Decimal(12, 2)
+  articleNumber String?
+  brand         String?
+  model         String?
+  serialNumber  String?
+  productUrl    String?
+  manualUrl     String?
+  warrantyMonths Int?
+  category      String?
+
+  receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+}
+
+model ReceiptFile {
+  id           String   @id @default(cuid())
+  receiptId    String
+  kind         FileKind
+  mimeType     String
+  byteSize     Int
+  sha256       String
+  data         Bytes
+  thumbnail    Bytes?
+  width        Int?
+  height       Int?
+  originalName String?
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+}
+
+// =============================================================================
+// AUDIT LOG (spårbarhet)
+// =============================================================================
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  userId    String? // null = anonymous tombstone (e.g. account.deleted)
+  receiptId String?
+  action    String // e.g. receipt.created, receipt.updated, receipt.viewed, receipt.deleted, export.csv, auth.login
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  receipt Receipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([receiptId, createdAt])
+}
+
+// =============================================================================
+// AI ASSISTANT
+// =============================================================================
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  receiptId String?
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  receipt  Receipt?      @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+  messages ChatMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([receiptId])
+}
+
+model ChatMessage {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+  text           String // Plain text for display
+  content        Json // Full API content blocks for replay (tool use, citations)
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+// =============================================================================
+// BUSINESS WAITLIST & INBOUND EMAIL LOG
+// =============================================================================
+
+model WaitlistEntry {
   id        String   @id @default(cuid())
   name      String
-  logoUrl   String?
-  orgId     String
+  email     String   @unique
+  company   String?
+  message   String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  organization Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  configs      BatteryConfig[]
-
-  @@unique([orgId, name]) // No duplicate brand names per org
-  @@index([orgId])
 }
 
-model BatteryConfig {
-  id      String @id @default(cuid())
-  name    String
-  brandId String
-  orgId   String
-
-  // Core specs
-  capacityKwh    Decimal @db.Decimal(10, 2) // e.g., 15.00 kWh
-  maxDischargeKw Decimal @db.Decimal(10, 2) // e.g., 10.00 kW
-  maxChargeKw    Decimal @db.Decimal(10, 2) // e.g., 10.00 kW
-
-  // Efficiencies (stored as percentage, e.g., 95.00 for 95%)
-  chargeEfficiency    Decimal @db.Decimal(5, 2) // e.g., 95.00
-  dischargeEfficiency Decimal @db.Decimal(5, 2) // e.g., 95.00
-
-  // Lifecycle
-  warrantyYears      Int
-  guaranteedCycles   Int
-  degradationPerYear Decimal @db.Decimal(5, 2) // e.g., 2.50 for 2.5%/year
-
-  // Pricing
-  costPrice Decimal @db.Decimal(10, 2) // Battery cost in SEK
-
-  // Flags
-  isExtensionCabinet Boolean @default(false) // True for extension/add-on batteries
-  isNewStack         Boolean @default(true) // True for new stack, false for refurbished
-  isActive           Boolean @default(true) // Soft delete / hide from UI
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  brand                BatteryBrand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  organization         Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  calculationBatteries CalculationBattery[]
-
-  @@unique([orgId, brandId, name]) // No duplicate config names per brand per org
-  @@index([orgId])
-  @@index([brandId])
-}
-
-// =============================================================================
-// NATAGARE (Grid Operator) - Global scope with approval workflow (Phase 9)
-// =============================================================================
-
-model Natagare {
-  id   String @id @default(cuid())
-  name String
-
-  // Effekttariff rates (day/night) in SEK/kW
-  dayRateSekKw   Decimal @db.Decimal(10, 4) // e.g., 81.2500
-  nightRateSekKw Decimal @db.Decimal(10, 4) // e.g., 10.0000
-
-  // Time windows (24h format)
-  dayStartHour Int @default(6) // Day tariff starts at 06:00
-  dayEndHour   Int @default(22) // Day tariff ends at 22:00
-
-  // Organization scope (Phase 9 - Global Scope)
-  // null orgId = global natagare (Super Admin managed)
-  // non-null orgId = org-specific natagare (pending approval or rejected)
-  orgId     String?
-  isDefault Boolean @default(false) // Default natagare for new calculations
-  isActive  Boolean @default(true) // Soft delete / hide from UI
-
-  // Global scope and approval workflow (Phase 9)
-  globalScope      Boolean        @default(false) // true = Super Admin managed, visible to all
-  approvalStatus   ApprovalStatus @default(APPROVED) // Workflow state
-  requestedByOrgId String? // Org that requested this natagare (for pending items)
-  approvedAt       DateTime? // When Super Admin approved
-  approvedByUserId String? // Which Super Admin approved
-
-  // Peak calculation settings (Phase 8 - v1.2 foundation)
-  // How to calculate billing peak from consumption data
-  peakCalculationMethod String?  @default("SIMPLE_MAX")
-  // Discount for night peaks (e.g., 50 = 50% discount for 22:00-06:00 peaks)
-  nightDiscountPercent  Decimal? @db.Decimal(5, 2) @default(50.00)
-  // Night hours for peak discount (may differ from day/night tariff hours)
-  peakNightStartHour    Int?     @default(22)
-  peakNightEndHour      Int?     @default(6)
-
-  // Phase 14: Transfer fee (NATA-12)
-  // Overforingsavgift in ore per kWh (100 ore = 1 SEK)
-  overforingsavgiftOreKwh Decimal? @db.Decimal(10, 2) @default(7.00)
-
-  // Phase 14: Effect tariff timing (NATA-13)
-  // High-load hours for effect tariff (distinct from night discount hours)
-  highLoadStartHour    Int?     @default(7)
-  highLoadEndHour      Int?     @default(20)
-  isWinterOnlyHighLoad Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  organization Organization?  @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  approvedBy   User?          @relation("NatagareApprovedBy", fields: [approvedByUserId], references: [id])
-  calculations Calculation[]
-
-  @@unique([orgId, name]) // No duplicate natagare names per org (null orgId = one global per name)
-  @@index([orgId])
-  @@index([approvalStatus])
-}
-
-// =============================================================================
-// ELECTRICITY PRICING (Global - NOT tenant-scoped)
-// =============================================================================
-
-model ElectricityPrice {
-  id       String   @id @default(cuid())
-  elomrade Elomrade // SE1, SE2, SE3, SE4
-  date     DateTime @db.Date // Date only (no time component)
-  hour     Int // 0-23
-
-  priceOre Decimal @db.Decimal(10, 2) // Price in ore/kWh (e.g., 142.50)
-
-  createdAt DateTime @default(now())
-
-  @@unique([elomrade, date, hour]) // One price per zone/date/hour
-  @@index([elomrade, date])
-  @@index([date])
-}
-
-model ElectricityPriceQuarterly {
-  id       String   @id @default(cuid())
-  elomrade Elomrade
-  year     Int
-  quarter  Int // 1-4
-
-  avgDayPriceOre   Decimal @db.Decimal(10, 2) // Average day price in ore/kWh
-  avgNightPriceOre Decimal @db.Decimal(10, 2) // Average night price in ore/kWh
-  avgPriceOre      Decimal @db.Decimal(10, 2) // Overall average in ore/kWh
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([elomrade, year, quarter])
-  @@index([elomrade])
-}
-
-// =============================================================================
-// CALCULATION (Tenant-scoped)
-// =============================================================================
-
-model Calculation {
-  id        String            @id @default(cuid())
-  orgId     String
-  createdBy String // User ID who created
-  status    CalculationStatus @default(DRAFT)
-
-  // Customer Info (Step 1)
-  customerName         String
-  postalCode           String? // Optional, used for elomrade auto-detect
-  elomrade             Elomrade
-  natagareId           String
-  annualConsumptionKwh Decimal  @db.Decimal(10, 2)
-
-  // Consumption Profile (Step 2)
-  // Stored as JSON: { data: number[][] } where [month][hour]
-  consumptionProfile Json
-
-  // Heating type for consumption profile (Phase 10)
-  // Nullable for backward compatibility with existing calculations
-  heatingType HeatingType?
-
-  // Phase 15: Customer Type & Electricity Inputs
-  customerType              String   @default("PRIVATPERSON") // PRIVATPERSON | FORETAG
-  koptElKwh                 Decimal? @db.Decimal(10, 2) // Purchased electricity (kWh/year)
-  koptElInputMode           String?  @default("annual") // annual | monthly
-  koptElMonthly             Json?    // Array of 12 monthly values if monthly mode
-  electricityPriceOreKwh    Decimal? @db.Decimal(10, 2) // All-in price (ore/kWh)
-  electricityPriceInputMode String?  @default("annual") // annual | monthly
-  electricityPriceMonthly   Json?    // Array of 12 monthly prices if breakdown provided
-
-  hasSolar                  Boolean  @default(false)
-  solarProductionKwh        Decimal? @db.Decimal(10, 2) // Total solar production (kWh/year)
-  solarProductionInputMode  String?  @default("annual") // annual | monthly
-  solarProductionMonthly    Json?    // Array of 12 monthly production values
-  currentSelfConsumptionKwh Decimal? @db.Decimal(10, 2) // Current self-consumption (kWh)
-  projectedSelfConsumptionKwh Decimal? @db.Decimal(10, 2) // Projected with battery (kWh)
-  selfConsumptionInputMode  String?  @default("kwh") // kwh | percent
-
-  // Phase 17: Multi-battery combo mode
-  comboMode String? @default("jamfora") // 'komboinvestering' | 'jamfora'
-
-  // Results (calculated server-side)
-  results Json?
-
-  // Manual overrides (Phase 7 - OVRD-01 to OVRD-04)
-  // Salespeople can override calculated values; these are applied before public view
-  overrides Json? // CalculationOverrides type - null means no overrides
-
-  // Share Link Metadata (Phase 4)
-  shareCode      String?   @unique // Unguessable nanoid for public sharing
-  shareExpiresAt DateTime? // Optional expiration date
-  sharePassword  String? // Optional bcrypt hash for password protection
-  shareCreatedAt DateTime? // When link was generated
-  shareIsActive  Boolean   @default(true) // Can be deactivated without deleting
-  customGreeting String? // Customizable greeting message
-
-  // Metadata
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  finalizedAt DateTime?
-
-  // Relations
-  organization Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  natagare     Natagare             @relation(fields: [natagareId], references: [id])
-  batteries    CalculationBattery[]
-  views        CalculationView[]
-  variants     CalculationVariant[]
-
-  @@index([orgId])
-  @@index([createdBy])
-  @@index([shareCode])
-}
-
-model CalculationBattery {
-  id              String @id @default(cuid())
-  calculationId   String
-  batteryConfigId String
-
-  // Pricing
-  totalPriceExVat  Decimal @db.Decimal(10, 2)
-  installationCost Decimal @db.Decimal(10, 2)
-
-  // Phase 17: Battery quantity for combo investments
-  quantity Int @default(1) // Number of this battery model
-
-  // Calculated results for this battery
-  results Json?
-
-  // For comparison feature
-  sortOrder Int @default(0)
-
-  // Relations
-  calculation   Calculation   @relation(fields: [calculationId], references: [id], onDelete: Cascade)
-  batteryConfig BatteryConfig @relation(fields: [batteryConfigId], references: [id])
-
-  @@unique([calculationId, batteryConfigId])
-  @@index([calculationId])
-}
-
-// =============================================================================
-// CALCULATION VIEW TRACKING (Phase 4 - Public Share Analytics)
-// =============================================================================
-
-model CalculationView {
-  id            String   @id @default(cuid())
-  calculationId String
-  viewedAt      DateTime @default(now())
-  userAgent     String?
-  ipHash        String? // SHA256 hash of IP, truncated for privacy
-
-  calculation Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
-
-  @@index([calculationId])
-  @@index([viewedAt])
-}
-
-// =============================================================================
-// CALCULATION VARIANT (Phase 4 - Prospect Adjustments)
-// =============================================================================
-
-model CalculationVariant {
-  id                   String   @id @default(cuid())
-  calculationId        String
-  consumptionProfile   Json // Modified 12x24 profile
-  annualConsumptionKwh Decimal  @db.Decimal(10, 2)
-  results              Json // Recalculated results
-  createdAt            DateTime @default(now())
-
-  calculation Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
-
-  @@index([calculationId])
-}
-
-// =============================================================================
-// LEAD CAPTURE SYSTEM
-// =============================================================================
-
-model Lead {
-  id    String  @id @default(cuid())
-  email String
-  phone String?
-  name  String
-
-  // Questionnaire data
-  propertyType     PropertyType
-  postalCode       String
-  elomrade         Elomrade
-  annualKwh        Decimal      @db.Decimal(10, 2)
-  hasExistingSolar Boolean      @default(false)
-  interestType     InterestType
-  budget           BudgetRange?
-  timeline         Timeline?
-
-  // Calculated results (snapshot at time of lead creation)
-  calculationSnapshot Json?
-
-  // Status tracking
-  status LeadStatus @default(NEW)
-  source String? // utm_source, campaign tracking
-
-  // Company matching
-  matchedCompanies LeadCompanyMatch[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([email])
-  @@index([status])
-  @@index([elomrade])
-  @@index([createdAt])
-}
-
-model Company {
-  id         String  @id @default(cuid())
-  name       String
-  email      String
-  phone      String?
-  webhookUrl String? // Optional CRM integration for lead notifications
-  isActive   Boolean @default(true)
-
-  // Service area - polygon data synced from Google Sheets
-  // Stored as GeoJSON: { type: "Polygon", coordinates: [[lon, lat], ...] }
-  serviceAreaPolygon Json?
-  lastSyncedAt       DateTime?
-
-  // Matching preferences
-  acceptsBattery Boolean   @default(true)
-  acceptsSolar   Boolean   @default(true)
-  maxLeadsPerDay Int       @default(10)
-  leadsToday     Int       @default(0)
-  leadsResetAt   DateTime?
-
-  matchedLeads LeadCompanyMatch[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([isActive])
-}
-
-model LeadCompanyMatch {
-  id        String @id @default(cuid())
-  leadId    String
-  companyId String
-
-  notifiedAt         DateTime?
-  notificationMethod String? // EMAIL, WEBHOOK
-
-  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([leadId, companyId])
-  @@index([leadId])
-  @@index([companyId])
+model InboundEmail {
+  id          String        @id @default(cuid())
+  userId      String?
+  receiptId   String?
+  toAddress   String
+  fromAddress String
+  subject     String?
+  status      InboundStatus
+  error       String?
+  createdAt   DateTime      @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  receipt Receipt? @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
 }

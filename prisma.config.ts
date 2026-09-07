@@ -1,5 +1,3 @@
-// Prisma configuration for Neon PostgreSQL
-// Uses direct connection for CLI operations (migrations, db push)
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
